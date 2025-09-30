@@ -1,20 +1,8 @@
-import { Tabs, useRouter } from 'expo-router'
-import {
-  StyleSheet,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native'
-import {
-  MD3Colors,
-  Text,
-  TextInput,
-  Surface,
-  Divider,
-} from 'react-native-paper'
+import { useRouter } from 'expo-router'
+import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
+import { MD3Colors, Text, Surface, Divider } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
-import React, { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
@@ -34,7 +22,7 @@ import {
   getSpecificHealthItems,
   sendFieldtripSignupForm,
   getFieldtripSignUpStatus,
-  getLatestFieldtripHealth
+  getLatestFieldtripHealth,
 } from '@services'
 import { COLORS } from '@colors'
 import { FieldtriptContext } from '../../_layout'
@@ -91,8 +79,8 @@ const JoinFieldtrip = () => {
       case 'checklist':
         setChecklistData((prevData) =>
           prevData.map((item) =>
-            item.id === itemID ? { ...item, checked: !item.checked } : item
-          )
+            item.id === itemID ? { ...item, checked: !item.checked } : item,
+          ),
         )
         break
     }
@@ -117,7 +105,7 @@ const JoinFieldtrip = () => {
       const parseHasPresentedData = hasPresentedData.selectedList.map(
         (item) => {
           return { item: item._id, status: true }
-        }
+        },
       )
       const parsePresentsData = presentsData.selectedList.map((item) => {
         return { item: item._id, status: true }
@@ -141,8 +129,7 @@ const JoinFieldtrip = () => {
         })
         .finally(() => {
           setSigningUp(false)
-        }
-      )
+        })
     } else {
       setVisible({ ...visible, ['modal']: !visible['modal'] })
       alert('Debe completar todo el formulario')
@@ -162,85 +149,95 @@ const JoinFieldtrip = () => {
   }, [checklistData, inputList])
 
   useEffect(() => {
-  const fetchChecklistAndData = async () => {
-    try {
-      setLoading(true)
-      const [
-        checklistRes,
-        checklistCompleted,
-        healthData,
-        pastDiseasesRes,
-        currentDiseasesRes,
-        specificHealthRes,
-      ] = await Promise.all([
-        getChecklist(FState.fieldtripID),
-        getFieldtripSignUpStatus(FState.fieldtripID),
-        getLatestFieldtripHealth(),
-        getPastDiseases(),
-        getCurrentDiseases(),
-        getSpecificHealthItems(),
-      ])
+    const fetchChecklistAndData = async () => {
+      try {
+        setLoading(true)
+        const [
+          checklistRes,
+          checklistCompleted,
+          healthData,
+          pastDiseasesRes,
+          currentDiseasesRes,
+          specificHealthRes,
+        ] = await Promise.all([
+          getChecklist(FState.fieldtripID),
+          getFieldtripSignUpStatus(FState.fieldtripID),
+          getLatestFieldtripHealth(),
+          getPastDiseases(),
+          getCurrentDiseases(),
+          getSpecificHealthItems(),
+        ])
 
-      if (checklistCompleted) {
-        setChecklistData(
-          checklistRes.map(item => ({
-            ...item,
-            checked: true
-          }))
+        if (checklistCompleted) {
+          setChecklistData(
+            checklistRes.map((item) => ({
+              ...item,
+              checked: true,
+            })),
+          )
+        } else {
+          setChecklistData(checklistRes)
+        }
+
+        const pastList =
+          pastDiseasesRes?.map((item) => ({
+            _id: item.id,
+            value: item.item,
+          })) || []
+        const currentList =
+          currentDiseasesRes?.map((item) => ({
+            _id: item.id,
+            value: item.item,
+          })) || []
+
+        const selectedPast = pastList.filter((disease) =>
+          healthData?.health_general?.some(
+            (h) => h.item === disease.value && h.status === true,
+          ),
         )
-      } else {
-        setChecklistData(checklistRes)
+        const selectedCurrent = currentList.filter((disease) =>
+          healthData?.health_general?.some(
+            (h) => h.item === disease.value && h.status === true,
+          ),
+        )
+
+        setHasPresentedData((prev) => ({
+          ...prev,
+          list: pastList,
+          selectedList: selectedPast,
+          value: selectedPast.map((d) => d.value).join(', '),
+        }))
+
+        setPresentsData((prev) => ({
+          ...prev,
+          list: currentList,
+          selectedList: selectedCurrent,
+          value: selectedCurrent.map((d) => d.value).join(', '),
+        }))
+
+        let filledInputs = []
+        if (specificHealthRes?.length > 0) {
+          filledInputs = specificHealthRes.map((item) => {
+            const prev = healthData?.health_specific?.find(
+              (h) => h.item === item.item,
+            )
+            return {
+              label: item.item,
+              id: item.id,
+              value: prev ? prev.value : '',
+            }
+          })
+        }
+        setInputList(filledInputs)
+      } catch (_) {
+        router.replace('/')
+      } finally {
+        setLoading(false)
       }
-
-      const pastList = pastDiseasesRes?.map(item => ({ _id: item.id, value: item.item })) || []
-      const currentList = currentDiseasesRes?.map(item => ({ _id: item.id, value: item.item })) || []
-
-      const selectedPast = pastList.filter(disease =>
-        healthData?.health_general?.some(
-          h => h.item === disease.value && h.status === true
-        )
-      )
-      const selectedCurrent = currentList.filter(disease =>
-        healthData?.health_general?.some(
-          h => h.item === disease.value && h.status === true
-        )
-      )
-
-      setHasPresentedData(prev => ({
-        ...prev,
-        list: pastList,
-        selectedList: selectedPast,
-        value: selectedPast.map(d => d.value).join(', '),
-      }))
-
-      setPresentsData(prev => ({
-        ...prev,
-        list: currentList,
-        selectedList: selectedCurrent,
-        value: selectedCurrent.map(d => d.value).join(', '),
-      }))
-
-      let filledInputs = []
-      if (specificHealthRes?.length > 0) {
-        filledInputs = specificHealthRes.map(item => {
-          const prev = healthData?.health_specific?.find(h => h.item === item.item)
-          return {
-            label: item.item,
-            id: item.id,
-            value: prev ? prev.value : '',
-          }
-        })
-      }
-      setInputList(filledInputs)
-    } catch (error) {
-      router.replace('/')
-    } finally {
-      setLoading(false)
     }
-  }
 
-  fetchChecklistAndData()
-}, [FState.fieldtripID])
+    fetchChecklistAndData()
+  }, [FState.fieldtripID, router])
 
   return (
     <Page style={styles.page} showTabs={true}>

@@ -2,10 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { Api } from '../api/ApiConfig'
 
-export default logout = async (email) => {
+const logout = async (email) => {
   try {
     const response = await Api.post(
-      `logout/`,
+      'logout/',
       JSON.stringify({
         email,
       }),
@@ -17,3 +17,5 @@ export default logout = async (email) => {
     console.log(error)
   }
 }
+
+export default logout

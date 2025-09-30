@@ -1,4 +1,4 @@
-import { Checkbox, MD3Colors } from 'react-native-paper'
+import { Checkbox } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import { COLORS } from '../../styles/colors'
 

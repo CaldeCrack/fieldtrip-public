@@ -1,5 +1,5 @@
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-import { Text, TextInput } from 'react-native-paper'
+import { View, StyleSheet, ScrollView } from 'react-native'
+import { TextInput } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'

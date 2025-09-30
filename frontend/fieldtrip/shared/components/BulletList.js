@@ -1,4 +1,4 @@
-import { MD3Colors, Text } from 'react-native-paper'
+import { Text } from 'react-native-paper'
 import { StyleSheet, View } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 

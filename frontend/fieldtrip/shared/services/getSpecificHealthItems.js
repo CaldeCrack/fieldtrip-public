@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-export default getSpecificHealthItems = async () => {
+const getSpecificHealthItems = async () => {
   try {
     const token = await AsyncStorage.getItem('access_token')
-    const response = await Api.get(`health/specific/`, {
+    const response = await Api.get('health/specific/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -14,3 +14,5 @@ export default getSpecificHealthItems = async () => {
     console.log(error)
   }
 }
+
+export default getSpecificHealthItems

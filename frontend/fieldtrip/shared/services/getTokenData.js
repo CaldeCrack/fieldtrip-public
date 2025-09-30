@@ -1,5 +1,7 @@
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from 'jwt-decode'
 
-export default getTokenData = (token) => {
+const getTokenData = (token) => {
   return jwtDecode(token)
 }
+
+export default getTokenData

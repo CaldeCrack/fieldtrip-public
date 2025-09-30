@@ -1,9 +1,13 @@
-import { useRouter } from 'expo-router'
-import { StyleSheet, View, ScrollView, Dimensions } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Dimensions,
+  Platform,
+} from 'react-native'
 import { useState, useEffect, useContext } from 'react'
-import { Divider, MD3Colors, Surface, Text } from 'react-native-paper'
+import { MD3Colors, Text } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
-import { Platform } from 'react-native'
 
 import { ContainedButton, Page, StudentList, BulletList } from '@components'
 import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
@@ -11,15 +15,15 @@ import { FieldtriptContext, HealthChartContext } from '../_layout'
 import { COLORS } from '../../styles/colors'
 
 const Fieldtrip = () => {
-  const { FState } = useContext(FieldtriptContext);
-  const { HCState, HCDispatch } = useContext(HealthChartContext);
+  const { FState } = useContext(FieldtriptContext)
+  const { HCDispatch } = useContext(HealthChartContext)
   const setState = (fieldtripID, fieldtripName, healthChartOwner) => {
     HCDispatch({
       fieldtripID,
       fieldtripName,
       healthChartOwner,
-    });
-  };
+    })
+  }
 
   const [showStudentList, setShowStudentList] = useState(true)
   const [showMetrics, setShowMetrics] = useState(false)
@@ -36,7 +40,7 @@ const Fieldtrip = () => {
     datasets: [
       {
         //data: [5, 2, 3, 1],
-        data: []
+        data: [],
       },
     ],
   })
@@ -47,12 +51,12 @@ const Fieldtrip = () => {
     decimalPlaces: 0,
 
     propsForBackgroundLines: {
-      strokeWidth: 0
-    }
+      strokeWidth: 0,
+    },
   }
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       if (FState.fieldtripID) {
         setLoading(true)
         try {
@@ -70,20 +74,20 @@ const Fieldtrip = () => {
         .then((res) => {
           if (res) {
             // { diseases: [{name, count}], allergies: [{name, count}] }
-            const diseases = res.diseases?.map(d => d.name) || []
-            const diseaseCounts = res.diseases?.map(d => d.count) || []
-            const allergies = res.allergies?.map(a => a.name) || []
-            const allergyCounts = res.allergies?.map(a => a.count) || []
+            const diseases = res.diseases?.map((d) => d.name) || []
+            const diseaseCounts = res.diseases?.map((d) => d.count) || []
+            const allergies = res.allergies?.map((a) => a.name) || []
+            const allergyCounts = res.allergies?.map((a) => a.count) || []
 
             setChartData({
               diseases: {
                 labels: diseases,
-                datasets: [{ data: diseaseCounts }]
+                datasets: [{ data: diseaseCounts }],
               },
               allergies: {
                 labels: allergies,
-                datasets: [{ data: allergyCounts }]
-              }
+                datasets: [{ data: allergyCounts }],
+              },
             })
           }
         })
@@ -160,7 +164,7 @@ const Fieldtrip = () => {
       {showMetrics && (
         <>
           {/* Enfermedades */}
-          <Text variant='titleMedium' style={{ fontWeight: 600, marginTop: 8 }}>
+          <Text variant="titleMedium" style={{ fontWeight: 600, marginTop: 8 }}>
             Enfermedades
           </Text>
           {chartData.diseases && chartData.diseases.labels.length > 0 ? (
@@ -177,7 +181,7 @@ const Fieldtrip = () => {
                 style={{
                   paddingLeft: 0,
                   paddingRight: 10,
-                  width: '100%'
+                  width: '100%',
                 }}
               />
             ) : (
@@ -186,19 +190,25 @@ const Fieldtrip = () => {
           ) : (
             <View style={styles.emptyStateContainer}>
               <Text style={styles.emptyStateText}>
-                No se han registrado suficientes estudiantes para mostrar esta información.
+                No se han registrado suficientes estudiantes para mostrar esta
+                información.
               </Text>
             </View>
           )}
 
           {/* Alergias */}
-          <Text variant="titleMedium" style={{fontWeight: 600, marginTop: 16}}>
+          <Text
+            variant="titleMedium"
+            style={{ fontWeight: 600, marginTop: 16 }}
+          >
             Alergias
           </Text>
           {Platform.OS === 'web' ? (
             <BarChart
               fromZero={true}
-              data={chartData.allergies || {labels: [], datasets: [{data: []}]}}
+              data={
+                chartData.allergies || { labels: [], datasets: [{ data: [] }] }
+              }
               showValuesOnTopOfBars={true}
               height={200}
               width={Dimensions.get('window').width}
@@ -256,7 +266,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderTopWidth: 0,
     borderColor: COLORS.primary_50,
-    width: '100%'
+    width: '100%',
   },
 })
 

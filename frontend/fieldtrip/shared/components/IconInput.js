@@ -13,8 +13,8 @@ const IconInput = (props) => {
       theme={{
         roundness: 4,
         colors: {
-          primary: MD3Colors.primary50
-        }
+          primary: MD3Colors.primary50,
+        },
       }}
       outlineColor={COLORS.gray_100}
       left={

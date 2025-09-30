@@ -1,13 +1,11 @@
-import { useRouter, useSearchParams, Stack, Link } from 'expo-router'
-import React, { useState } from 'react'
-import { TextInput } from 'react-native-paper'
-import { StyleSheet } from 'react-native'
+import { useRouter, Link } from 'expo-router'
+import { useState, useCallback } from 'react'
+import { TextInput, MD3Colors, Button } from 'react-native-paper'
+import { StyleSheet, View } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { MD3Colors } from 'react-native-paper'
+
 import { PaperSelect } from 'react-native-paper-select'
 
-import { View, Text } from 'react-native'
-import { Button } from 'react-native-paper'
 import { DatePickerModal } from 'react-native-paper-dates'
 
 import {
@@ -29,7 +27,6 @@ export const selectValidator = (value) => {
 
 const Components = () => {
   const router = useRouter()
-  const { name } = useSearchParams()
 
   const [checked, setChecked] = useState(true)
 
@@ -40,14 +37,14 @@ const Components = () => {
 
   const _getVisible = (name) => !!visible[name]
 
-  const [date, setDate] = React.useState(undefined)
-  const [open, setOpen] = React.useState(false)
+  const [date, setDate] = useState(undefined)
+  const [open, setOpen] = useState(false)
 
-  const onDismissSingle = React.useCallback(() => {
+  const onDismissSingle = useCallback(() => {
     setOpen(false)
   }, [setOpen])
 
-  const onConfirmSingle = React.useCallback(
+  const onConfirmSingle = useCallback(
     (params) => {
       setOpen(false)
       setDate(params.date)

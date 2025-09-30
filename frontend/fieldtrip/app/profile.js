@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router'
 import { StyleSheet, View } from 'react-native'
-import { Avatar, MD3Colors, Text, Surface, Divider } from 'react-native-paper'
+import { Avatar, Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
@@ -28,16 +28,6 @@ const Profile = () => {
       }
     })()
   }, [])
-
-  const logout = async () => {
-    await AsyncStorage.removeItem('EXPO_CONSTANTS_INSTALLATION_ID')
-    await AsyncStorage.removeItem('access_token')
-    await AsyncStorage.removeItem('refresh_token')
-    await AsyncStorage.removeItem('email')
-    await AsyncStorage.removeItem('names')
-    await AsyncStorage.removeItem('surnames')
-    router.replace('/login')
-  }
 
   return (
     <Page style={styles.page} showTabs={true}>
@@ -72,7 +62,7 @@ const Profile = () => {
           Ver log de salud
         </ContainedButton>
       )}
-      {/** 
+      {/**
         <TextButton style={styles.btn} onPress={() => router.replace('/')}>
           Editar contraseña
         </TextButton>

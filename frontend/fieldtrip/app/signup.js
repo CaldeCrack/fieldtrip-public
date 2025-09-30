@@ -1,7 +1,7 @@
 import { Text, TextInput, MD3Colors } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
 import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -30,7 +30,7 @@ const Signup = () => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [textSecure, setTextSecure] = useState(true)
+  const [textSecure] = useState(true)
   const [names, setNames] = useState('')
   const [surnames, setSurnames] = useState('')
   const [RUT, setRUT] = useState('')
@@ -109,9 +109,6 @@ const Signup = () => {
             router.replace('/')
           } else {
             setSignupFailed(true)
-            if (error.message) {
-              setErrorMsgs(error.response.data)
-            }
           }
         })
         .catch((error) => {
@@ -122,7 +119,7 @@ const Signup = () => {
           setLoading(false)
         })
     } else {
-      alert(`Debe completar todos los campos`)
+      alert('Debe completar todos los campos')
     }
   }
 
@@ -162,7 +159,7 @@ const Signup = () => {
         }
       })
     })()
-  }, [])
+  }, [diet, medAllergy, substanceAllergy])
 
   return (
     <Page style={styles.page}>
@@ -219,7 +216,9 @@ const Signup = () => {
               value={RUT}
             />
             <View style={{ marginLeft: 16, marginBottom: 8 }}>
-              <Text variant="bodySmall">Ingrese su RUT en el siguiente formato: 12.345.678-9.</Text>
+              <Text variant="bodySmall">
+                Ingrese su RUT en el siguiente formato: 12.345.678-9.
+              </Text>
             </View>
             <SimpleInput
               label="N° de matrícula *"
@@ -482,11 +481,11 @@ const Signup = () => {
               <Text variant="bodyMedium" style={{ color: MD3Colors.error50 }}>
                 {errorMsgs !== undefined
                   ? `Ha recibido los siguientes errores:\n- ${Object.values(
-                      errorMsgs
+                      errorMsgs,
                     )
                       .reduce(
                         (acc, currentValue) => acc.concat(currentValue),
-                        []
+                        [],
                       )
                       .join('\n- ')}`
                   : ''}
@@ -550,7 +549,6 @@ const styles = StyleSheet.create({
   mainBtn: {
     marginTop: 46,
     marginBottom: 150,
-    width: 250,
     width: '100%',
   },
   underline: {

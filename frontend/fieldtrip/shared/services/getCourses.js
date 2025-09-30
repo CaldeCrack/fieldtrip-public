@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-export default getCourses = async () => {
+const getCourses = async () => {
   try {
     const token = await AsyncStorage.getItem('access_token')
-    const response = await Api.get(`course/`, {
+    const response = await Api.get('course/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -14,3 +14,5 @@ export default getCourses = async () => {
     console.log(error)
   }
 }
+
+export default getCourses

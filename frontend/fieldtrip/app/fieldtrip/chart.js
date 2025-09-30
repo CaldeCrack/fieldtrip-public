@@ -1,11 +1,5 @@
-import { Stack, Tabs, useRouter } from 'expo-router'
-import {
-  MD3Colors,
-  Surface,
-  Text,
-  Divider,
-  TextInput,
-} from 'react-native-paper'
+import { useRouter } from 'expo-router'
+import { Surface, Text, Divider } from 'react-native-paper'
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
 import { useContext, useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -40,41 +34,46 @@ const HealthChart = () => {
   const hasData =
     constantChartData.fullName && fieldtripChartData.healthSpecific
 
-    useEffect(() => {
-      (async () => {
-        try {
-          setLoading(true)
-          const token = await AsyncStorage.getItem('access_token')
-          if (!token) {
-            router.replace('/login')
-            return
-          }
-          const jwt = jwtDecode(token)
-          if (HCState.fieldtripID) {
-            const [usersHealthChartData, viewHealthChartData] = await Promise.all([
-              getUsersHealthChart(HCState.fieldtripID, HCState.healthChartOwner),
+  useEffect(() => {
+    ;(async () => {
+      try {
+        setLoading(true)
+        const token = await AsyncStorage.getItem('access_token')
+        if (!token) {
+          router.replace('/login')
+          return
+        }
+        const jwt = jwtDecode(token)
+        if (HCState.fieldtripID) {
+          const [usersHealthChartData, viewHealthChartData] = await Promise.all(
+            [
+              getUsersHealthChart(
+                HCState.fieldtripID,
+                HCState.healthChartOwner,
+              ),
               viewHealthChart({
                 viewer: jwt.user_id,
                 owner: HCState.healthChartOwner,
                 fieldtrip: HCState.fieldtripID,
-              })
-            ])
-  
-            if (usersHealthChartData) {
-              setFieldtripChartData(usersHealthChartData)
-            }
-            if (viewHealthChartData) {
-              setConstantChartData(viewHealthChartData)
-            }
+              }),
+            ],
+          )
+
+          if (usersHealthChartData) {
+            setFieldtripChartData(usersHealthChartData)
           }
-        } catch (error) {
-          console.error(error)
-          alert('Error al cargar los datos')
-        } finally {
-          setLoading(false)
+          if (viewHealthChartData) {
+            setConstantChartData(viewHealthChartData)
+          }
         }
-      })()
-    }, [HCState])
+      } catch (error) {
+        console.error(error)
+        alert('Error al cargar los datos')
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [HCState, router])
 
   return (
     <Page style={styles.page} showTabs={true}>

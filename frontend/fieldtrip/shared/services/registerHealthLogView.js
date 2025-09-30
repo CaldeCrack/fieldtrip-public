@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-export default registerHealthLogView = async (body) => {
+const registerHealthLogView = async (body) => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.post(
-      `health-log/`,
+      'health-log/',
       JSON.stringify({
         body,
       }),
@@ -13,10 +13,12 @@ export default registerHealthLogView = async (body) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     )
     return response.data
   } catch (error) {
     throw new Error(error.response?.data?.detail || error.message)
   }
 }
+
+export default registerHealthLogView

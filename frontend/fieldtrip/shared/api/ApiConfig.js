@@ -1,6 +1,6 @@
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from 'jwt-decode'
 
 //import { logout } from '@services'
 
@@ -13,7 +13,7 @@ const validToken = (token) => {
 export const Api = axios.create({
   baseURL: 'http://127.0.0.1:8000',
   headers: {
-    'accept': 'application/json',
+    accept: 'application/json',
   },
 })
 

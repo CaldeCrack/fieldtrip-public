@@ -57,7 +57,7 @@ const JoinFieldtrip = () => {
       }
       setUserID(jwt.user_id)
     })()
-  }, [])
+  }, [router])
 
   return (
     <Page style={styles.page} showTabs={true}>

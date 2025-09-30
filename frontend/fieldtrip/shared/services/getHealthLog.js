@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-export default getHealthLog = async (id) => {
+const getHealthLog = async (id) => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.get(`health/log-data/user/?user-id=${id}`, {
@@ -14,3 +14,5 @@ export default getHealthLog = async (id) => {
     throw new Error(error.response?.data?.detail || error.message)
   }
 }
+
+export default getHealthLog

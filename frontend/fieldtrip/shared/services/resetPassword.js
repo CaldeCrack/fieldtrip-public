@@ -1,9 +1,9 @@
 import { Api } from '../api/ApiConfig'
 
-export default resetPassword = async (email) => {
+const resetPassword = async (email) => {
   try {
     const response = await Api.post(
-      `reset-password/`,
+      'reset-password/',
       JSON.stringify({
         email,
       }),
@@ -13,3 +13,5 @@ export default resetPassword = async (email) => {
     throw new Error(error.response?.data?.detail || error.message)
   }
 }
+
+export default resetPassword

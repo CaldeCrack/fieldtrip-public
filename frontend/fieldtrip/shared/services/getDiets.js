@@ -1,10 +1,12 @@
 import { Api } from '../api/ApiConfig'
 
-export default getDiets = async () => {
+const getDiets = async () => {
   try {
-    const response = await Api.get(`user/diet/`)
+    const response = await Api.get('user/diet/')
     return response.data
   } catch (error) {
     console.log(error)
   }
 }
+
+export default getDiets

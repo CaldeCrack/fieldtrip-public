@@ -3,11 +3,15 @@ import { Portal, Dialog, Text } from 'react-native-paper'
 
 const Modal = (props) => {
   const { visible, close, title, description, children } = props
-  const isSmallScreen = Dimensions.get('window').width <= 768;
+  const isSmallScreen = Dimensions.get('window').width <= 768
 
   return (
     <Portal>
-      <Dialog onDismiss={close} visible={visible} style={[styles.modal, isSmallScreen && styles.smallScreenContainer]}>
+      <Dialog
+        onDismiss={close}
+        visible={visible}
+        style={[styles.modal, isSmallScreen && styles.smallScreenContainer]}
+      >
         <Dialog.Title style={styles.title}>{title}</Dialog.Title>
         <Dialog.Content style={styles.content}>
           <Text variant="bodyMedium" style={styles.description}>
@@ -26,7 +30,7 @@ const styles = StyleSheet.create({
     minWidth: 310,
     maxWidth: 500,
     marginHorizontal: 'auto',
-    padding: 0
+    padding: 0,
   },
   smallScreenContainer: {
     marginHorizontal: 8,

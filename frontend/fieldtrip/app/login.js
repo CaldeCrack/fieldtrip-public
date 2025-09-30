@@ -1,6 +1,6 @@
 import { Text, MD3Colors, TextInput } from 'react-native-paper'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { Tabs, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -58,7 +58,7 @@ const Login = () => {
           setLoading(false)
         })
     } else {
-      alert(`Debe completar todos los campos`)
+      alert('Debe completar todos los campos')
     }
   }
 
@@ -70,7 +70,7 @@ const Login = () => {
         return
       }
     })()
-  }, [])
+  }, [router])
 
   return (
     <Page style={styles.page}>

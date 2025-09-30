@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from 'jwt-decode'
 
-export default getUserInfo = async () => {
+const useUserInfo = () => {
   const [userInfo, setUserInfo] = useState({
     userID: '',
     /*
@@ -19,7 +19,7 @@ export default getUserInfo = async () => {
   })
 
   useEffect(() => {
-    (async () => {
+    const loadUserInfo = async () => {
       const token = await AsyncStorage.getItem('access_token')
       if (!token) return
 
@@ -27,8 +27,12 @@ export default getUserInfo = async () => {
       setUserInfo({
         userID: jwt['user_id'],
       })
-    })()
+    }
+
+    loadUserInfo()
   }, [])
 
   return userInfo
 }
+
+export default useUserInfo

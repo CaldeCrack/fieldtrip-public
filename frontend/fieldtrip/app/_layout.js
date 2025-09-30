@@ -1,5 +1,5 @@
-import { Stack } from 'expo-router'
-import { useRouter } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
+
 import { createContext, useReducer, useState } from 'react'
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -95,8 +95,7 @@ const StackLayout = () => {
                 },
                 headerRight: () => {
                   return (
-                    <TouchableOpacity onPress={() => _toggleModal('modal')()}
-                      >
+                    <TouchableOpacity onPress={() => _toggleModal('modal')()}>
                       <Icon
                         name="logout"
                         size={24}
@@ -109,31 +108,31 @@ const StackLayout = () => {
             >
               <Stack.Screen name="login" options={{ headerShown: false }} />
               <Stack.Screen name="signup" options={{ headerShown: false }} />
-              <Stack.Screen name="index" options={{ title: `Salidas` }} />
+              <Stack.Screen name="index" options={{ title: 'Salidas' }} />
               <Stack.Screen
                 name="health-log"
-                options={{ title: `Log de salud` }}
+                options={{ title: 'Log de salud' }}
               />
-              <Stack.Screen name="profile" options={{ title: `Perfil` }} />
+              <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
               <Stack.Screen
                 name="fieldtrip/index"
-                options={{ title: `Fieldtrip` }}
+                options={{ title: 'Fieldtrip' }}
               />
               <Stack.Screen
                 name="fieldtrip/create"
-                options={{ title: `Crear salida` }}
+                options={{ title: 'Crear salida' }}
               />
               <Stack.Screen
                 name="fieldtrip/chart"
-                options={{ title: `Ficha de salud` }}
+                options={{ title: 'Ficha de salud' }}
               />
               <Stack.Screen
                 name="fieldtrip/join/index"
-                options={{ title: `Unirse a fieldtrip` }}
+                options={{ title: 'Unirse a fieldtrip' }}
               />
               <Stack.Screen
                 name="fieldtrip/join/form"
-                options={{ title: `Fieldtrip` }}
+                options={{ title: 'Fieldtrip' }}
               />
             </Stack>
             <ConfirmationModal

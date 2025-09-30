@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router'
 import { Divider, List, MD3Colors } from 'react-native-paper'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from 'jwt-decode'
 
 import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
@@ -17,7 +17,7 @@ const StudentList = (props) => {
   const _getVisible = (name) => !!visible[name]
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       const token = await AsyncStorage.getItem('access_token')
       if (!token) {
         router.replace('/login')
@@ -28,7 +28,7 @@ const StudentList = (props) => {
         router.replace('/')
       }
     })()
-  }, [])
+  }, [router])
 
   return (
     <View style={styles.wrapper}>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   section: {
     width: '100%',
-    paddingVertical: 0
+    paddingVertical: 0,
   },
   accordion: {
     backgroundColor: '#fafafa',

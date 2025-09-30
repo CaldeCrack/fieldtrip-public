@@ -1,11 +1,17 @@
-import { StyleSheet, View, Button, ScrollView, ActivityIndicator } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  Button,
+  ScrollView,
+  ActivityIndicator,
+  Platform,
+} from 'react-native'
 import { TextInput, MD3Colors, Text } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { Platform } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
 
@@ -23,7 +29,7 @@ const CreateFieldtrip = () => {
   const router = useRouter()
 
   const [name, setName] = useState('')
-  const [proffesor, setProffesor] = useState({
+  const [professor, setProffesor] = useState({
     value: '',
     list: [],
     selectedList: [],
@@ -94,18 +100,18 @@ const CreateFieldtrip = () => {
         router.replace('/')
       }
     })()
-  }, [])
+  }, [router])
 
   useEffect(() => {
     if (
       sector.length > 0 &&
       course.value.length > 0 &&
-      proffesor.value.length > 0 &&
+      professor.value.length > 0 &&
       name.length > 0
     ) {
       setFormDone(true)
     }
-  }, [sector, course, proffesor, name])
+  }, [sector, course, professor, name])
 
   useEffect(() => {
     ;(async () => {
@@ -117,7 +123,7 @@ const CreateFieldtrip = () => {
             return { _id: item.id, value: `${item.names} ${item.surnames}` }
           })
           setProffesor({
-            ...proffesor,
+            ...professor,
             list: proffesors,
           })
         }
@@ -136,7 +142,7 @@ const CreateFieldtrip = () => {
         setLoading(false)
       }
     })()
-  }, [])
+  }, [course, professor])
 
   function formatDateToYYYYMMDD(date) {
     const year = date.getFullYear()
@@ -152,7 +158,7 @@ const CreateFieldtrip = () => {
       newFieldtrip({
         name,
         sector,
-        teacher_id: proffesor.list.find((obj) => obj.value === proffesor.value)
+        teacher_id: professor.list.find((obj) => obj.value === professor.value)
           ._id,
         course_id: course.list.find((obj) => obj.value === course.value)._id,
         start_date: formatDateToYYYYMMDD(new Date()),
@@ -167,7 +173,8 @@ const CreateFieldtrip = () => {
           throw new Error(error.response?.data?.detail || error.message)
         })
         .finally(() => {
-          setCreatingFieldtrip(false)})
+          setCreatingFieldtrip(false)
+        })
     } else {
       alert('Debe completar todo el formulario')
     }
@@ -195,16 +202,16 @@ const CreateFieldtrip = () => {
             <PaperSelect
               dialogStyle={styles.select}
               label="Profesor a cargo *"
-              value={proffesor.value}
+              value={professor.value}
               onSelection={(value) => {
                 setProffesor({
-                  ...proffesor,
+                  ...professor,
                   value: value.text,
                   selectedList: value.selectedList,
                 })
               }}
-              arrayList={[...proffesor.list]}
-              selectedArrayList={proffesor.selectedList}
+              arrayList={[...professor.list]}
+              selectedArrayList={professor.selectedList}
               hideSearchBox={true}
               dialogTitleStyle={{ textAlign: 'center' }}
               dialogTitle="Seleccione el profesor a cargo"
@@ -226,7 +233,7 @@ const CreateFieldtrip = () => {
                         style={styles.icon}
                         onPress={() =>
                           setProffesor({
-                            ...proffesor,
+                            ...professor,
                             value: '',
                             selectedList: [],
                           })

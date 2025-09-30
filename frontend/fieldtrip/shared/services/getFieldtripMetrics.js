@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-export default getFieldtripMetrics = async (id) => {
+const getFieldtripMetrics = async (id) => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.get(`fieldtrip/${id}/metrics/`, {
@@ -14,3 +14,5 @@ export default getFieldtripMetrics = async (id) => {
     throw new Error(error.response?.data?.detail || error.message)
   }
 }
+
+export default getFieldtripMetrics

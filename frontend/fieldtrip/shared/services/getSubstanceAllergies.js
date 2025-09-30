@@ -1,10 +1,12 @@
 import { Api } from '../api/ApiConfig'
 
-export default getSubstanceAllergies = async () => {
+const getSubstanceAllergies = async () => {
   try {
-    const response = await Api.get(`user/substance-allergy/`)
+    const response = await Api.get('user/substance-allergy/')
     return response.data
   } catch (error) {
     console.log(error)
   }
 }
+
+export default getSubstanceAllergies

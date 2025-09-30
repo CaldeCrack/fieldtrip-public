@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-export default getLatestFieldtripHealth = async () => {
+const getLatestFieldtripHealth = async () => {
   try {
     const token = await AsyncStorage.getItem('access_token')
-    const response = await Api.get(`fieldtrip/latest-health/`, {
+    const response = await Api.get('fieldtrip/latest-health/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -14,3 +14,5 @@ export default getLatestFieldtripHealth = async () => {
     throw new Error(error.response?.data?.detail || error.message)
   }
 }
+
+export default getLatestFieldtripHealth

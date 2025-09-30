@@ -11,8 +11,8 @@ const SimpleInput = (props) => {
       theme={{
         roundness: 4,
         colors: {
-          primary: COLORS.primary_50
-        }
+          primary: COLORS.primary_50,
+        },
       }}
       outlineColor={COLORS.gray_100}
       {...rest}

@@ -4,12 +4,16 @@ import ContainedButton from './ContainedButton'
 
 const ConfirmationModal = (props) => {
   const { visible, close, open, title, description } = props
-  const isSmallScreen = Dimensions.get('window').width <= 768;
+  const isSmallScreen = Dimensions.get('window').width <= 768
 
   return (
     <Portal>
-      <Dialog onDismiss={close} visible={visible} style={[styles.modal, isSmallScreen && styles.smallScreenContainer]}>
-        <Dialog.Icon icon="alert-circle" color='#00796b' />
+      <Dialog
+        onDismiss={close}
+        visible={visible}
+        style={[styles.modal, isSmallScreen && styles.smallScreenContainer]}
+      >
+        <Dialog.Icon icon="alert-circle" color="#00796b" />
         <Dialog.Title style={styles.title}>{title}</Dialog.Title>
         <Dialog.Content style={styles.content}>
           <Text variant="bodyMedium" style={styles.description}>
@@ -45,7 +49,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 'auto',
     padding: 0,
     borderRadius: 25,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   smallScreenContainer: {
     marginHorizontal: 8,
