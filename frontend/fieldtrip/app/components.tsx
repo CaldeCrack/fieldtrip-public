@@ -1,12 +1,11 @@
 import { useRouter, Link } from 'expo-router'
 import { useState, useCallback } from 'react'
-import { TextInput, MD3Colors, Button } from 'react-native-paper'
 import { StyleSheet, View } from 'react-native'
+import { TextInput, MD3Colors, Button } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-
 import { PaperSelect } from 'react-native-paper-select'
-
 import { DatePickerModal } from 'react-native-paper-dates'
+import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 
 import {
   Page,
@@ -16,28 +15,31 @@ import {
   ConfirmationModal,
   ContainedButton,
 } from '@components'
+import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calendar'
 
-export const selectValidator = (value) => {
-  if (!value || value.length <= 0) {
-    return 'Please select a value.'
-  }
+// export const selectValidator = (value) => {
+//   if (!value || value.length <= 0) {
+//     return 'Please select a value.'
+//   }
 
-  return ''
+//   return ''
+// }
+
+interface Params {
+  date: CalendarDate
 }
 
 const Components = () => {
   const router = useRouter()
-
   const [checked, setChecked] = useState(true)
+  const [visible, setVisible] = useState<Record<string, boolean>>({})
 
-  const [visible, setVisible] = useState({})
-
-  const _toggleModal = (name) => () =>
+  const _toggleModal = (name: string) => () =>
     setVisible({ ...visible, [name]: !visible[name] })
 
-  const _getVisible = (name) => !!visible[name]
+  const _getVisible = (name: string) => !!visible[name]
 
-  const [date, setDate] = useState(undefined)
+  const [date, setDate] = useState<CalendarDate>()
   const [open, setOpen] = useState(false)
 
   const onDismissSingle = useCallback(() => {
@@ -45,7 +47,7 @@ const Components = () => {
   }, [setOpen])
 
   const onConfirmSingle = useCallback(
-    (params) => {
+    (params: Params) => {
       setOpen(false)
       setDate(params.date)
     },
@@ -59,7 +61,7 @@ const Components = () => {
       { _id: '2', value: 'FEMALE' },
       { _id: '3', value: 'OTHERS' },
     ],
-    selectedList: [],
+    selectedList: [] as ListItem[],
     error: '',
   })
 
