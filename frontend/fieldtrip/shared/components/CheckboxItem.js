@@ -1,6 +1,6 @@
 import { Checkbox } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
-import { COLORS } from '../../styles/colors'
+import { COLORS } from '../@colors'
 
 const CheckboxItem = (props) => {
   const { ...rest } = props

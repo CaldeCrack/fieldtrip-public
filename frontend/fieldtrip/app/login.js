@@ -14,7 +14,7 @@ import {
   TextButton,
   SimpleInput,
 } from '@components'
-import { COLORS } from '../styles/colors'
+import { COLORS } from '@colors'
 
 const Login = () => {
   const router = useRouter()
