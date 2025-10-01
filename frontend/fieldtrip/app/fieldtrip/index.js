@@ -12,7 +12,7 @@ import { BarChart } from 'react-native-chart-kit'
 import { ContainedButton, Page, StudentList, BulletList } from '@components'
 import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../_layout'
-import { COLORS } from '../@colors'
+import { COLORS } from '@colors'
 
 const Fieldtrip = () => {
   const { FState } = useContext(FieldtriptContext)

@@ -1,14 +1,14 @@
-import { Stack, useRouter } from 'expo-router'
-
-import { createContext, useReducer, useState } from 'react'
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
+import React, { createContext, useReducer, useState } from 'react'
+import { TouchableOpacity } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+import { Stack, useRouter } from 'expo-router'
+
 import { COLORS } from '@colors'
 import { ConfirmationModal } from '@components'
-import { TouchableOpacity } from 'react-native'
 
 const theme = {
   ...DefaultTheme,
@@ -22,19 +22,44 @@ const theme = {
   },
 }
 
-export const HealthChartContext = createContext()
-export const FieldtriptContext = createContext()
+interface HCStateType {
+  fieldtripID: string | null
+  fieldtripName: string | null
+  healthChartOwner: string | null
+}
+
+interface FStateType {
+  fieldtripID: string | null
+}
+
+interface IHealthChartContext {
+  HCState: HCStateType
+  HCDispatch: React.Dispatch<any>
+}
+
+interface IFieldtriptContext {
+  FState: FStateType
+  FDispatch: React.Dispatch<any>
+}
+
+export const HealthChartContext = createContext<IHealthChartContext>(
+  {} as IHealthChartContext,
+)
+export const FieldtriptContext = createContext<IFieldtriptContext>(
+  {} as IFieldtriptContext,
+)
 
 const HCInitialState = {
   fieldtripID: null,
   fieldtripName: null,
   healthChartOwner: null,
 }
+
 const FInitialState = {
   fieldtripID: null,
 }
 
-const HCReducer = (state, action) => {
+const HCReducer = (_state: HCStateType, action: HCStateType) => {
   return {
     fieldtripID: action.fieldtripID,
     fieldtripName: action.fieldtripName,
@@ -42,23 +67,21 @@ const HCReducer = (state, action) => {
   }
 }
 
-const FReducer = (state, action) => {
-  return {
-    fieldtripID: action.fieldtripID,
-  }
+const FReducer = (_state: FStateType, action: FStateType) => {
+  return { fieldtripID: action.fieldtripID }
 }
 
-export const unstable_settings = {
-  initialRouteName: 'index',
-}
+// export const unstable_settings = {
+//   initialRouteName: 'index',
+// }
 
 const StackLayout = () => {
   const router = useRouter()
-  const [visible, setVisible] = useState({})
-  const _toggleModal = (name) => () =>
+  const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const _toggleModal = (name: string) => () =>
     setVisible({ ...visible, [name]: !visible[name] })
 
-  const _getVisible = (name) => !!visible[name]
+  const _getVisible = (name: string) => !!visible[name]
   const [HCState, HCDispatch] = useReducer(HCReducer, HCInitialState)
   const [FState, FDispatch] = useReducer(FReducer, FInitialState)
 
