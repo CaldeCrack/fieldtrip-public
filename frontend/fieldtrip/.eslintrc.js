@@ -4,9 +4,10 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
-    // project: './tsconfig.json',
+    project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
   },
-  ignorePatterns: ['/dist/*'],
+  ignorePatterns: ['/dist/*', '.eslintrc.js',],
   extends: [
     'expo',
     'plugin:import/recommended',
@@ -43,6 +44,11 @@ module.exports = {
     'import/resolver': {
       typescript: {
         project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+        alwaysTryTypes: true,
+      },
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
       },
     },
     react: {

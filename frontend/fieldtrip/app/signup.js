@@ -19,7 +19,7 @@ import {
   TextButton,
   CheckboxItem,
 } from '@components'
-import { COLORS } from '../styles/colors'
+import { COLORS } from '@colors'
 
 const Signup = () => {
   const router = useRouter()
