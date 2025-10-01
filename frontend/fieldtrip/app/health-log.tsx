@@ -3,12 +3,23 @@ import { ActivityIndicator, StyleSheet } from 'react-native'
 import { Card, DataTable, MD3Colors, Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { Page } from '@components'
 import { getHealthLog } from '@services'
 import { COLORS } from '@colors'
+
+interface payload extends JwtPayload {
+  user_id: string
+}
+
+interface healthLog {
+  id: number
+  timestamp: Date
+  viewer: number
+  fieldtrip: number
+}
 
 const HealthLog = () => {
   const router = useRouter()
@@ -19,7 +30,7 @@ const HealthLog = () => {
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[0],
   )
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<healthLog[]>([] as healthLog[])
   const [loading, setLoading] = useState(false)
 
   const sortedItems = items
@@ -48,7 +59,7 @@ const HealthLog = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode(token)
+      const jwt = jwtDecode<payload>(token)
       getHealthLog(jwt.user_id)
         .then(async (res) => {
           if (res) {
@@ -99,7 +110,7 @@ const HealthLog = () => {
                   {item.fieldtrip}
                 </DataTable.Cell>
                 <DataTable.Cell style={{ marginLeft: 2 }}>
-                  {item.timestamp}
+                  {item.timestamp.toDateString()}
                 </DataTable.Cell>
               </DataTable.Row>
             ))}
