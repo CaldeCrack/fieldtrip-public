@@ -23,11 +23,11 @@ const Login = () => {
   const [loginFailed, setLoginFailed] = useState(false)
   const [textSecure, setTextSecure] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [visible, setVisible] = useState<Record<string, boolean>>({})
 
-  const [visible, setVisible] = useState({})
-  const _toggleModal = (name) => () =>
+  const _toggleModal = (name: string) => () =>
     setVisible({ ...visible, [name]: !visible[name] })
-  const _getVisible = (name) => !!visible[name]
+  const _getVisible = (name: string) => !!visible[name]
   const [resetEmail, setResetEmail] = useState('')
   const [resetEmailConfirmation, setResetEmailConfirmation] = useState('')
 
@@ -85,13 +85,13 @@ const Login = () => {
         <IconInput
           iconName="account"
           label="Email *"
-          onChangeText={(val) => setEmail(val)}
+          onChangeText={(val: string) => setEmail(val)}
           value={email}
         />
         <IconInput
           iconName="lock"
           label="Contraseña *"
-          onChangeText={(val) => setPassword(val)}
+          onChangeText={(val: string) => setPassword(val)}
           secureTextEntry={textSecure}
           value={password}
           right={
@@ -158,12 +158,16 @@ const Login = () => {
       >
         <SimpleInput
           label="Email *"
-          onChange={(e) => setResetEmail(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setResetEmail(e.target.value)
+          }
           value={resetEmail}
         />
         <SimpleInput
           label="Confirmar email *"
-          onChange={(e) => setResetEmailConfirmation(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setResetEmailConfirmation(e.target.value)
+          }
           value={resetEmailConfirmation}
         />
 

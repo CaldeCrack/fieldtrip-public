@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { PaperSelect } from 'react-native-paper-select'
 import { DatePickerModal } from 'react-native-paper-dates'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
+import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calendar'
 
 import {
   Page,
@@ -15,7 +16,6 @@ import {
   ConfirmationModal,
   ContainedButton,
 } from '@components'
-import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calendar'
 
 // export const selectValidator = (value) => {
 //   if (!value || value.length <= 0) {
