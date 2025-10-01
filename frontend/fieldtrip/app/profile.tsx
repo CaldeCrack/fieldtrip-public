@@ -3,10 +3,14 @@ import { StyleSheet, View } from 'react-native'
 import { Avatar, Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 
 import { ContainedButton, Page } from '@components'
 import { COLORS } from '@colors'
+
+interface payload extends JwtPayload {
+  is_student: boolean
+}
 
 const Profile = () => {
   const router = useRouter()
@@ -18,13 +22,13 @@ const Profile = () => {
     ;(async () => {
       const token = await AsyncStorage.getItem('access_token')
       if (token) {
-        const jwt = jwtDecode(token)
-        setIsStudent(jwt.custom_data.is_student)
+        const jwt = jwtDecode<payload>(token)
+        setIsStudent(jwt.is_student)
         const names = await AsyncStorage.getItem('names')
         const surnames = await AsyncStorage.getItem('surnames')
         const email = await AsyncStorage.getItem('email')
         setFullName(`${names} ${surnames}`)
-        setEmail(email)
+        setEmail(email!)
       }
     })()
   }, [])
