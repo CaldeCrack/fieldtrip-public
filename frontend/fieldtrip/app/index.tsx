@@ -11,7 +11,7 @@ import { FieldtriptContext } from './_layout'
 import { COLORS } from '@colors'
 
 interface payload extends JwtPayload {
-  user_id: string
+  user_id: number
 }
 
 const Home = () => {

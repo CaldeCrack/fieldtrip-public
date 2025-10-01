@@ -23,13 +23,13 @@ const theme = {
 }
 
 interface HCStateType {
-  fieldtripID: string | null
+  fieldtripID: number | null
   fieldtripName: string | null
   healthChartOwner: string | null
 }
 
 interface FStateType {
-  fieldtripID: string | null
+  fieldtripID: number | null
 }
 
 interface IHealthChartContext {
