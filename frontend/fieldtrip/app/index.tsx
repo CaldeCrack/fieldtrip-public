@@ -2,7 +2,7 @@ import { ActivityIndicator, StyleSheet } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 import { Text } from 'react-native-paper'
 
 import { FieldtripList, Page } from '@components'
@@ -10,13 +10,17 @@ import { getUsersFieldtrips } from '@services'
 import { FieldtriptContext } from './_layout'
 import { COLORS } from '@colors'
 
+interface payload extends JwtPayload {
+  user_id: string
+}
+
 const Home = () => {
   const router = useRouter()
   const [serverError, setServerError] = useState(false)
   const [fieldtripsData, setFieldtripsData] = useState([])
   const [loading, setLoading] = useState(true)
   const { FDispatch } = useContext(FieldtriptContext)
-  const setState = (fieldtripID) => {
+  const setState = (fieldtripID: string) => {
     FDispatch({ fieldtripID })
   }
 
@@ -27,7 +31,7 @@ const Home = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode(token)
+      const jwt = jwtDecode<payload>(token)
       getUsersFieldtrips(jwt.user_id)
         .then(async (res) => {
           if (res) {
