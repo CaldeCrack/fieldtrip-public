@@ -7,7 +7,7 @@ import { Text } from 'react-native-paper'
 
 import { Page, SimpleInput, ContainedButton } from '@components'
 import { acceptFieldtripInvitation } from '@services'
-import { COLORS } from '../../@colors'
+import { COLORS } from '@colors'
 
 const JoinFieldtrip = () => {
   const router = useRouter()

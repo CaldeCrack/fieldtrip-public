@@ -1,7 +1,7 @@
 import { MD3Colors, TextInput } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { COLORS } from '../@colors'
+import { COLORS } from '@colors'
 
 const IconInput = (props) => {
   const { iconName, ...rest } = props

@@ -1,6 +1,6 @@
 import { MD3Colors, TextInput } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
-import { COLORS } from '../@colors'
+import { COLORS } from '@colors'
 
 const SimpleInput = (props) => {
   const { ...rest } = props
