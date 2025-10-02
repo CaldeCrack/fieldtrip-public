@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 
 import {
   signup,
@@ -20,6 +21,11 @@ import {
   CheckboxItem,
 } from '@components'
 import { COLORS } from '@colors'
+
+interface Item {
+  id: number
+  type: string
+}
 
 const Signup = () => {
   const router = useRouter()
@@ -40,29 +46,29 @@ const Signup = () => {
   const [checked, setChecked] = useState(false)
   const [diet, setDiet] = useState({
     value: '',
-    list: [],
-    selectedList: [],
+    list: [] as ListItem[],
+    selectedList: [] as ListItem[],
   })
   const BLOOD_TYPES = [
-    { _id: 1, value: 'A' },
-    { _id: 2, value: 'B' },
-    { _id: 3, value: 'AB' },
-    { _id: 4, value: 'O' },
+    { _id: '1', value: 'A' },
+    { _id: '2', value: 'B' },
+    { _id: '3', value: 'AB' },
+    { _id: '4', value: 'O' },
   ]
   const [bloodType, setBloodType] = useState({
     value: '',
     list: BLOOD_TYPES,
-    selectedList: [],
+    selectedList: [] as ListItem[],
   })
   const [substanceAllergy, setSubstanceAllergy] = useState({
     value: '',
     list: [],
-    selectedList: [],
+    selectedList: [] as ListItem[],
   })
   const [medAllergy, setMedAllergy] = useState({
     value: '',
     list: [],
-    selectedList: [],
+    selectedList: [] as ListItem[],
   })
 
   const [signupFailed, setSignupFailed] = useState(false)
@@ -89,9 +95,12 @@ const Signup = () => {
         surnames,
         registration_number: registrationNumber,
         RUT,
-        diet_type: diet.list.find((obj) => obj.value === diet.value)._id,
-        blood_type: bloodType.list.find((obj) => obj.value === bloodType.value)
-          ._id,
+        diet_type: diet.list.find(
+          (obj: { value: string }) => obj.value === diet.value,
+        )!._id,
+        blood_type: bloodType.list.find(
+          (obj: { value: string }) => obj.value === bloodType.value,
+        )!._id,
         med_allergies: medAllergy.selectedList,
         substance_allergies: substanceAllergy.selectedList,
         emergency_contact: emergencyContact,
@@ -127,7 +136,7 @@ const Signup = () => {
     ;(async () => {
       getDiets().then(async (res) => {
         if (res.length > 0) {
-          const diets = res.map((item) => {
+          const diets = res.map((item: Item) => {
             return { _id: item.id, value: item.type }
           })
           setDiet({
@@ -138,7 +147,7 @@ const Signup = () => {
       })
       getSubstanceAllergies().then(async (res) => {
         if (res.length > 0) {
-          const substanceAllergies = res.map((item) => {
+          const substanceAllergies = res.map((item: Item) => {
             return { _id: item.id, value: item.type }
           })
           setSubstanceAllergy({
@@ -149,7 +158,7 @@ const Signup = () => {
       })
       getMedAllergies().then(async (res) => {
         if (res.length > 0) {
-          const medAllergies = res.map((item) => {
+          const medAllergies = res.map((item: Item) => {
             return { _id: item.id, value: item.type }
           })
           setMedAllergy({
@@ -171,15 +180,19 @@ const Signup = () => {
           <View style={styles.bottomMargin}>
             <SimpleInput
               label="Email *"
-              onChange={(e) => setEmail(e.target.value)}
-              onChangeText={(val) => setEmail(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
+              onChangeText={(val: string) => setEmail(val)}
               value={email}
             />
             <SimpleInput
               label="Contraseña *"
               secureTextEntry={textSecure}
-              onChange={(e) => setPassword(e.target.value)}
-              onChangeText={(val) => setPassword(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
+              onChangeText={(val: string) => setPassword(val)}
               value={password}
             />
             <View style={{ marginLeft: 16 }}>
@@ -199,20 +212,26 @@ const Signup = () => {
             </Text>
             <SimpleInput
               label="Nombres *"
-              onChange={(e) => setNames(e.target.value)}
-              onChangeText={(val) => setNames(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNames(e.target.value)
+              }
+              onChangeText={(val: string) => setNames(val)}
               value={names}
             />
             <SimpleInput
               label="Apellidos *"
-              onChange={(e) => setSurnames(e.target.value)}
-              onChangeText={(val) => setSurnames(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSurnames(e.target.value)
+              }
+              onChangeText={(val: string) => setSurnames(val)}
               value={surnames}
             />
             <SimpleInput
               label="RUT *"
-              onChange={(e) => setRUT(e.target.value)}
-              onChangeText={(val) => setRUT(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRUT(e.target.value)
+              }
+              onChangeText={(val: string) => setRUT(val)}
               value={RUT}
             />
             <View style={{ marginLeft: 16, marginBottom: 8 }}>
@@ -222,8 +241,10 @@ const Signup = () => {
             </View>
             <SimpleInput
               label="N° de matrícula *"
-              onChange={(e) => setRegistrationNumber(e.target.value)}
-              onChangeText={(val) => setRegistrationNumber(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setRegistrationNumber(e.target.value)
+              }
+              onChangeText={(val: string) => setRegistrationNumber(val)}
               value={registrationNumber}
             />
             <View style={{ marginLeft: 16 }}>
@@ -249,6 +270,7 @@ const Signup = () => {
               arrayList={[...diet.list]}
               selectedArrayList={diet.selectedList}
               hideSearchBox={true}
+              multiEnable={false}
               dialogTitleStyle={{ textAlign: 'center' }}
               dialogTitle="Seleccione su tipo de dieta"
               dialogCloseButtonText="Cerrar"
@@ -299,6 +321,7 @@ const Signup = () => {
               arrayList={[...bloodType.list]}
               selectedArrayList={bloodType.selectedList}
               hideSearchBox={true}
+              multiEnable={false}
               dialogTitleStyle={{ textAlign: 'center' }}
               dialogTitle="Seleccione su tipo sanguíneo"
               dialogCloseButtonText="Cerrar"
@@ -453,16 +476,20 @@ const Signup = () => {
             </Text>
             <SimpleInput
               label="Nombre completo *"
-              onChange={(e) => setEmergencyContact(e.target.value)}
-              onChangeText={(val) => setEmergencyContact(val)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmergencyContact(e.target.value)
+              }
+              onChangeText={(val: string) => setEmergencyContact(val)}
               value={emergencyContact}
             />
             <SimpleInput
               label="Número telefónico *"
-              onChange={(e) => setEmergencyNumber(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmergencyNumber(e.target.value)
+              }
               maxLength={9}
               keyboardType="numeric"
-              onChangeText={(val) => setEmergencyNumber(val)}
+              onChangeText={(val: string) => setEmergencyNumber(val)}
               value={emergencyNumber}
             />
             <View style={{ marginLeft: 16, marginBottom: 30 }}>
@@ -485,7 +512,7 @@ const Signup = () => {
                     )
                       .reduce(
                         (acc, currentValue) => acc.concat(currentValue),
-                        [],
+                        [] as string[],
                       )
                       .join('\n- ')}`
                   : ''}
@@ -550,6 +577,19 @@ const styles = StyleSheet.create({
     marginTop: 46,
     marginBottom: 150,
     width: '100%',
+  },
+  scrollView: {
+    flexGrow: 0,
+    marginBottom: 16,
+  },
+  select: {
+    borderRadius: 28,
+    backgroundColor: '#fafafa',
+    maxWidth: 400,
+    marginHorizontal: 'auto',
+  },
+  icon: {
+    alignItems: 'center',
   },
   underline: {
     textDecorationLine: 'underline',
