@@ -8,7 +8,7 @@ import { jwtDecode, JwtPayload } from 'jwt-decode'
 import { ContainedButton, Page } from '@components'
 import { COLORS } from '@colors'
 
-interface payload extends JwtPayload {
+interface Payload extends JwtPayload {
   is_student: boolean
 }
 
@@ -22,7 +22,7 @@ const Profile = () => {
     ;(async () => {
       const token = await AsyncStorage.getItem('access_token')
       if (token) {
-        const jwt = jwtDecode<payload>(token)
+        const jwt = jwtDecode<Payload>(token)
         setIsStudent(jwt.is_student)
         const names = await AsyncStorage.getItem('names')
         const surnames = await AsyncStorage.getItem('surnames')

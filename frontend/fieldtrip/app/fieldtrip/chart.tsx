@@ -11,7 +11,7 @@ import { viewHealthChart, getUsersHealthChart } from '@services'
 import { HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
 
-interface payload extends JwtPayload {
+interface Payload extends JwtPayload {
   user_id: string
 }
 
@@ -53,7 +53,7 @@ const HealthChart = () => {
           router.replace('/login')
           return
         }
-        const jwt = jwtDecode<payload>(token)
+        const jwt = jwtDecode<Payload>(token)
         if (HCState.fieldtripID) {
           const [usersHealthChartData, viewHealthChartData] = await Promise.all(
             [

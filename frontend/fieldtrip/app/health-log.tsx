@@ -10,11 +10,11 @@ import { Page } from '@components'
 import { getHealthLog } from '@services'
 import { COLORS } from '@colors'
 
-interface payload extends JwtPayload {
+interface Payload extends JwtPayload {
   user_id: string
 }
 
-interface healthLog {
+interface IHealthLog {
   id: number
   timestamp: Date
   viewer: number
@@ -30,7 +30,7 @@ const HealthLog = () => {
   const [itemsPerPage, onItemsPerPageChange] = useState(
     numberOfItemsPerPageList[0],
   )
-  const [items, setItems] = useState<healthLog[]>([] as healthLog[])
+  const [items, setItems] = useState<IHealthLog[]>([] as IHealthLog[])
   const [loading, setLoading] = useState(false)
 
   const sortedItems = items
@@ -59,7 +59,7 @@ const HealthLog = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode<payload>(token)
+      const jwt = jwtDecode<Payload>(token)
       getHealthLog(jwt.user_id)
         .then(async (res) => {
           if (res) {

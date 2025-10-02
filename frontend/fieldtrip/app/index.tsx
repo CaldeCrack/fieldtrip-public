@@ -10,7 +10,7 @@ import { getUsersFieldtrips } from '@services'
 import { FieldtriptContext } from './_layout'
 import { COLORS } from '@colors'
 
-interface payload extends JwtPayload {
+interface Payload extends JwtPayload {
   user_id: number
 }
 
@@ -31,7 +31,7 @@ const Home = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode<payload>(token)
+      const jwt = jwtDecode<Payload>(token)
       getUsersFieldtrips(jwt.user_id)
         .then(async (res) => {
           if (res) {
