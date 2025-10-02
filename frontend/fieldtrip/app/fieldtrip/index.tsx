@@ -14,10 +14,24 @@ import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
 
+interface Allergy {
+  name: string
+  count: number
+}
+
+interface Disease {
+  name: string
+  count: number
+}
+
 const Fieldtrip = () => {
   const { FState } = useContext(FieldtriptContext)
   const { HCDispatch } = useContext(HealthChartContext)
-  const setState = (fieldtripID, fieldtripName, healthChartOwner) => {
+  const setState = (
+    fieldtripID: number,
+    fieldtripName: string,
+    healthChartOwner: string,
+  ) => {
     HCDispatch({
       fieldtripID,
       fieldtripName,
@@ -30,19 +44,36 @@ const Fieldtrip = () => {
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true) // Estado de carga
   const [chartData, setChartData] = useState({
-    labels: [
-      /*
-      'Obesidad mórbida',
-      'Enfermedades respiratorias',
-      'Cólicos',
-      'Asma',*/
-    ],
-    datasets: [
-      {
-        //data: [5, 2, 3, 1],
-        data: [],
-      },
-    ],
+    diseases: {
+      labels: [
+        /*
+        'Obesidad mórbida',
+        'Enfermedades respiratorias',
+        'Cólicos',
+        'Asma',*/
+      ],
+      datasets: [
+        {
+          //data: [5, 2, 3, 1],
+          data: [],
+        },
+      ],
+    },
+    allergies: {
+      labels: [
+        /*
+        'Obesidad mórbida',
+        'Enfermedades respiratorias',
+        'Cólicos',
+        'Asma',*/
+      ],
+      datasets: [
+        {
+          //data: [5, 2, 3, 1],
+          data: [],
+        },
+      ],
+    },
   })
   const chartConfig = {
     backgroundGradientFrom: '#fafafa',
@@ -65,6 +96,7 @@ const Fieldtrip = () => {
             setStudents(res)
           }
         } catch (error) {
+          // @ts-ignore
           throw new Error(error.response?.data?.detail || error.message)
         } finally {
           setLoading(false)
@@ -74,10 +106,12 @@ const Fieldtrip = () => {
         .then((res) => {
           if (res) {
             // { diseases: [{name, count}], allergies: [{name, count}] }
-            const diseases = res.diseases?.map((d) => d.name) || []
-            const diseaseCounts = res.diseases?.map((d) => d.count) || []
-            const allergies = res.allergies?.map((a) => a.name) || []
-            const allergyCounts = res.allergies?.map((a) => a.count) || []
+            const diseases = res.diseases?.map((d: Disease) => d.name) || []
+            const diseaseCounts =
+              res.diseases?.map((d: Disease) => d.count) || []
+            const allergies = res.allergies?.map((a: Allergy) => a.name) || []
+            const allergyCounts =
+              res.allergies?.map((a: Allergy) => a.count) || []
 
             setChartData({
               diseases: {
@@ -178,6 +212,8 @@ const Fieldtrip = () => {
                 chartConfig={chartConfig}
                 withHorizontalLabels={false}
                 verticalLabelRotation={0}
+                yAxisLabel=""
+                yAxisSuffix=""
                 style={{
                   paddingLeft: 0,
                   paddingRight: 10,
@@ -215,6 +251,8 @@ const Fieldtrip = () => {
               chartConfig={chartConfig}
               withHorizontalLabels={false}
               verticalLabelRotation={0}
+              yAxisLabel=""
+              yAxisSuffix=""
               style={{
                 paddingLeft: 0,
                 paddingRight: 10,
