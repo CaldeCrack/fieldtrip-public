@@ -3,13 +3,22 @@ import { Surface, Text, Divider } from 'react-native-paper'
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
 import { useContext, useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { BulletList, Page } from '@components'
 import { viewHealthChart, getUsersHealthChart } from '@services'
 import { HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
+
+interface payload extends JwtPayload {
+  user_id: string
+}
+
+interface Item {
+  item: string
+  value: string
+}
 
 const HealthChart = () => {
   const router = useRouter()
@@ -30,6 +39,7 @@ const HealthChart = () => {
     takingMeds: '',
     hasPresented: [],
     presents: [],
+    healthSpecific: [],
   })
   const hasData =
     constantChartData.fullName && fieldtripChartData.healthSpecific
@@ -43,7 +53,7 @@ const HealthChart = () => {
           router.replace('/login')
           return
         }
-        const jwt = jwtDecode(token)
+        const jwt = jwtDecode<payload>(token)
         if (HCState.fieldtripID) {
           const [usersHealthChartData, viewHealthChartData] = await Promise.all(
             [
@@ -132,7 +142,7 @@ const HealthChart = () => {
           </View>
           {fieldtripChartData.healthSpecific && (
             <>
-              {fieldtripChartData.healthSpecific.map((item, index) => (
+              {fieldtripChartData.healthSpecific.map((item: Item, index) => (
                 <View style={styles.section} key={index}>
                   <Text variant="bodyLarge" style={styles.weight500}>
                     {item.item}:
@@ -147,9 +157,9 @@ const HealthChart = () => {
           )}
         </Surface>
       ) : (
-        <View style={styles.emptyState}>
+        <View>
           <Icon name="alert-circle-outline" size={48} color={COLORS.gray_100} />
-          <Text style={styles.emptyText}>No hay información para mostrar.</Text>
+          <Text>No hay información para mostrar.</Text>
         </View>
       )}
     </Page>
@@ -200,6 +210,9 @@ const styles = StyleSheet.create({
   divider: {
     backgroundColor: COLORS.primary_50,
     marginBottom: 20,
+  },
+  loader: {
+    margin: 10,
   },
 })
 
