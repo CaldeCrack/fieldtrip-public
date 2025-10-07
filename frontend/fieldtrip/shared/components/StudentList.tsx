@@ -7,14 +7,25 @@ import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 
-const StudentList = (props) => {
-  const { data, setState } = props
+type StudentItem = {
+  id: string | number
+  name: string
+  signupComplete?: boolean
+  fieldtripID?: string | number
+}
+
+type Props = {
+  data: StudentItem[]
+  setState: (fieldtripID: string | number, name: string, id: string | number) => void
+}
+
+const StudentList = ({ data, setState }: Props) => {
   const router = useRouter()
 
-  const [visible, setVisible] = useState({})
-  const _toggleModal = (name) => () =>
+  const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const _toggleModal = (name: string) => () =>
     setVisible({ ...visible, [name]: !visible[name] })
-  const _getVisible = (name) => !!visible[name]
+  const _getVisible = (name: string) => !!visible[name]
 
   useEffect(() => {
     ;(async () => {
@@ -23,7 +34,7 @@ const StudentList = (props) => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode(token)
+      const jwt: any = jwtDecode(token)
       if (!jwt.custom_data.is_teacher) {
         router.replace('/')
       }
@@ -34,16 +45,14 @@ const StudentList = (props) => {
     <View style={styles.wrapper}>
       <List.Section style={styles.section}>
         {data.map((item) => (
-          <View key={item.id}>
+          <View key={String(item.id)}>
             <List.Accordion
               title={item.name}
               style={styles.accordion}
               right={() => (
                 <List.Icon
                   color={
-                    item.signupComplete
-                      ? MD3Colors.primary50
-                      : MD3Colors.error50
+                    item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50
                   }
                   icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
                 />
@@ -55,13 +64,9 @@ const StudentList = (props) => {
                   <List.Icon
                     {...props}
                     color={
-                      item.signupComplete
-                        ? MD3Colors.primary50
-                        : MD3Colors.error50
+                      item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50
                     }
-                    icon={
-                      item.signupComplete ? 'check' : 'alert-circle-outline'
-                    }
+                    icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
                   />
                 )}
               />
@@ -74,9 +79,9 @@ const StudentList = (props) => {
                 visible={_getVisible(`modal-${item.id}`)}
                 close={_toggleModal(`modal-${item.id}`)}
                 open={() => {
-                  setState(item.fieldtripID, item.name, item.id)
+                  setState(item.fieldtripID!, item.name, item.id)
                   setVisible({ ...visible, [`modal-${item.id}`]: false })
-                  router.push('fieldtrip/chart')
+                  router.push('fieldtrip/chart' as any)
                 }}
                 title={`¿Está seguro/a que desea ver la información de salud de ${item.name}?`}
                 description={`Esta acción quedará registrada y podrá ser vista por ${item.name}.`}
