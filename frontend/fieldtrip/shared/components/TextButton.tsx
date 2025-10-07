@@ -1,10 +1,13 @@
 import { Button } from 'react-native-paper'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TextStyle } from 'react-native'
 import type { ButtonProps } from 'react-native-paper'
 
-const TextButton = (props: ButtonProps) => {
-  const { ...rest } = props
-  return <Button labelStyle={styles.label} {...(rest as any)} />
+type Props = ButtonProps & { style?: TextStyle }
+
+const TextButton = (props: Props) => {
+  const { style, labelStyle, ...rest } = props as any
+  const mergedLabelStyle = [styles.label, labelStyle, style]
+  return <Button labelStyle={mergedLabelStyle} {...rest} />
 }
 
 const styles = StyleSheet.create({
@@ -13,7 +16,7 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     marginHorizontal: 5,
     marginVertical: 10,
-  },
+  } as TextStyle,
 })
 
 export default TextButton

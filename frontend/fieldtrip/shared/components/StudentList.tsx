@@ -8,15 +8,19 @@ import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 
 type StudentItem = {
-  id: string | number
+  id: number
   name: string
   signupComplete?: boolean
-  fieldtripID?: string | number
+  fieldtripID?: number
 }
 
 type Props = {
   data: StudentItem[]
-  setState: (fieldtripID: string | number, name: string, id: string | number) => void
+  setState: (
+    fieldtripID: number,
+    name: string,
+    id: number,
+  ) => void
 }
 
 const StudentList = ({ data, setState }: Props) => {
@@ -52,7 +56,9 @@ const StudentList = ({ data, setState }: Props) => {
               right={() => (
                 <List.Icon
                   color={
-                    item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50
+                    item.signupComplete
+                      ? MD3Colors.primary50
+                      : MD3Colors.error50
                   }
                   icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
                 />
@@ -64,9 +70,13 @@ const StudentList = ({ data, setState }: Props) => {
                   <List.Icon
                     {...props}
                     color={
-                      item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50
+                      item.signupComplete
+                        ? MD3Colors.primary50
+                        : MD3Colors.error50
                     }
-                    icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
+                    icon={
+                      item.signupComplete ? 'check' : 'alert-circle-outline'
+                    }
                   />
                 )}
               />

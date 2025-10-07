@@ -10,7 +10,7 @@ import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
 
 type FieldtripItem = {
-  id: string | number
+  id: number
   title: string
   proffesor?: string
   startDate: string
@@ -20,7 +20,7 @@ type FieldtripItem = {
 
 type Props = {
   data: FieldtripItem[]
-  setState: (_id: string | number) => void
+  setState: (_id: number) => void
 }
 
 const FieldtripList = ({ data, setState }: Props) => {

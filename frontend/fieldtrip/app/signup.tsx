@@ -1,6 +1,6 @@
 import { Text, TextInput, MD3Colors } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
-import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
+import { StyleSheet, View, ScrollView, ActivityIndicator, NativeSyntheticEvent, TextInputChangeEventData } from 'react-native'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -180,8 +180,8 @@ const Signup = () => {
           <View style={styles.bottomMargin}>
             <SimpleInput
               label="Email *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setEmail(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setEmail(val)}
               value={email}
@@ -189,8 +189,8 @@ const Signup = () => {
             <SimpleInput
               label="Contraseña *"
               secureTextEntry={textSecure}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setPassword(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setPassword(val)}
               value={password}
@@ -212,24 +212,24 @@ const Signup = () => {
             </Text>
             <SimpleInput
               label="Nombres *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNames(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setNames(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setNames(val)}
               value={names}
             />
             <SimpleInput
               label="Apellidos *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSurnames(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setSurnames(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setSurnames(val)}
               value={surnames}
             />
             <SimpleInput
               label="RUT *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setRUT(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setRUT(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setRUT(val)}
               value={RUT}
@@ -241,8 +241,8 @@ const Signup = () => {
             </View>
             <SimpleInput
               label="N° de matrícula *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setRegistrationNumber(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setRegistrationNumber(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setRegistrationNumber(val)}
               value={registrationNumber}
@@ -476,16 +476,16 @@ const Signup = () => {
             </Text>
             <SimpleInput
               label="Nombre completo *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmergencyContact(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setEmergencyContact(e.nativeEvent.text)
               }
               onChangeText={(val: string) => setEmergencyContact(val)}
               value={emergencyContact}
             />
             <SimpleInput
               label="Número telefónico *"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmergencyNumber(e.target.value)
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setEmergencyNumber(e.nativeEvent.text)
               }
               maxLength={9}
               keyboardType="numeric"

@@ -20,7 +20,7 @@ const Home = () => {
   const [fieldtripsData, setFieldtripsData] = useState([])
   const [loading, setLoading] = useState(true)
   const { FDispatch } = useContext(FieldtriptContext)
-  const setState = (fieldtripID: string) => {
+  const setState = (fieldtripID: number) => {
     FDispatch({ fieldtripID })
   }
 

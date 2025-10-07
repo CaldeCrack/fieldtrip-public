@@ -30,7 +30,7 @@ const Fieldtrip = () => {
   const setState = (
     fieldtripID: number,
     fieldtripName: string,
-    healthChartOwner: string,
+    healthChartOwner: number,
   ) => {
     HCDispatch({
       fieldtripID,

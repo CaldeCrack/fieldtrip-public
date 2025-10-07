@@ -17,14 +17,6 @@ import {
   ContainedButton,
 } from '@components'
 
-// export const selectValidator = (value) => {
-//   if (!value || value.length <= 0) {
-//     return 'Please select a value.'
-//   }
-
-//   return ''
-// }
-
 interface Params {
   date: CalendarDate
 }
@@ -136,6 +128,7 @@ const Components = () => {
       <ConfirmationModal
         visible={_getVisible('modal')}
         close={_toggleModal('modal')}
+        open={() => {}}
         title="Modal con confirmación"
         description="Aquí va la descripción"
       />

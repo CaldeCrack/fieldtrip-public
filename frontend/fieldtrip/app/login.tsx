@@ -1,5 +1,5 @@
 import { Text, MD3Colors, TextInput } from 'react-native-paper'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, NativeSyntheticEvent, StyleSheet, TextInputChangeEventData, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -158,15 +158,15 @@ const Login = () => {
       >
         <SimpleInput
           label="Email *"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setResetEmail(e.target.value)
+          onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+            setResetEmail(e.nativeEvent.text)
           }
           value={resetEmail}
         />
         <SimpleInput
           label="Confirmar email *"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setResetEmailConfirmation(e.target.value)
+          onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+            setResetEmailConfirmation(e.nativeEvent.text)
           }
           value={resetEmailConfirmation}
         />
