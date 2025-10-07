@@ -12,9 +12,9 @@ import { COLORS } from '@colors'
 const JoinFieldtrip = () => {
   const router = useRouter()
 
-  const [fieldtripCode, setFieldtripCode] = useState('')
-  const [userID, setUserID] = useState(undefined)
-  const [loading, setLoading] = useState(false)
+  const [fieldtripCode, setFieldtripCode] = useState<string>('')
+  const [userID, setUserID] = useState<string | number | undefined>(undefined)
+  const [loading, setLoading] = useState<boolean>(false)
 
   const sendJoinFieldtripRequest = async () => {
     if (fieldtripCode.length > 0) {
@@ -23,7 +23,7 @@ const JoinFieldtrip = () => {
         invitation_code: fieldtripCode,
         user: userID,
       })
-        .then(async (res) => {
+        .then(async (res: any) => {
           if (res.id) {
             router.replace('/')
             alert('Se ha unido a la salida exitosamente')
@@ -33,7 +33,7 @@ const JoinFieldtrip = () => {
             router.replace('/')
           }
         })
-        .catch((error) => {
+        .catch((error: any) => {
           throw new Error(error.response?.data?.detail || error.message)
         })
         .finally(() => {
@@ -51,7 +51,7 @@ const JoinFieldtrip = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode(token)
+      const jwt: any = jwtDecode(token)
       if (!jwt.custom_data.is_student) {
         router.replace('/')
       }
@@ -68,8 +68,8 @@ const JoinFieldtrip = () => {
         </Text>
         <SimpleInput
           label="Ingrese el código de invitación *"
-          onChange={(e) => setFieldtripCode(e.target.value)}
-          onChangeText={(val) => setFieldtripCode(val)}
+          onChange={(e: any) => setFieldtripCode(e.target.value)}
+          onChangeText={(val: string) => setFieldtripCode(val)}
           value={fieldtripCode}
         />
       </View>
