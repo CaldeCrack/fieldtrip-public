@@ -7,7 +7,7 @@ module.exports = {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
   },
-  ignorePatterns: ['/dist/*', '.eslintrc.js',],
+  ignorePatterns: ['/dist/*', '.eslintrc.js', 'expo-env.d.ts'],
   extends: [
     'expo',
     'plugin:import/recommended',
