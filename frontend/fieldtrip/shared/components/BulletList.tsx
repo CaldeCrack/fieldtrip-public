@@ -2,10 +2,12 @@ import { Text } from 'react-native-paper'
 import { StyleSheet, View } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-const BulletList = (props) => {
-  const { data } = props
+type BulletListProps = {
+  data: string[]
+}
 
-  if (data.length === 0) {
+const BulletList = ({ data = [] }: BulletListProps) => {
+  if (!data || data.length === 0) {
     return <Icon name="close" size={20} color={'#00796b'} />
   }
 
