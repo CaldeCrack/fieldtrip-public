@@ -1,4 +1,11 @@
-import { View, StyleSheet, ScrollView } from 'react-native'
+import React, { ReactNode, useEffect, useState } from 'react'
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  StyleProp,
+  ViewStyle,
+} from 'react-native'
 import { TextInput } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -6,21 +13,30 @@ import { useRouter } from 'expo-router'
 import { jwtDecode } from 'jwt-decode'
 
 import { COLORS } from '@colors'
-import { useState, useEffect } from 'react'
 
-const Page = (props) => {
+type Props = {
+  children?: ReactNode
+  style?: StyleProp<ViewStyle>
+  showTabs?: boolean
+}
+
+const Page = ({ children, style, showTabs = true }: Props) => {
   const router = useRouter()
-  const { children, style, showTabs } = props
-  const [isTeacher, setIsTeacher] = useState(false)
-  const [isStudent, setIsStudent] = useState(false)
+  const [isTeacher, setIsTeacher] = useState<boolean>(false)
+  const [isStudent, setIsStudent] = useState<boolean>(false)
 
   useEffect(() => {
     ;(async () => {
       const token = await AsyncStorage.getItem('access_token')
       if (token) {
-        const jwt = jwtDecode(token)
-        setIsStudent(jwt.custom_data.is_student)
-        setIsTeacher(jwt.custom_data.is_teacher)
+        try {
+          const jwt: any = jwtDecode(token)
+          setIsStudent(!!jwt.custom_data?.is_student)
+          setIsTeacher(!!jwt.custom_data?.is_teacher)
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error(err)
+        }
       }
     })()
   }, [])
@@ -32,7 +48,6 @@ const Page = (props) => {
       >
         <View style={[styles.container, style]}>{children}</View>
       </ScrollView>
-      {/** */}
       {showTabs && (
         <View style={styles.tabsBar}>
           <View style={styles.tab}>
@@ -46,7 +61,6 @@ const Page = (props) => {
               )}
             />
           </View>
-          {/** */}
           {isTeacher && (
             <View style={styles.tab}>
               <TextInput.Icon
@@ -63,21 +77,19 @@ const Page = (props) => {
             </View>
           )}
           {isStudent && (
-            <>
-              <View style={styles.tab}>
-                <TextInput.Icon
-                  style={styles.circleTab}
-                  icon={() => (
-                    <Icon
-                      name={'plus'}
-                      color={'#fafafa'}
-                      size={24}
-                      onPress={() => router.push('/fieldtrip/join')}
-                    />
-                  )}
-                />
-              </View>
-            </>
+            <View style={styles.tab}>
+              <TextInput.Icon
+                style={styles.circleTab}
+                icon={() => (
+                  <Icon
+                    name={'plus'}
+                    color={'#fafafa'}
+                    size={24}
+                    onPress={() => router.push('/fieldtrip/join')}
+                  />
+                )}
+              />
+            </View>
           )}
           <View style={styles.tab}>
             <TextInput.Icon
