@@ -2,8 +2,7 @@ import { MD3Colors } from 'react-native-paper'
 import { StyleSheet, Dimensions } from 'react-native'
 import { DatePickerInput } from 'react-native-paper-dates'
 import { COLORS } from '@colors'
-
-const DatePicker = (props) => {
+const DatePicker = (props: any) => {
   const { ...rest } = props
 
   return (
