@@ -1,5 +1,11 @@
 import { Text, MD3Colors, TextInput } from 'react-native-paper'
-import { ActivityIndicator, NativeSyntheticEvent, StyleSheet, TextInputChangeEventData, View } from 'react-native'
+import {
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  StyleSheet,
+  TextInputChangeEventData,
+  View,
+} from 'react-native'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'

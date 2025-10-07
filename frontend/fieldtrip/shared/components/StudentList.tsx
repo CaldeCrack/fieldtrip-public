@@ -16,11 +16,7 @@ type StudentItem = {
 
 type Props = {
   data: StudentItem[]
-  setState: (
-    fieldtripID: number,
-    name: string,
-    id: number,
-  ) => void
+  setState: (_fieldtripID: number, _name: string, _id: number) => void
 }
 
 const StudentList = ({ data, setState }: Props) => {

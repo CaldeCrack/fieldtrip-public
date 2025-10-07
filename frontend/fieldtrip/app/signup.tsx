@@ -1,6 +1,13 @@
 import { Text, TextInput, MD3Colors } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
-import { StyleSheet, View, ScrollView, ActivityIndicator, NativeSyntheticEvent, TextInputChangeEventData } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
+} from 'react-native'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
