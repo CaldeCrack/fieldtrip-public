@@ -27,37 +27,63 @@ import {
 import { COLORS } from '@colors'
 import { FieldtriptContext } from '../../_layout'
 
+type ChecklistItem = {
+  id: string | number
+  item: string
+  checked?: boolean
+}
+
+type SelectOption = {
+  _id: string
+  value: string
+}
+
+type SelectState = {
+  value: string
+  list: SelectOption[]
+  selectedList: SelectOption[]
+}
+
+type InputItem = {
+  label: string
+  id: string | number
+  value: string
+}
+
 const JoinFieldtrip = () => {
   const router = useRouter()
-  const { FState } = useContext(FieldtriptContext)
-  const [visible, setVisible] = useState({})
-  const _toggleModal = (name) => () =>
+  const { FState } = useContext<any>(FieldtriptContext)
+  const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const _toggleModal = (name: string) => () =>
     setVisible({ ...visible, [name]: !visible[name] })
-  const [loading, setLoading] = useState(true)
-  const [signingUp, setSigningUp] = useState(false)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [signingUp, setSigningUp] = useState<boolean>(false)
 
-  const _getVisible = (name) => !!visible[name]
+  const _getVisible = (name: string) => !!visible[name]
 
-  const [formDone, setFormDone] = useState(false)
-  const [showChecklist, setShowChecklist] = useState(true)
-  const [showMedInfo, setShowMedInfo] = useState(false)
-  const [checklistData, setChecklistData] = useState([])
-  const [hasPresentedData, setHasPresentedData] = useState({
+  const [formDone, setFormDone] = useState<boolean>(false)
+  const [showChecklist, setShowChecklist] = useState<boolean>(true)
+  const [showMedInfo, setShowMedInfo] = useState<boolean>(false)
+  const [checklistData, setChecklistData] = useState<ChecklistItem[]>([])
+  const [hasPresentedData, setHasPresentedData] = useState<SelectState>({
     value: '',
     list: [],
     selectedList: [],
   })
-  const [presentsData, setPresentsData] = useState({
+  const [presentsData, setPresentsData] = useState<SelectState>({
     value: '',
     list: [],
     selectedList: [],
   })
-  const [inputList, setInputList] = useState([])
+  const [inputList, setInputList] = useState<InputItem[]>([])
 
-  const handleInputChange = (index, text) => {
+  const handleInputChange = (index: string | number, text: string) => {
     const updatedInputs = [...inputList]
-    updatedInputs.find((obj) => obj.id === index).value = text
-    setInputList(updatedInputs)
+    const found = updatedInputs.find((obj) => obj.id === index)
+    if (found) {
+      found.value = text
+      setInputList(updatedInputs)
+    }
   }
 
   const renderInputs = () => {
@@ -67,14 +93,14 @@ const JoinFieldtrip = () => {
           label={`${input.label} *`}
           value={input.value}
           multiline={true}
-          onChangeText={(text) => handleInputChange(input.id, text)}
+          onChangeText={(text: string) => handleInputChange(input.id, text)}
           style={styles.multilineInput}
         />
       </View>
     ))
   }
 
-  const handleToggleCheck = (type, itemID) => {
+  const handleToggleCheck = (type: string, itemID: string | number) => {
     switch (type) {
       case 'checklist':
         setChecklistData((prevData) =>
@@ -95,9 +121,9 @@ const JoinFieldtrip = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode(token)
+      const jwt: any = jwtDecode(token)
       const checklistStatusList = checklistData.map((item) => {
-        return { item: item.id, status: item.checked }
+        return { item: item.id, status: !!item.checked }
       })
       const healthSpecificList = inputList.map((item) => {
         return { item: item.id, value: item.value }
@@ -118,13 +144,13 @@ const JoinFieldtrip = () => {
         health_general: healthGeneralList,
         health_specific: healthSpecificList,
       })
-        .then(async (res) => {
+        .then(async (res: any) => {
           if (res) {
             router.replace('/')
             alert('Su información ha sido enviada exitosamente')
           }
         })
-        .catch((error) => {
+        .catch((error: any) => {
           throw new Error(error.response?.data?.detail || error.message)
         })
         .finally(() => {
@@ -170,7 +196,7 @@ const JoinFieldtrip = () => {
 
         if (checklistCompleted) {
           setChecklistData(
-            checklistRes.map((item) => ({
+            checklistRes.map((item: any) => ({
               ...item,
               checked: true,
             })),
@@ -179,25 +205,25 @@ const JoinFieldtrip = () => {
           setChecklistData(checklistRes)
         }
 
-        const pastList =
-          pastDiseasesRes?.map((item) => ({
+        const pastList: SelectOption[] =
+          pastDiseasesRes?.map((item: any) => ({
             _id: item.id,
             value: item.item,
           })) || []
-        const currentList =
-          currentDiseasesRes?.map((item) => ({
+        const currentList: SelectOption[] =
+          currentDiseasesRes?.map((item: any) => ({
             _id: item.id,
             value: item.item,
           })) || []
 
         const selectedPast = pastList.filter((disease) =>
           healthData?.health_general?.some(
-            (h) => h.item === disease.value && h.status === true,
+            (h: any) => h.item === disease.value && h.status === true,
           ),
         )
         const selectedCurrent = currentList.filter((disease) =>
           healthData?.health_general?.some(
-            (h) => h.item === disease.value && h.status === true,
+            (h: any) => h.item === disease.value && h.status === true,
           ),
         )
 
@@ -215,11 +241,11 @@ const JoinFieldtrip = () => {
           value: selectedCurrent.map((d) => d.value).join(', '),
         }))
 
-        let filledInputs = []
+        let filledInputs: InputItem[] = []
         if (specificHealthRes?.length > 0) {
-          filledInputs = specificHealthRes.map((item) => {
+          filledInputs = specificHealthRes.map((item: any) => {
             const prev = healthData?.health_specific?.find(
-              (h) => h.item === item.item,
+              (h: any) => h.item === item.item,
             )
             return {
               label: item.item,
@@ -229,7 +255,10 @@ const JoinFieldtrip = () => {
           })
         }
         setInputList(filledInputs)
-      } catch (_) {
+      } catch (err) {
+        // Log error for debugging and redirect to home
+        // eslint-disable-next-line no-console
+        console.error(err)
         router.replace('/')
       } finally {
         setLoading(false)
@@ -301,17 +330,13 @@ const JoinFieldtrip = () => {
                       Checklist
                     </Text>
                     <Divider style={styles.divider} />
-                    {checklistData.map((item, index) => (
-                      <>
-                        <CheckboxItem
-                          key={index}
-                          label={item.item}
-                          status={item.checked ? 'checked' : 'unchecked'}
-                          onPress={() =>
-                            handleToggleCheck('checklist', item.id)
-                          }
-                        />
-                      </>
+                    {checklistData.map((item) => (
+                      <CheckboxItem
+                        key={String(item.id)}
+                        label={item.item}
+                        status={item.checked ? 'checked' : 'unchecked'}
+                        onPress={() => handleToggleCheck('checklist', item.id)}
+                      />
                     ))}
                   </View>
                 </Surface>
@@ -354,7 +379,7 @@ const JoinFieldtrip = () => {
                       dialogStyle={styles.select}
                       label="Ha presentado *"
                       value={hasPresentedData.value}
-                      onSelection={(value) => {
+                      onSelection={(value: any) => {
                         setHasPresentedData({
                           ...hasPresentedData,
                           value: value.text,
@@ -376,26 +401,7 @@ const JoinFieldtrip = () => {
                       textInputProps={{
                         outlineColor: COLORS.gray_100,
                         activeOutlineColor: MD3Colors.primary50,
-                        /*
-                    left: (
-                      <TextInput.Icon
-                        icon={() => (
-                          <Icon
-                            name={'delete'}
-                            size={24}
-                            color={MD3Colors.primary0}
-                            style={styles.icon}
-                            onPress={() =>
-                              setHasPresentedData({
-                                ...hasPresentedData,
-                                value: '',
-                                selectedList: [],
-                              })
-                            }
-                          />
-                        )}
-                      />
-                    ),*/
+                        // left icon removed for now
                       }}
                       checkboxProps={{
                         checkboxColor: '#00796b',
@@ -409,7 +415,7 @@ const JoinFieldtrip = () => {
                       dialogStyle={styles.select}
                       label="Presenta actualmente *"
                       value={presentsData.value}
-                      onSelection={(value) => {
+                      onSelection={(value: any) => {
                         setPresentsData({
                           ...presentsData,
                           value: value.text,
@@ -431,26 +437,6 @@ const JoinFieldtrip = () => {
                       textInputProps={{
                         outlineColor: COLORS.gray_100,
                         activeOutlineColor: MD3Colors.primary50,
-                        /*
-                    left: (
-                      <TextInput.Icon
-                        icon={() => (
-                          <Icon
-                            name={'delete'}
-                            size={24}
-                            color={MD3Colors.primary0}
-                            style={styles.icon}
-                            onPress={() =>
-                              setPresentsData({
-                                ...presentsData,
-                                value: '',
-                                selectedList: [],
-                              })
-                            }
-                          />
-                        )}
-                      />
-                    ),*/
                       }}
                       checkboxProps={{
                         checkboxColor: '#00796b',
@@ -534,6 +520,12 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray_100,
     backgroundColor: MD3Colors.primary100,
   },
+  select: {
+    borderRadius: 28,
+    backgroundColor: '#fafafa',
+    maxWidth: 400,
+    marginHorizontal: 'auto',
+  },
   btnMarginRight: {
     marginRight: 10,
   },
@@ -563,6 +555,9 @@ const styles = StyleSheet.create({
     height: 56,
     marginBottom: 14,
     backgroundColor: MD3Colors.primary100,
+  },
+  loader: {
+    marginTop: 20,
   },
 })
 
