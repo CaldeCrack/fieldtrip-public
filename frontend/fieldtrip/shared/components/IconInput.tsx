@@ -2,10 +2,13 @@ import { MD3Colors, TextInput } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { COLORS } from '@colors'
+import type { TextInputProps } from 'react-native-paper'
 
-const IconInput = (props) => {
-  const { iconName, ...rest } = props
+type IconInputProps = TextInputProps & {
+  iconName: string
+}
 
+const IconInput = ({ iconName, ...rest }: IconInputProps) => {
   return (
     <TextInput
       mode="outlined"
@@ -24,7 +27,7 @@ const IconInput = (props) => {
           )}
         />
       }
-      {...rest}
+      {...(rest as any)}
     />
   )
 }
