@@ -1,8 +1,9 @@
 import { Checkbox } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import { COLORS } from '@colors'
+import type { CheckboxProps } from 'react-native-paper'
 
-const CheckboxItem = (props) => {
+const CheckboxItem = (props: CheckboxProps) => {
   const { ...rest } = props
 
   return (
@@ -10,7 +11,7 @@ const CheckboxItem = (props) => {
       uncheckedColor={COLORS.gray_100}
       style={styles.checkbox}
       labelStyle={styles.label}
-      {...rest}
+      {...(rest as any)}
     />
   )
 }
