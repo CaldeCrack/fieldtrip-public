@@ -2,8 +2,21 @@ import { Dimensions, StyleSheet } from 'react-native'
 import { Portal, Dialog, Text } from 'react-native-paper'
 import ContainedButton from './ContainedButton'
 
-const ConfirmationModal = (props) => {
-  const { visible, close, open, title, description } = props
+type ConfirmationModalProps = {
+  visible: boolean
+  close: () => void
+  open: () => void
+  title: string
+  description?: string
+}
+
+const ConfirmationModal = ({
+  visible,
+  close,
+  open,
+  title,
+  description = '',
+}: ConfirmationModalProps) => {
   const isSmallScreen = Dimensions.get('window').width <= 768
 
   return (
