@@ -9,11 +9,24 @@ import { jwtDecode } from 'jwt-decode'
 import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
 
-const FieldtripList = (props) => {
+type FieldtripItem = {
+  id: string | number
+  title: string
+  proffesor?: string
+  startDate: string
+  endDate: string
+  invitationCode?: string
+}
+
+type Props = {
+  data: FieldtripItem[]
+  setState: (_id: string | number) => void
+}
+
+const FieldtripList = ({ data, setState }: Props) => {
   const router = useRouter()
-  const { data, setState } = props
-  const [isTeacher, setIsTeacher] = useState(false)
-  const [isStudent, setIsStudent] = useState(false)
+  const [isTeacher, setIsTeacher] = useState<boolean>(false)
+  const [isStudent, setIsStudent] = useState<boolean>(false)
 
   useEffect(() => {
     ;(async () => {
@@ -22,13 +35,14 @@ const FieldtripList = (props) => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode(token)
+      const jwt: any = jwtDecode(token)
       setIsStudent(jwt.custom_data.is_student)
       setIsTeacher(jwt.custom_data.is_teacher)
     })()
   }, [router])
 
-  const copyToClipboard = async (invitationCode) => {
+  const copyToClipboard = async (invitationCode?: string) => {
+    if (!invitationCode) return
     await Clipboard.setStringAsync(invitationCode)
     alert(
       'El código de invitación a la salida ha sido copiado al portapapeles.',
@@ -40,7 +54,7 @@ const FieldtripList = (props) => {
       {data.map((item) => (
         <TouchableRipple
           style={styles.ripple}
-          key={item.id}
+          key={String(item.id)}
           onPress={() => {
             setState(item.id)
             const [day, month, year] = item.startDate.split('/').map(Number)
