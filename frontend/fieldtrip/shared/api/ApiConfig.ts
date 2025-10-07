@@ -1,27 +1,32 @@
-import axios from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
 
-//import { logout } from '@services'
-
-const validToken = (token) => {
-  const jwt = jwtDecode(token)
-  const currentDate = Date.now() / 1000
-  return jwt.exp >= currentDate
+const validToken = (token: string): boolean => {
+  try {
+    const jwt: any = jwtDecode(token)
+    const currentDate = Date.now() / 1000
+    return jwt.exp >= currentDate
+  } catch (err) {
+    // If decoding fails, token is invalid
+    // eslint-disable-next-line no-console
+    console.error(err)
+    return false
+  }
 }
 
-export const Api = axios.create({
+export const Api: AxiosInstance = axios.create({
   baseURL: 'http://127.0.0.1:8000',
   headers: {
     accept: 'application/json',
   },
 })
 
-Api.interceptors.request.use(async (req) => {
+Api.interceptors.request.use(async (req: AxiosRequestConfig | any) => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     if (token) {
-      if (token && !validToken(token)) {
+      if (!validToken(token)) {
         console.log('Invalid token')
         await AsyncStorage.removeItem('EXPO_CONSTANTS_INSTALLATION_ID')
         await AsyncStorage.removeItem('access_token')
@@ -30,10 +35,14 @@ Api.interceptors.request.use(async (req) => {
         await AsyncStorage.removeItem('names')
         await AsyncStorage.removeItem('surnames')
       }
-      req.headers['authorization'] = `Bearer ${token}`
+      req.headers = req.headers || {}
+      ;(req.headers as any)['authorization'] = `Bearer ${token}`
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error)
   }
   return req
 })
+
+export default Api
