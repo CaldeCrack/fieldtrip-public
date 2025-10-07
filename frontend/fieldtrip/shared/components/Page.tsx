@@ -20,7 +20,7 @@ type Props = {
   showTabs?: boolean
 }
 
-const Page = ({ children, style, showTabs = true }: Props) => {
+const Page = ({ children, style, showTabs = false }: Props) => {
   const router = useRouter()
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)

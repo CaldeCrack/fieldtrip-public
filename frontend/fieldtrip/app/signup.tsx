@@ -536,7 +536,7 @@ const Signup = () => {
           {loading ? (
             <ActivityIndicator color="white" size="small" />
           ) : (
-            'Regristarse'
+            'Registrarse'
           )}
         </ContainedButton>
         <View style={styles.login}>

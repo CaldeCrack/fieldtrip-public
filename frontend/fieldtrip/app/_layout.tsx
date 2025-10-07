@@ -71,10 +71,6 @@ const FReducer = (_state: FStateType, action: FStateType) => {
   return { fieldtripID: action.fieldtripID }
 }
 
-// export const unstable_settings = {
-//   initialRouteName: 'index',
-// }
-
 const StackLayout = () => {
   const router = useRouter()
   const [visible, setVisible] = useState<Record<string, boolean>>({})
