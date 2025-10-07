@@ -1,9 +1,10 @@
 import { Button } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
+import type { ButtonProps } from 'react-native-paper'
 
-const TextButton = (props) => {
+const TextButton = (props: ButtonProps) => {
   const { ...rest } = props
-  return <Button labelStyle={styles.label} {...rest} />
+  return <Button labelStyle={styles.label} {...(rest as any)} />
 }
 
 const styles = StyleSheet.create({
