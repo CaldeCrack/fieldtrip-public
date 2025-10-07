@@ -1,8 +1,9 @@
 import { MD3Colors, TextInput } from 'react-native-paper'
 import { StyleSheet } from 'react-native'
 import { COLORS } from '@colors'
+import type { TextInputProps } from 'react-native-paper'
 
-const SimpleInput = (props) => {
+const SimpleInput = (props: TextInputProps) => {
   const { ...rest } = props
   return (
     <TextInput
@@ -15,7 +16,7 @@ const SimpleInput = (props) => {
         },
       }}
       outlineColor={COLORS.gray_100}
-      {...rest}
+      {...(rest as any)}
     />
   )
 }
