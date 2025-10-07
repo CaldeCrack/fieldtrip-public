@@ -1,8 +1,22 @@
 import { Dimensions, StyleSheet } from 'react-native'
 import { Portal, Dialog, Text } from 'react-native-paper'
+import type { ReactNode } from 'react'
 
-const Modal = (props) => {
-  const { visible, close, title, description, children } = props
+type ModalProps = {
+  visible: boolean
+  close: () => void
+  title?: string
+  description?: string
+  children?: ReactNode
+}
+
+const Modal = ({
+  visible,
+  close,
+  title = '',
+  description = '',
+  children,
+}: ModalProps) => {
   const isSmallScreen = Dimensions.get('window').width <= 768
 
   return (
