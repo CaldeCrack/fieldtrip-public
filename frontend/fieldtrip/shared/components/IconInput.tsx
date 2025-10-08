@@ -27,7 +27,7 @@ const IconInput = ({ iconName, ...rest }: IconInputProps) => {
           )}
         />
       }
-      {...(rest as any)}
+      {...rest}
     />
   )
 }

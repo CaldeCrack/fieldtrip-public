@@ -9,7 +9,7 @@ const ContainedButton = (props: ButtonProps) => {
       mode="contained"
       labelStyle={styles.label}
       style={styles.btn}
-      {...(rest as any)}
+      {...rest}
     />
   )
 }

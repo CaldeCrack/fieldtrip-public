@@ -11,7 +11,7 @@ const CheckboxItem = (props: CheckboxItemProps) => {
       uncheckedColor={COLORS.gray_100}
       style={styles.checkbox}
       labelStyle={styles.label}
-      {...(rest as any)}
+      {...rest}
     />
   )
 }

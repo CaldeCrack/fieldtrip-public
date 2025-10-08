@@ -16,7 +16,7 @@ const SimpleInput = (props: TextInputProps) => {
         },
       }}
       outlineColor={COLORS.gray_100}
-      {...(rest as any)}
+      {...rest}
     />
   )
 }

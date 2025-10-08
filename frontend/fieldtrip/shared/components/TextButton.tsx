@@ -5,7 +5,7 @@ import type { ButtonProps } from 'react-native-paper'
 type Props = ButtonProps & { style?: TextStyle }
 
 const TextButton = (props: Props) => {
-  const { style, labelStyle, ...rest } = props as any
+  const { style, labelStyle, ...rest } = props
   const mergedLabelStyle = [styles.label, labelStyle, style]
   return <Button labelStyle={mergedLabelStyle} {...rest} />
 }

@@ -87,7 +87,7 @@ const StudentList = ({ data, setState }: Props) => {
                 open={() => {
                   setState(item.fieldtripID!, item.name, item.id)
                   setVisible({ ...visible, [`modal-${item.id}`]: false })
-                  router.push('fieldtrip/chart' as any)
+                  router.push('/fieldtrip/chart')
                 }}
                 title={`¿Está seguro/a que desea ver la información de salud de ${item.name}?`}
                 description={`Esta acción quedará registrada y podrá ser vista por ${item.name}.`}

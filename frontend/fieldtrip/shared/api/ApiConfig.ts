@@ -36,7 +36,7 @@ Api.interceptors.request.use(async (req: AxiosRequestConfig | any) => {
         await AsyncStorage.removeItem('surnames')
       }
       req.headers = req.headers || {}
-      ;(req.headers as any)['authorization'] = `Bearer ${token}`
+      req.headers['authorization'] = `Bearer ${token}`
     }
   } catch (error) {
     // eslint-disable-next-line no-console
