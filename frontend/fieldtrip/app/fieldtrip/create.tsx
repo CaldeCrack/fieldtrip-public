@@ -40,7 +40,7 @@ const CreateFieldtrip = () => {
   const router = useRouter()
 
   const [name, setName] = useState<string>('')
-  const [professor, setProffesor] = useState<SelectState>({
+  const [professor, setProfessor] = useState<SelectState>({
     value: '',
     list: [],
     selectedList: [],
@@ -133,7 +133,7 @@ const CreateFieldtrip = () => {
           const proffesors = teachers.map((item: any) => {
             return { _id: item.id, value: `${item.names} ${item.surnames}` }
           })
-          setProffesor({
+          setProfessor({
             ...professor,
             list: proffesors,
           })
@@ -153,7 +153,7 @@ const CreateFieldtrip = () => {
         setLoading(false)
       }
     })()
-  }, [course, professor])
+  }, [])
 
   function formatDateToYYYYMMDD(date: Date): string {
     const year = date.getFullYear()
@@ -215,7 +215,7 @@ const CreateFieldtrip = () => {
               label="Profesor a cargo *"
               value={professor.value}
               onSelection={(value: any) => {
-                setProffesor({
+                setProfessor({
                   ...professor,
                   value: value.text,
                   selectedList: value.selectedList,
@@ -245,7 +245,7 @@ const CreateFieldtrip = () => {
                         // @ts-ignore: icon style may not exist
                         style={styles.icon}
                         onPress={() =>
-                          setProffesor({
+                          setProfessor({
                             ...professor,
                             value: '',
                             selectedList: [],

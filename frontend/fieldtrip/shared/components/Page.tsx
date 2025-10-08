@@ -10,7 +10,7 @@ import { TextInput } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 
 import { COLORS } from '@colors'
 
@@ -18,6 +18,13 @@ type Props = {
   children?: ReactNode
   style?: StyleProp<ViewStyle>
   showTabs?: boolean
+}
+
+interface Payload extends JwtPayload {
+  custom_data: {
+    is_student: boolean
+    is_teacher: boolean
+  }
 }
 
 const Page = ({ children, style, showTabs = false }: Props) => {
@@ -30,7 +37,7 @@ const Page = ({ children, style, showTabs = false }: Props) => {
       const token = await AsyncStorage.getItem('access_token')
       if (token) {
         try {
-          const jwt: any = jwtDecode(token)
+          const jwt = jwtDecode<Payload>(token)
           setIsStudent(!!jwt.custom_data?.is_student)
           setIsTeacher(!!jwt.custom_data?.is_teacher)
         } catch (err) {

@@ -163,8 +163,6 @@ const JoinFieldtrip = () => {
   }
 
   useEffect(() => {
-    console.log(checklistData)
-    console.log(inputList)
     if (checklistData.length > 0 && inputList.length > 0) {
       const checklistStatus = checklistData.every((obj) => obj.checked === true)
       const specificDataStatus = inputList.every((obj) => obj.value.length > 0)
