@@ -454,7 +454,7 @@ class LatestFieldtripHealthAPIView(APIView):
     )
     def get(self, request):
         user = request.user
-        attendee = FieldtripAttendee.objects.filter(user=user, signup_complete=True).order_by('-fieldtrip__start_date').first()
+        attendee = FieldtripAttendee.objects.filter(user=user).order_by('-fieldtrip__start_date').first()
         if not attendee:
             return Response({"error": "No hay registros de salidas para este usuario."}, status=status.HTTP_404_NOT_FOUND)
 
