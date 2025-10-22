@@ -175,7 +175,7 @@ const Signup = () => {
         }
       })
     })()
-  }, [diet, medAllergy, substanceAllergy])
+  }, [])
 
   return (
     <Page style={styles.page}>

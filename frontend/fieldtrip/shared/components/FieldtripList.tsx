@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 type FieldtripItem = {
   id: number
   title: string
-  proffesor?: string
+  professor?: string
   startDate: string
   endDate: string
   invitationCode?: string
@@ -77,7 +77,7 @@ const FieldtripList = ({ data, setState }: Props) => {
             <Text variant="titleLarge" style={{ fontWeight: 500 }}>
               {item.title}
             </Text>
-            <Text variant="bodyLarge">{item.proffesor}</Text>
+            <Text variant="bodyLarge">{item.professor}</Text>
             <View style={styles.dates}>
               <Icon
                 name="calendar"
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  proffesor: {
+  professor: {
     flexDirection: 'row',
     alignItems: 'center',
   },

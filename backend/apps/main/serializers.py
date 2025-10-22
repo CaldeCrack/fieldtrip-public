@@ -98,7 +98,7 @@ class FieldtripAttendeeSerializer(serializers.ModelSerializer):
         data = {
             "id": id,
             "title": fieldtrip.name,
-            "proffesor": f"{fieldtrip.teacher.names} {fieldtrip.teacher.surnames}",
+            "professor": f"{fieldtrip.teacher.names} {fieldtrip.teacher.surnames}",
             "startDate": format_date(fieldtrip.start_date),
             "endDate": format_date(fieldtrip.end_date),
             "invitationCode": fieldtrip.invitation_code,
