@@ -1,0 +1,2047 @@
+[
+  {
+    "model": "admin.logentry",
+    "pk": 1,
+    "fields": {
+      "action_time": "2022-12-10T22:48:35.058Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "1",
+      "object_repr": "Lacto-vegetariana",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 2,
+    "fields": {
+      "action_time": "2022-12-10T22:48:43.823Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "2",
+      "object_repr": "Ovo-vegetariana",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 3,
+    "fields": {
+      "action_time": "2022-12-10T22:48:50.000Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "3",
+      "object_repr": "Lacto-ovo-vegetariana",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 4,
+    "fields": {
+      "action_time": "2022-12-10T22:48:55.351Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "4",
+      "object_repr": "Pescetariana",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 5,
+    "fields": {
+      "action_time": "2022-12-10T22:49:00.104Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "5",
+      "object_repr": "Vegana",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 6,
+    "fields": {
+      "action_time": "2022-12-10T22:49:04.624Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "6",
+      "object_repr": "Omnívora",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 7,
+    "fields": {
+      "action_time": "2022-12-10T22:49:19.097Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "7",
+      "object_repr": "Vegetariana parcial (detallar en el siguiente campo)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 8,
+    "fields": {
+      "action_time": "2022-12-10T22:49:25.203Z",
+      "user": 1,
+      "content_type": 23,
+      "object_id": "8",
+      "object_repr": "Otra (detallar en el siguiente campo)",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 9,
+    "fields": {
+      "action_time": "2022-12-10T22:49:43.026Z",
+      "user": 1,
+      "content_type": 6,
+      "object_id": "1",
+      "object_repr": "Declaro conocer el Protocolo de Seguridad en Terreno.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 10,
+    "fields": {
+      "action_time": "2022-12-10T22:49:50.361Z",
+      "user": 1,
+      "content_type": 6,
+      "object_id": "2",
+      "object_repr": "Declaro conocer las bases del Seguro Escolar que me protege en caso de accidente.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 11,
+    "fields": {
+      "action_time": "2022-12-10T22:49:56.482Z",
+      "user": 1,
+      "content_type": 6,
+      "object_id": "3",
+      "object_repr": "Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 12,
+    "fields": {
+      "action_time": "2022-12-10T22:50:12.744Z",
+      "user": 1,
+      "content_type": 6,
+      "object_id": "4",
+      "object_repr": "Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 13,
+    "fields": {
+      "action_time": "2022-12-10T22:50:18.790Z",
+      "user": 1,
+      "content_type": 6,
+      "object_id": "5",
+      "object_repr": "Declaro que estoy en condiciones de salud aptas para asistir a la salida de terreno.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 14,
+    "fields": {
+      "action_time": "2022-12-10T22:50:26.450Z",
+      "user": 1,
+      "content_type": 6,
+      "object_id": "6",
+      "object_repr": "Declaro que no padezco COVID-19.",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 15,
+    "fields": {
+      "action_time": "2022-12-10T22:50:42.155Z",
+      "user": 1,
+      "content_type": 9,
+      "object_id": "1",
+      "object_repr": "Universidad de Chile",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 16,
+    "fields": {
+      "action_time": "2022-12-10T22:52:00.331Z",
+      "user": 1,
+      "content_type": 8,
+      "object_id": "1",
+      "object_repr": "(Test (Universidad de Chile))",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 17,
+    "fields": {
+      "action_time": "2022-12-10T22:52:46.664Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "1",
+      "object_repr": "Carpa",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 18,
+    "fields": {
+      "action_time": "2022-12-10T22:52:51.548Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "2",
+      "object_repr": "Saco de dormir",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 19,
+    "fields": {
+      "action_time": "2022-12-10T22:52:59.444Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "3",
+      "object_repr": "Zapatos de terreno",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 20,
+    "fields": {
+      "action_time": "2022-12-10T22:53:25.602Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "4",
+      "object_repr": "Martillo",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 21,
+    "fields": {
+      "action_time": "2022-12-10T22:53:29.380Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "5",
+      "object_repr": "Lupa",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 22,
+    "fields": {
+      "action_time": "2022-12-10T22:53:40.001Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "6",
+      "object_repr": "Rayador",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 23,
+    "fields": {
+      "action_time": "2022-12-10T22:53:43.687Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "7",
+      "object_repr": "Brújula",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 24,
+    "fields": {
+      "action_time": "2022-12-10T22:53:56.685Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "8",
+      "object_repr": "Binocular",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 25,
+    "fields": {
+      "action_time": "2022-12-10T22:54:59.781Z",
+      "user": 1,
+      "content_type": 25,
+      "object_id": "1",
+      "object_repr": "rominarodriguez@ug.uchile.cl",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Nombres\", \"Apellidos\", \"RUT\", \"Tipo de alimentaci\\u00f3n\", \"Contacto de emergencia\", \"N\\u00famero de emergencia\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 26,
+    "fields": {
+      "action_time": "2022-12-10T22:58:03.160Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "1",
+      "object_repr": "Test",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 27,
+    "fields": {
+      "action_time": "2022-12-10T22:58:12.985Z",
+      "user": 1,
+      "content_type": 11,
+      "object_id": "1",
+      "object_repr": "Usuario: rominarodriguez@ug.uchile.cl, Fieldtrip: Test",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 28,
+    "fields": {
+      "action_time": "2022-12-11T02:03:28.970Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "1",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 29,
+    "fields": {
+      "action_time": "2022-12-11T02:04:42.216Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "1",
+      "object_repr": "Equipamiento: Carpa, Cantidad: 3, Fieldtrip: Test",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 30,
+    "fields": {
+      "action_time": "2022-12-11T02:16:45.199Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "1",
+      "object_repr": "Test",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Activo\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 31,
+    "fields": {
+      "action_time": "2022-12-11T02:17:16.419Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "1",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 32,
+    "fields": {
+      "action_time": "2022-12-11T02:22:27.411Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "1",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 33,
+    "fields": {
+      "action_time": "2022-12-11T02:22:37.173Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "2",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 34,
+    "fields": {
+      "action_time": "2022-12-11T02:22:43.631Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "2",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 35,
+    "fields": {
+      "action_time": "2022-12-11T02:23:47.619Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "2",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 36,
+    "fields": {
+      "action_time": "2022-12-11T02:23:55.206Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "3",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 5",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 37,
+    "fields": {
+      "action_time": "2022-12-11T02:24:01.597Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "3",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 38,
+    "fields": {
+      "action_time": "2022-12-11T02:24:16.095Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "1",
+      "object_repr": "Test",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Activo\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 39,
+    "fields": {
+      "action_time": "2022-12-11T02:24:27.617Z",
+      "user": 1,
+      "content_type": 10,
+      "object_id": "1",
+      "object_repr": "Test",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Activo\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 40,
+    "fields": {
+      "action_time": "2022-12-11T02:25:38.284Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "3",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 41,
+    "fields": {
+      "action_time": "2022-12-11T02:25:48.986Z",
+      "user": 1,
+      "content_type": 20,
+      "object_id": "6",
+      "object_repr": "Rayador",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 42,
+    "fields": {
+      "action_time": "2022-12-11T02:26:18.680Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "1",
+      "object_repr": "Polen",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 43,
+    "fields": {
+      "action_time": "2022-12-11T02:26:36.268Z",
+      "user": 1,
+      "content_type": 12,
+      "object_id": "2",
+      "object_repr": "Látex",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 44,
+    "fields": {
+      "action_time": "2022-12-11T02:29:47.546Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "4",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 45,
+    "fields": {
+      "action_time": "2022-12-11T02:29:49.888Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "4",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 46,
+    "fields": {
+      "action_time": "2022-12-11T02:29:54.105Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "4",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 47,
+    "fields": {
+      "action_time": "2022-12-11T02:39:37.208Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "4",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: -2",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 48,
+    "fields": {
+      "action_time": "2022-12-11T02:39:43.833Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "5",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 49,
+    "fields": {
+      "action_time": "2022-12-11T02:39:50.534Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "5",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 50,
+    "fields": {
+      "action_time": "2022-12-11T02:39:57.466Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "5",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 51,
+    "fields": {
+      "action_time": "2022-12-11T02:40:33.917Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "5",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 5",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 52,
+    "fields": {
+      "action_time": "2022-12-11T02:40:52.803Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "5",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 6",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 53,
+    "fields": {
+      "action_time": "2022-12-11T02:41:39.548Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "5",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 0",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 54,
+    "fields": {
+      "action_time": "2022-12-11T02:41:44.844Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "6",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 55,
+    "fields": {
+      "action_time": "2022-12-11T02:41:51.117Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "6",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 1",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 56,
+    "fields": {
+      "action_time": "2022-12-11T02:41:59.352Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "6",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 57,
+    "fields": {
+      "action_time": "2022-12-11T02:42:03.524Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "6",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 58,
+    "fields": {
+      "action_time": "2022-12-11T02:42:48.796Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "6",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 0",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 59,
+    "fields": {
+      "action_time": "2022-12-11T02:42:53.528Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "7",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 60,
+    "fields": {
+      "action_time": "2022-12-11T02:42:59.564Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "7",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 61,
+    "fields": {
+      "action_time": "2022-12-11T02:43:11.634Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "7",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 4",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 62,
+    "fields": {
+      "action_time": "2022-12-12T00:05:03.816Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "7",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Total: 6",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 63,
+    "fields": {
+      "action_time": "2022-12-12T00:05:10.764Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "8",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Total: 7",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 64,
+    "fields": {
+      "action_time": "2022-12-12T06:05:55.899Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "8",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 1",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 65,
+    "fields": {
+      "action_time": "2022-12-12T06:06:01.534Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "9",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 66,
+    "fields": {
+      "action_time": "2022-12-12T06:07:28.273Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "8",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 2",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 67,
+    "fields": {
+      "action_time": "2022-12-12T06:07:34.365Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "8",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 68,
+    "fields": {
+      "action_time": "2022-12-12T06:07:43.030Z",
+      "user": 1,
+      "content_type": 21,
+      "object_id": "8",
+      "object_repr": "Fieldtrip: Test, Equipamiento: Carpa, Cantidad: 0",
+      "action_flag": 2,
+      "change_message": "[{\"changed\": {\"fields\": [\"Cantidad\"]}}]"
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 69,
+    "fields": {
+      "action_time": "2022-12-12T06:12:23.994Z",
+      "user": 1,
+      "content_type": 19,
+      "object_id": "9",
+      "object_repr": "Institución Educacional: Universidad de Chile, Equipamiento: Carpa, Cantidad: 3",
+      "action_flag": 3,
+      "change_message": ""
+    }
+  },
+  {
+    "model": "admin.logentry",
+    "pk": 70,
+    "fields": {
+      "action_time": "2022-12-12T08:23:00.773Z",
+      "user": 1,
+      "content_type": 13,
+      "object_id": "1",
+      "object_repr": "Ficha médica de: rominarodriguez@ug.uchile.cl, Vista por: rominarodriguez@ug.uchile.cl, Fieldtrip: Test",
+      "action_flag": 1,
+      "change_message": "[{\"added\": {}}]"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+      "name": "Can add log entry",
+      "content_type": 1,
+      "codename": "add_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+      "name": "Can change log entry",
+      "content_type": 1,
+      "codename": "change_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+      "name": "Can delete log entry",
+      "content_type": 1,
+      "codename": "delete_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+      "name": "Can view log entry",
+      "content_type": 1,
+      "codename": "view_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+      "name": "Can add permission",
+      "content_type": 2,
+      "codename": "add_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+      "name": "Can change permission",
+      "content_type": 2,
+      "codename": "change_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+      "name": "Can delete permission",
+      "content_type": 2,
+      "codename": "delete_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+      "name": "Can view permission",
+      "content_type": 2,
+      "codename": "view_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+      "name": "Can add group",
+      "content_type": 3,
+      "codename": "add_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+      "name": "Can change group",
+      "content_type": 3,
+      "codename": "change_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+      "name": "Can delete group",
+      "content_type": 3,
+      "codename": "delete_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+      "name": "Can view group",
+      "content_type": 3,
+      "codename": "view_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+      "name": "Can add content type",
+      "content_type": 4,
+      "codename": "add_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+      "name": "Can change content type",
+      "content_type": 4,
+      "codename": "change_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+      "name": "Can delete content type",
+      "content_type": 4,
+      "codename": "delete_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+      "name": "Can view content type",
+      "content_type": 4,
+      "codename": "view_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+      "name": "Can add session",
+      "content_type": 5,
+      "codename": "add_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+      "name": "Can change session",
+      "content_type": 5,
+      "codename": "change_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+      "name": "Can delete session",
+      "content_type": 5,
+      "codename": "delete_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+      "name": "Can view session",
+      "content_type": 5,
+      "codename": "view_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+      "name": "Can add ítem de checklist",
+      "content_type": 6,
+      "codename": "add_checklist"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+      "name": "Can change ítem de checklist",
+      "content_type": 6,
+      "codename": "change_checklist"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+      "name": "Can delete ítem de checklist",
+      "content_type": 6,
+      "codename": "delete_checklist"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+      "name": "Can view ítem de checklist",
+      "content_type": 6,
+      "codename": "view_checklist"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+      "name": "Can add estatus de ítem en checklist",
+      "content_type": 7,
+      "codename": "add_checkliststatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+      "name": "Can change estatus de ítem en checklist",
+      "content_type": 7,
+      "codename": "change_checkliststatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+      "name": "Can delete estatus de ítem en checklist",
+      "content_type": 7,
+      "codename": "delete_checkliststatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+      "name": "Can view estatus de ítem en checklist",
+      "content_type": 7,
+      "codename": "view_checkliststatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+      "name": "Can add curso",
+      "content_type": 8,
+      "codename": "add_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+      "name": "Can change curso",
+      "content_type": 8,
+      "codename": "change_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+      "name": "Can delete curso",
+      "content_type": 8,
+      "codename": "delete_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+      "name": "Can view curso",
+      "content_type": 8,
+      "codename": "view_course"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 33,
+    "fields": {
+      "name": "Can add institución educacional",
+      "content_type": 9,
+      "codename": "add_educationalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 34,
+    "fields": {
+      "name": "Can change institución educacional",
+      "content_type": 9,
+      "codename": "change_educationalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 35,
+    "fields": {
+      "name": "Can delete institución educacional",
+      "content_type": 9,
+      "codename": "delete_educationalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 36,
+    "fields": {
+      "name": "Can view institución educacional",
+      "content_type": 9,
+      "codename": "view_educationalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 37,
+    "fields": {
+      "name": "Can add fieldtrip",
+      "content_type": 10,
+      "codename": "add_fieldtrip"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 38,
+    "fields": {
+      "name": "Can change fieldtrip",
+      "content_type": 10,
+      "codename": "change_fieldtrip"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 39,
+    "fields": {
+      "name": "Can delete fieldtrip",
+      "content_type": 10,
+      "codename": "delete_fieldtrip"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 40,
+    "fields": {
+      "name": "Can view fieldtrip",
+      "content_type": 10,
+      "codename": "view_fieldtrip"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 41,
+    "fields": {
+      "name": "Can add asistente a fieldtrip",
+      "content_type": 11,
+      "codename": "add_fieldtripattendee"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 42,
+    "fields": {
+      "name": "Can change asistente a fieldtrip",
+      "content_type": 11,
+      "codename": "change_fieldtripattendee"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 43,
+    "fields": {
+      "name": "Can delete asistente a fieldtrip",
+      "content_type": 11,
+      "codename": "delete_fieldtripattendee"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 44,
+    "fields": {
+      "name": "Can view asistente a fieldtrip",
+      "content_type": 11,
+      "codename": "view_fieldtripattendee"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 45,
+    "fields": {
+      "name": "Can add alergia",
+      "content_type": 12,
+      "codename": "add_allergy"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 46,
+    "fields": {
+      "name": "Can change alergia",
+      "content_type": 12,
+      "codename": "change_allergy"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 47,
+    "fields": {
+      "name": "Can delete alergia",
+      "content_type": 12,
+      "codename": "delete_allergy"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 48,
+    "fields": {
+      "name": "Can view alergia",
+      "content_type": 12,
+      "codename": "view_allergy"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 49,
+    "fields": {
+      "name": "Can add log de la información de salud de usuario",
+      "content_type": 13,
+      "codename": "add_healthdatalog"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 50,
+    "fields": {
+      "name": "Can change log de la información de salud de usuario",
+      "content_type": 13,
+      "codename": "change_healthdatalog"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 51,
+    "fields": {
+      "name": "Can delete log de la información de salud de usuario",
+      "content_type": 13,
+      "codename": "delete_healthdatalog"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 52,
+    "fields": {
+      "name": "Can view log de la información de salud de usuario",
+      "content_type": 13,
+      "codename": "view_healthdatalog"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 53,
+    "fields": {
+      "name": "Can add ítem de salud general",
+      "content_type": 14,
+      "codename": "add_healthgral"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 54,
+    "fields": {
+      "name": "Can change ítem de salud general",
+      "content_type": 14,
+      "codename": "change_healthgral"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 55,
+    "fields": {
+      "name": "Can delete ítem de salud general",
+      "content_type": 14,
+      "codename": "delete_healthgral"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 56,
+    "fields": {
+      "name": "Can view ítem de salud general",
+      "content_type": 14,
+      "codename": "view_healthgral"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 57,
+    "fields": {
+      "name": "Can add estatus de ítem de salud general",
+      "content_type": 15,
+      "codename": "add_healthgralstatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 58,
+    "fields": {
+      "name": "Can change estatus de ítem de salud general",
+      "content_type": 15,
+      "codename": "change_healthgralstatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 59,
+    "fields": {
+      "name": "Can delete estatus de ítem de salud general",
+      "content_type": 15,
+      "codename": "delete_healthgralstatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 60,
+    "fields": {
+      "name": "Can view estatus de ítem de salud general",
+      "content_type": 15,
+      "codename": "view_healthgralstatus"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 61,
+    "fields": {
+      "name": "Can add ítem de información específica de salud",
+      "content_type": 16,
+      "codename": "add_healthspecific"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 62,
+    "fields": {
+      "name": "Can change ítem de información específica de salud",
+      "content_type": 16,
+      "codename": "change_healthspecific"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 63,
+    "fields": {
+      "name": "Can delete ítem de información específica de salud",
+      "content_type": 16,
+      "codename": "delete_healthspecific"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 64,
+    "fields": {
+      "name": "Can view ítem de información específica de salud",
+      "content_type": 16,
+      "codename": "view_healthspecific"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 65,
+    "fields": {
+      "name": "Can add información específica de salud de usuario",
+      "content_type": 17,
+      "codename": "add_healthspecificvalue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 66,
+    "fields": {
+      "name": "Can change información específica de salud de usuario",
+      "content_type": 17,
+      "codename": "change_healthspecificvalue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 67,
+    "fields": {
+      "name": "Can delete información específica de salud de usuario",
+      "content_type": 17,
+      "codename": "delete_healthspecificvalue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 68,
+    "fields": {
+      "name": "Can view información específica de salud de usuario",
+      "content_type": 17,
+      "codename": "view_healthspecificvalue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 69,
+    "fields": {
+      "name": "Can add alergia de usuario",
+      "content_type": 18,
+      "codename": "add_userallergies"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 70,
+    "fields": {
+      "name": "Can change alergia de usuario",
+      "content_type": 18,
+      "codename": "change_userallergies"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 71,
+    "fields": {
+      "name": "Can delete alergia de usuario",
+      "content_type": 18,
+      "codename": "delete_userallergies"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 72,
+    "fields": {
+      "name": "Can view alergia de usuario",
+      "content_type": 18,
+      "codename": "view_userallergies"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 73,
+    "fields": {
+      "name": "Can add equipamiento de institución educacional",
+      "content_type": 19,
+      "codename": "add_educationalinstitutionequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 74,
+    "fields": {
+      "name": "Can change equipamiento de institución educacional",
+      "content_type": 19,
+      "codename": "change_educationalinstitutionequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 75,
+    "fields": {
+      "name": "Can delete equipamiento de institución educacional",
+      "content_type": 19,
+      "codename": "delete_educationalinstitutionequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 76,
+    "fields": {
+      "name": "Can view equipamiento de institución educacional",
+      "content_type": 19,
+      "codename": "view_educationalinstitutionequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 77,
+    "fields": {
+      "name": "Can add equipamiento",
+      "content_type": 20,
+      "codename": "add_equipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 78,
+    "fields": {
+      "name": "Can change equipamiento",
+      "content_type": 20,
+      "codename": "change_equipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 79,
+    "fields": {
+      "name": "Can delete equipamiento",
+      "content_type": 20,
+      "codename": "delete_equipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 80,
+    "fields": {
+      "name": "Can view equipamiento",
+      "content_type": 20,
+      "codename": "view_equipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 81,
+    "fields": {
+      "name": "Can add equipamiento en uso",
+      "content_type": 21,
+      "codename": "add_equipmentinuse"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 82,
+    "fields": {
+      "name": "Can change equipamiento en uso",
+      "content_type": 21,
+      "codename": "change_equipmentinuse"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 83,
+    "fields": {
+      "name": "Can delete equipamiento en uso",
+      "content_type": 21,
+      "codename": "delete_equipmentinuse"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 84,
+    "fields": {
+      "name": "Can view equipamiento en uso",
+      "content_type": 21,
+      "codename": "view_equipmentinuse"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 85,
+    "fields": {
+      "name": "Can add equipamiento de usuario",
+      "content_type": 22,
+      "codename": "add_userequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 86,
+    "fields": {
+      "name": "Can change equipamiento de usuario",
+      "content_type": 22,
+      "codename": "change_userequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 87,
+    "fields": {
+      "name": "Can delete equipamiento de usuario",
+      "content_type": 22,
+      "codename": "delete_userequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 88,
+    "fields": {
+      "name": "Can view equipamiento de usuario",
+      "content_type": 22,
+      "codename": "view_userequipment"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 89,
+    "fields": {
+      "name": "Can add dieta",
+      "content_type": 23,
+      "codename": "add_diet"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 90,
+    "fields": {
+      "name": "Can change dieta",
+      "content_type": 23,
+      "codename": "change_diet"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 91,
+    "fields": {
+      "name": "Can delete dieta",
+      "content_type": 23,
+      "codename": "delete_diet"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 92,
+    "fields": {
+      "name": "Can view dieta",
+      "content_type": 23,
+      "codename": "view_diet"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 93,
+    "fields": {
+      "name": "Can add institución médica",
+      "content_type": 24,
+      "codename": "add_medicalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 94,
+    "fields": {
+      "name": "Can change institución médica",
+      "content_type": 24,
+      "codename": "change_medicalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 95,
+    "fields": {
+      "name": "Can delete institución médica",
+      "content_type": 24,
+      "codename": "delete_medicalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 96,
+    "fields": {
+      "name": "Can view institución médica",
+      "content_type": 24,
+      "codename": "view_medicalinstitution"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 97,
+    "fields": {
+      "name": "Can add usuario",
+      "content_type": 25,
+      "codename": "add_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 98,
+    "fields": {
+      "name": "Can change usuario",
+      "content_type": 25,
+      "codename": "change_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 99,
+    "fields": {
+      "name": "Can delete usuario",
+      "content_type": 25,
+      "codename": "delete_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 100,
+    "fields": {
+      "name": "Can view usuario",
+      "content_type": 25,
+      "codename": "view_user"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "tojt6k45xpv8evturinzuj5r6c83yshr",
+    "fields": {
+      "session_data": ".eJxVjEEOwiAQRe_C2pAhUAou3XsGMsMMUjU0Ke3KeHdt0oVu_3vvv1TCba1p67KkidVZGXX63QjzQ9oO-I7tNus8t3WZSO-KPmjX15nleTncv4OKvX5rS1LAO5HoDeTo_GDcEMCRASeBHQllAIQYRlsCFQtiJUdCtmNhZPX-ANiwOFg:1p48dn:AxVlZtef2K-sKe6dfKgEULxaA_9xx9EJROEoDRKLVmg",
+      "expire_date": "2022-12-24T22:48:19.095Z"
+    }
+  },
+  {
+    "model": "main.educationalinstitution",
+    "pk": 1,
+    "fields": {
+      "name": "Universidad de Chile"
+    }
+  },
+  {
+    "model": "main.course",
+    "pk": 1,
+    "fields": {
+      "name": "Test",
+      "code": null,
+      "institution": 1
+    }
+  },
+  {
+    "model": "main.fieldtrip",
+    "pk": 1,
+    "fields": {
+      "name": "Test",
+      "active": false,
+      "start_date": "2022-12-10",
+      "end_date": "2022-12-11",
+      "teacher": 1,
+      "course": 1,
+      "sector": "Vallenar"
+    }
+  },
+  {
+    "model": "main.fieldtripattendee",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "fieldtrip": 1,
+      "timestamp": "2022-12-10T22:58:12.984Z"
+    }
+  },
+  {
+    "model": "main.checklist",
+    "pk": 1,
+    "fields": {
+      "item": "Declaro conocer el Protocolo de Seguridad en Terreno."
+    }
+  },
+  {
+    "model": "main.checklist",
+    "pk": 2,
+    "fields": {
+      "item": "Declaro conocer las bases del Seguro Escolar que me protege en caso de accidente."
+    }
+  },
+  {
+    "model": "main.checklist",
+    "pk": 3,
+    "fields": {
+      "item": "Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno."
+    }
+  },
+  {
+    "model": "main.checklist",
+    "pk": 4,
+    "fields": {
+      "item": "Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente."
+    }
+  },
+  {
+    "model": "main.checklist",
+    "pk": 5,
+    "fields": {
+      "item": "Declaro que estoy en condiciones de salud aptas para asistir a la salida de terreno."
+    }
+  },
+  {
+    "model": "main.checklist",
+    "pk": 6,
+    "fields": {
+      "item": "Declaro que no padezco COVID-19."
+    }
+  },
+  {
+    "model": "user.allergy",
+    "pk": 1,
+    "fields": {
+      "type": "Ninguna",
+      "category": 1
+    }
+  },
+  {
+    "model": "user.allergy",
+    "pk": 2,
+    "fields": {
+      "type": "Polen",
+      "category": 1
+    }
+  },
+  {
+    "model": "user.allergy",
+    "pk": 3,
+    "fields": {
+      "type": "Látex",
+      "category": 1
+    }
+  },
+  {
+    "model": "user.allergy",
+    "pk": 4,
+    "fields": {
+      "type": "Ninguna",
+      "category": 2
+    }
+  },
+  {
+    "model": "health.healthdatalog",
+    "pk": 1,
+    "fields": {
+      "owner": 1,
+      "viewer": 1,
+      "fieldtrip": 1,
+      "timestamp": "2022-12-12T08:23:00.672Z"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 1,
+    "fields": {
+      "type": "Carpa"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 2,
+    "fields": {
+      "type": "Saco de dormir"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 3,
+    "fields": {
+      "type": "Zapatos de terreno"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 4,
+    "fields": {
+      "type": "Martillo"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 5,
+    "fields": {
+      "type": "Lupa"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 7,
+    "fields": {
+      "type": "Brújula"
+    }
+  },
+  {
+    "model": "equipment.equipment",
+    "pk": 8,
+    "fields": {
+      "type": "Binocular"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 1,
+    "fields": {
+      "type": "Lacto-vegetariana"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 2,
+    "fields": {
+      "type": "Ovo-vegetariana"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 3,
+    "fields": {
+      "type": "Lacto-ovo-vegetariana"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 4,
+    "fields": {
+      "type": "Pescetariana"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 5,
+    "fields": {
+      "type": "Vegana"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 6,
+    "fields": {
+      "type": "Omnívora"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 7,
+    "fields": {
+      "type": "Vegetariana parcial (detallar en el siguiente campo)"
+    }
+  },
+  {
+    "model": "user.diet",
+    "pk": 8,
+    "fields": {
+      "type": "Otra (detallar en el siguiente campo)"
+    }
+  }
+]
