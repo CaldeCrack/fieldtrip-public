@@ -3,14 +3,11 @@ import { StyleSheet, View } from 'react-native'
 import { Avatar, Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode, JwtPayload } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 
 import { ContainedButton, Page } from '@components'
 import { COLORS } from '@colors'
-
-interface Payload extends JwtPayload {
-  is_student: boolean
-}
+import { Payload } from '@types'
 
 const Profile = () => {
   const router = useRouter()

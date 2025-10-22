@@ -8,6 +8,7 @@ import { jwtDecode } from 'jwt-decode'
 
 import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
+import { Payload } from '@types'
 
 type FieldtripItem = {
   id: number
@@ -21,13 +22,6 @@ type FieldtripItem = {
 type Props = {
   data: FieldtripItem[]
   setState: (_id: number) => void
-}
-
-interface Payload {
-  custom_data: {
-    is_student: boolean
-    is_teacher: boolean
-  }
 }
 
 const FieldtripList = ({ data, setState }: Props) => {

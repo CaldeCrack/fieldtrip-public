@@ -26,29 +26,14 @@ import {
 } from '@services'
 import { COLORS } from '@colors'
 import { FieldtriptContext } from '../../_layout'
-import type { ChecklistItem } from '@types'
+import type { ChecklistItem, Payload, SelectOption, SelectState } from '@types'
 import HealthInfo from 'types/HealthInfo'
 import { SelectedItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
-
-type SelectOption = {
-  _id: string
-  value: string
-}
-
-type SelectState = {
-  value: string
-  list: SelectOption[]
-  selectedList: SelectOption[]
-}
 
 type InputItem = {
   label: string
   id: string | number
   value: string
-}
-
-interface Payload {
-  user_id: string
 }
 
 interface Item extends ChecklistItem {

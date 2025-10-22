@@ -14,13 +14,7 @@ import { Text } from 'react-native-paper'
 import { Page, SimpleInput, ContainedButton } from '@components'
 import { acceptFieldtripInvitation } from '@services'
 import { COLORS } from '@colors'
-
-interface Payload {
-  user_id: number
-  custom_data: {
-    is_student: boolean
-  }
-}
+import { Payload } from '@types'
 
 const JoinFieldtrip = () => {
   const router = useRouter()

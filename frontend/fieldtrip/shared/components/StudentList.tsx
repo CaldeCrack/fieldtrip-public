@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
+import { Payload } from '@types'
 
 type StudentItem = {
   id: number
@@ -17,12 +18,6 @@ type StudentItem = {
 type Props = {
   data: StudentItem[]
   setState: (_fieldtripID: number, _name: string, _id: number) => void
-}
-
-interface Payload {
-  custom_data: {
-    is_teacher: boolean
-  }
 }
 
 const StudentList = ({ data, setState }: Props) => {

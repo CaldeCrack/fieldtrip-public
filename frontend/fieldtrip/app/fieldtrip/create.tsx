@@ -21,23 +21,7 @@ import { Page, SimpleInput, DatePicker, ContainedButton, Modal } from '@componen
 import { getTeachers, getCourses, newFieldtrip } from '@services'
 import { COLORS } from '@colors'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
-
-interface SelectOption {
-  _id: string
-  value: string
-}
-
-interface SelectState {
-  value: string
-  list: SelectOption[]
-  selectedList: SelectOption[]
-}
-
-interface Payload {
-  custom_data: {
-    is_teacher: boolean
-  }
-}
+import { Payload, SelectState } from '@types'
 
 const CreateFieldtrip = () => {
   const router = useRouter()

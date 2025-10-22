@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
+import { Payload } from '@types'
 
 type UserInfo = {
   userID: string | number | null
-}
-
-interface Payload {
-  user_id: number
 }
 
 const useUserInfo = (): UserInfo => {

@@ -2,17 +2,14 @@ import { ActivityIndicator, StyleSheet } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode, JwtPayload } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import { Text } from 'react-native-paper'
 
 import { FieldtripList, Page } from '@components'
 import { getUsersFieldtrips } from '@services'
 import { FieldtriptContext } from './_layout'
 import { COLORS } from '@colors'
-
-interface Payload extends JwtPayload {
-  user_id: number
-}
+import { Payload } from '@types'
 
 const Home = () => {
   const router = useRouter()

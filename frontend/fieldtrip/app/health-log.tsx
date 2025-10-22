@@ -3,16 +3,13 @@ import { ActivityIndicator, StyleSheet } from 'react-native'
 import { Card, DataTable, MD3Colors, Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode, JwtPayload } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { Page } from '@components'
 import { getHealthLog } from '@services'
 import { COLORS } from '@colors'
-
-interface Payload extends JwtPayload {
-  user_id: string
-}
+import { Payload } from '@types'
 
 interface IHealthLog {
   id: number

@@ -3,17 +3,14 @@ import { Surface, Text, Divider } from 'react-native-paper'
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
 import { useContext, useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { jwtDecode, JwtPayload } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { BulletList, Page } from '@components'
 import { viewHealthChart, getUsersHealthChart } from '@services'
 import { HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
-
-interface Payload extends JwtPayload {
-  user_id: string
-}
+import { Payload } from '@types'
 
 interface Item {
   item: string
