@@ -19,12 +19,17 @@ type Props = {
   setState: (_fieldtripID: number, _name: string, _id: number) => void
 }
 
+interface Payload {
+  custom_data: {
+    is_teacher: boolean
+  }
+}
+
 const StudentList = ({ data, setState }: Props) => {
   const router = useRouter()
 
   const [visible, setVisible] = useState<Record<string, boolean>>({})
-  const _toggleModal = (name: string) => () =>
-    setVisible({ ...visible, [name]: !visible[name] })
+  const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
 
   useEffect(() => {
@@ -34,7 +39,7 @@ const StudentList = ({ data, setState }: Props) => {
         router.replace('/login')
         return
       }
-      const jwt: any = jwtDecode(token)
+      const jwt = jwtDecode<Payload>(token)
       if (!jwt.custom_data.is_teacher) {
         router.replace('/')
       }
@@ -51,11 +56,7 @@ const StudentList = ({ data, setState }: Props) => {
               style={styles.accordion}
               right={() => (
                 <List.Icon
-                  color={
-                    item.signupComplete
-                      ? MD3Colors.primary50
-                      : MD3Colors.error50
-                  }
+                  color={item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50}
                   icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
                 />
               )}
@@ -65,14 +66,8 @@ const StudentList = ({ data, setState }: Props) => {
                 left={(props) => (
                   <List.Icon
                     {...props}
-                    color={
-                      item.signupComplete
-                        ? MD3Colors.primary50
-                        : MD3Colors.error50
-                    }
-                    icon={
-                      item.signupComplete ? 'check' : 'alert-circle-outline'
-                    }
+                    color={item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50}
+                    icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
                   />
                 )}
               />

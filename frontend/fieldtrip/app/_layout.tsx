@@ -42,12 +42,8 @@ interface IFieldtriptContext {
   FDispatch: React.Dispatch<any>
 }
 
-export const HealthChartContext = createContext<IHealthChartContext>(
-  {} as IHealthChartContext,
-)
-export const FieldtriptContext = createContext<IFieldtriptContext>(
-  {} as IFieldtriptContext,
-)
+export const HealthChartContext = createContext<IHealthChartContext>({} as IHealthChartContext)
+export const FieldtriptContext = createContext<IFieldtriptContext>({} as IFieldtriptContext)
 
 const HCInitialState = {
   fieldtripID: null,
@@ -74,8 +70,7 @@ const FReducer = (_state: FStateType, action: FStateType) => {
 const StackLayout = () => {
   const router = useRouter()
   const [visible, setVisible] = useState<Record<string, boolean>>({})
-  const _toggleModal = (name: string) => () =>
-    setVisible({ ...visible, [name]: !visible[name] })
+  const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
 
   const _getVisible = (name: string) => !!visible[name]
   const [HCState, HCDispatch] = useReducer(HCReducer, HCInitialState)
@@ -115,11 +110,7 @@ const StackLayout = () => {
                 headerRight: () => {
                   return (
                     <TouchableOpacity onPress={() => _toggleModal('modal')()}>
-                      <Icon
-                        name="logout"
-                        size={24}
-                        style={{ marginRight: 16, color: '#00796b' }}
-                      />
+                      <Icon name="logout" size={24} style={{ marginRight: 16, color: '#00796b' }} />
                     </TouchableOpacity>
                   )
                 },
@@ -128,31 +119,13 @@ const StackLayout = () => {
               <Stack.Screen name="login" options={{ headerShown: false }} />
               <Stack.Screen name="signup" options={{ headerShown: false }} />
               <Stack.Screen name="index" options={{ title: 'Salidas' }} />
-              <Stack.Screen
-                name="health-log"
-                options={{ title: 'Log de salud' }}
-              />
+              <Stack.Screen name="health-log" options={{ title: 'Log de salud' }} />
               <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
-              <Stack.Screen
-                name="fieldtrip/index"
-                options={{ title: 'Fieldtrip' }}
-              />
-              <Stack.Screen
-                name="fieldtrip/create"
-                options={{ title: 'Crear salida' }}
-              />
-              <Stack.Screen
-                name="fieldtrip/chart"
-                options={{ title: 'Ficha de salud' }}
-              />
-              <Stack.Screen
-                name="fieldtrip/join/index"
-                options={{ title: 'Unirse a fieldtrip' }}
-              />
-              <Stack.Screen
-                name="fieldtrip/join/form"
-                options={{ title: 'Fieldtrip' }}
-              />
+              <Stack.Screen name="fieldtrip/index" options={{ title: 'Fieldtrip' }} />
+              <Stack.Screen name="fieldtrip/create" options={{ title: 'Crear salida' }} />
+              <Stack.Screen name="fieldtrip/chart" options={{ title: 'Ficha de salud' }} />
+              <Stack.Screen name="fieldtrip/join/index" options={{ title: 'Unirse a fieldtrip' }} />
+              <Stack.Screen name="fieldtrip/join/form" options={{ title: 'Fieldtrip' }} />
             </Stack>
             <ConfirmationModal
               visible={_getVisible('modal')}

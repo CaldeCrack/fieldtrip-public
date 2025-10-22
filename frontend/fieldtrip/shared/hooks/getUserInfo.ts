@@ -6,6 +6,10 @@ type UserInfo = {
   userID: string | number | null
 }
 
+interface Payload {
+  user_id: number
+}
+
 const useUserInfo = (): UserInfo => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     userID: null,
@@ -17,9 +21,9 @@ const useUserInfo = (): UserInfo => {
       if (!token) return
 
       try {
-        const jwt: any = jwtDecode(token)
+        const jwt = jwtDecode<Payload>(token)
         setUserInfo({
-          userID: jwt['user_id'],
+          userID: jwt.user_id,
         })
       } catch (err) {
         // eslint-disable-next-line no-console

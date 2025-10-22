@@ -1,4 +1,10 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import {
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  StyleSheet,
+  TextInputChangeEventData,
+  View,
+} from 'react-native'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -8,6 +14,13 @@ import { Text } from 'react-native-paper'
 import { Page, SimpleInput, ContainedButton } from '@components'
 import { acceptFieldtripInvitation } from '@services'
 import { COLORS } from '@colors'
+
+interface Payload {
+  user_id: number
+  custom_data: {
+    is_student: boolean
+  }
+}
 
 const JoinFieldtrip = () => {
   const router = useRouter()
@@ -23,7 +36,7 @@ const JoinFieldtrip = () => {
         invitation_code: fieldtripCode,
         user: userID,
       })
-        .then(async (res: any) => {
+        .then(async (res) => {
           if (res.id) {
             router.replace('/')
             alert('Se ha unido a la salida exitosamente')
@@ -33,7 +46,7 @@ const JoinFieldtrip = () => {
             router.replace('/')
           }
         })
-        .catch((error: any) => {
+        .catch((error) => {
           throw new Error(error.response?.data?.detail || error.message)
         })
         .finally(() => {
@@ -51,7 +64,7 @@ const JoinFieldtrip = () => {
         router.replace('/login')
         return
       }
-      const jwt: any = jwtDecode(token)
+      const jwt = jwtDecode<Payload>(token)
       if (!jwt.custom_data.is_student) {
         router.replace('/')
       }
@@ -63,12 +76,13 @@ const JoinFieldtrip = () => {
     <Page style={styles.page} showTabs={true}>
       <View style={styles.container}>
         <Text variant="bodyLarge" style={styles.text}>
-          Ingrese en el siguiente campo el código de invitación a la salida a
-          terreno:
+          Ingrese en el siguiente campo el código de invitación a la salida a terreno:
         </Text>
         <SimpleInput
           label="Ingrese el código de invitación *"
-          onChange={(e: any) => setFieldtripCode(e.target.value)}
+          onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+            setFieldtripCode(e.nativeEvent.text)
+          }
           onChangeText={(val: string) => setFieldtripCode(val)}
           value={fieldtripCode}
         />
@@ -79,11 +93,7 @@ const JoinFieldtrip = () => {
         onPress={sendJoinFieldtripRequest}
         disabled={loading}
       >
-        {loading ? (
-          <ActivityIndicator color="white" size="small" />
-        ) : (
-          'Aceptar invitación'
-        )}
+        {loading ? <ActivityIndicator color="white" size="small" /> : 'Aceptar invitación'}
       </ContainedButton>
     </Page>
   )

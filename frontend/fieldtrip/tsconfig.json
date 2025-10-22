@@ -9,7 +9,7 @@
       "@colors": ["styles/colors.ts"],
       "@components": ["shared/components"],
       "@services": ["shared/services"],
-      "@hooks": ["shared/hooks"]
+      "@types": ["types/"]
     }
   },
   "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.js", ".expo/types/**/*.ts", "expo-env.d.ts"]

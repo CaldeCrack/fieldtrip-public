@@ -56,9 +56,7 @@ const Home = () => {
       ) : (
         <FieldtripList data={fieldtripsData} setState={setState} />
       )}
-      {serverError && (
-        <Text>Ocurrió un problema inesperado en el servidor.</Text>
-      )}
+      {serverError && <Text>Ocurrió un problema inesperado en el servidor.</Text>}
     </Page>
   )
 }

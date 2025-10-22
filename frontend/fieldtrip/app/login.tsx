@@ -12,14 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { login } from '@services'
-import {
-  Modal,
-  ContainedButton,
-  IconInput,
-  Page,
-  TextButton,
-  SimpleInput,
-} from '@components'
+import { Modal, ContainedButton, IconInput, Page, TextButton, SimpleInput } from '@components'
 import { COLORS } from '@colors'
 
 const Login = () => {
@@ -31,8 +24,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState<Record<string, boolean>>({})
 
-  const _toggleModal = (name: string) => () =>
-    setVisible({ ...visible, [name]: !visible[name] })
+  const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
   const [resetEmail, setResetEmail] = useState('')
   const [resetEmailConfirmation, setResetEmailConfirmation] = useState('')
@@ -130,11 +122,7 @@ const Login = () => {
         onPress={sendLoginRequest}
         disabled={loading}
       >
-        {loading ? (
-          <ActivityIndicator color="white" size="small" />
-        ) : (
-          'Iniciar sesión'
-        )}
+        {loading ? <ActivityIndicator color="white" size="small" /> : 'Iniciar sesión'}
       </ContainedButton>
       {/**
       <TextButton
@@ -178,9 +166,7 @@ const Login = () => {
         />
 
         <View style={styles.modalBtn}>
-          <ContainedButton onPress={sendLoginRequest}>
-            Enviar correo
-          </ContainedButton>
+          <ContainedButton onPress={sendLoginRequest}>Enviar correo</ContainedButton>
         </View>
       </Modal>
     </Page>

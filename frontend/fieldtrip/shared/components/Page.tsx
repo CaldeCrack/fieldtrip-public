@@ -1,11 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react'
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  StyleProp,
-  ViewStyle,
-} from 'react-native'
+import { View, StyleSheet, ScrollView, StyleProp, ViewStyle } from 'react-native'
 import { TextInput } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -50,22 +44,14 @@ const Page = ({ children, style, showTabs = false }: Props) => {
 
   return (
     <View style={{ backgroundColor: '#fafafa', flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, flexDirection: 'column' }}
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1, flexDirection: 'column' }}>
         <View style={[styles.container, style]}>{children}</View>
       </ScrollView>
       {showTabs && (
         <View style={styles.tabsBar}>
           <View style={styles.tab}>
             <TextInput.Icon
-              icon={() => (
-                <Icon
-                  name={'home'}
-                  size={32}
-                  onPress={() => router.replace('/')}
-                />
-              )}
+              icon={() => <Icon name={'home'} size={32} onPress={() => router.replace('/')} />}
             />
           </View>
           {isTeacher && (
@@ -101,11 +87,7 @@ const Page = ({ children, style, showTabs = false }: Props) => {
           <View style={styles.tab}>
             <TextInput.Icon
               icon={() => (
-                <Icon
-                  name={'account'}
-                  size={32}
-                  onPress={() => router.push('/profile')}
-                />
+                <Icon name={'account'} size={32} onPress={() => router.push('/profile')} />
               )}
             />
           </View>

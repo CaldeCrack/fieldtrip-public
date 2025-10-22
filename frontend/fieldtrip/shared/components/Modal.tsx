@@ -10,13 +10,7 @@ type ModalProps = {
   children?: ReactNode
 }
 
-const Modal = ({
-  visible,
-  close,
-  title = '',
-  description = '',
-  children,
-}: ModalProps) => {
+const Modal = ({ visible, close, title = '', description = '', children }: ModalProps) => {
   const isSmallScreen = Dimensions.get('window').width <= 768
 
   return (

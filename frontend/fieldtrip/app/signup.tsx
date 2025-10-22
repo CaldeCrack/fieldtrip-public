@@ -14,19 +14,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 
-import {
-  signup,
-  getSubstanceAllergies,
-  getMedAllergies,
-  getDiets,
-} from '@services'
-import {
-  ContainedButton,
-  SimpleInput,
-  Page,
-  TextButton,
-  CheckboxItem,
-} from '@components'
+import { signup, getSubstanceAllergies, getMedAllergies, getDiets } from '@services'
+import { ContainedButton, SimpleInput, Page, TextButton, CheckboxItem } from '@components'
 import { COLORS } from '@colors'
 
 interface Item {
@@ -102,12 +91,9 @@ const Signup = () => {
         surnames,
         registration_number: registrationNumber,
         RUT,
-        diet_type: diet.list.find(
-          (obj: { value: string }) => obj.value === diet.value,
-        )!._id,
-        blood_type: bloodType.list.find(
-          (obj: { value: string }) => obj.value === bloodType.value,
-        )!._id,
+        diet_type: diet.list.find((obj: { value: string }) => obj.value === diet.value)!._id,
+        blood_type: bloodType.list.find((obj: { value: string }) => obj.value === bloodType.value)!
+          ._id,
         med_allergies: medAllergy.selectedList,
         substance_allergies: substanceAllergy.selectedList,
         emergency_contact: emergencyContact,
@@ -175,6 +161,7 @@ const Signup = () => {
         }
       })
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -203,12 +190,9 @@ const Signup = () => {
               value={password}
             />
             <View style={{ marginLeft: 16 }}>
+              <Text variant="bodySmall">Su contraseña debe contener al menos 8 caracteres.</Text>
               <Text variant="bodySmall">
-                Su contraseña debe contener al menos 8 caracteres.
-              </Text>
-              <Text variant="bodySmall">
-                Su contraseña no puede asemejarse tanto a su otra información
-                personal.
+                Su contraseña no puede asemejarse tanto a su otra información personal.
               </Text>
             </View>
           </View>
@@ -242,9 +226,7 @@ const Signup = () => {
               value={RUT}
             />
             <View style={{ marginLeft: 16, marginBottom: 8 }}>
-              <Text variant="bodySmall">
-                Ingrese su RUT en el siguiente formato: 12.345.678-9.
-              </Text>
+              <Text variant="bodySmall">Ingrese su RUT en el siguiente formato: 12.345.678-9.</Text>
             </View>
             <SimpleInput
               label="N° de matrícula *"
@@ -514,13 +496,8 @@ const Signup = () => {
             <View style={{ marginLeft: 8 }}>
               <Text variant="bodyMedium" style={{ color: MD3Colors.error50 }}>
                 {errorMsgs !== undefined
-                  ? `Ha recibido los siguientes errores:\n- ${Object.values(
-                      errorMsgs,
-                    )
-                      .reduce(
-                        (acc, currentValue) => acc.concat(currentValue),
-                        [] as string[],
-                      )
+                  ? `Ha recibido los siguientes errores:\n- ${Object.values(errorMsgs)
+                      .reduce((acc, currentValue) => acc.concat(currentValue), [] as string[])
                       .join('\n- ')}`
                   : ''}
               </Text>
@@ -533,11 +510,7 @@ const Signup = () => {
           onPress={sendSignupRequest}
           disabled={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="white" size="small" />
-          ) : (
-            'Registrarse'
-          )}
+          {loading ? <ActivityIndicator color="white" size="small" /> : 'Registrarse'}
         </ContainedButton>
         <View style={styles.login}>
           <Text variant="bodyLarge">¿Ya tienes una cuenta?</Text>

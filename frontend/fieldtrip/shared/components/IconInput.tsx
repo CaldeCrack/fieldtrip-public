@@ -22,9 +22,7 @@ const IconInput = ({ iconName, ...rest }: IconInputProps) => {
       outlineColor={COLORS.gray_100}
       left={
         <TextInput.Icon
-          icon={() => (
-            <Icon name={iconName} size={24} color="black" style={styles.icon} />
-          )}
+          icon={() => <Icon name={iconName} size={24} color="black" style={styles.icon} />}
         />
       }
       {...rest}

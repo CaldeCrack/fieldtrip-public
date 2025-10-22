@@ -26,12 +26,9 @@ import {
 } from '@services'
 import { COLORS } from '@colors'
 import { FieldtriptContext } from '../../_layout'
-
-type ChecklistItem = {
-  id: string | number
-  item: string
-  checked?: boolean
-}
+import type { ChecklistItem } from '@types'
+import HealthInfo from 'types/HealthInfo'
+import { SelectedItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 
 type SelectOption = {
   _id: string
@@ -50,12 +47,19 @@ type InputItem = {
   value: string
 }
 
+interface Payload {
+  user_id: string
+}
+
+interface Item extends ChecklistItem {
+  checked: boolean
+}
+
 const JoinFieldtrip = () => {
   const router = useRouter()
-  const { FState } = useContext<any>(FieldtriptContext)
+  const { FState } = useContext(FieldtriptContext)
   const [visible, setVisible] = useState<Record<string, boolean>>({})
-  const _toggleModal = (name: string) => () =>
-    setVisible({ ...visible, [name]: !visible[name] })
+  const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const [loading, setLoading] = useState<boolean>(true)
   const [signingUp, setSigningUp] = useState<boolean>(false)
 
@@ -64,7 +68,7 @@ const JoinFieldtrip = () => {
   const [formDone, setFormDone] = useState<boolean>(false)
   const [showChecklist, setShowChecklist] = useState<boolean>(true)
   const [showMedInfo, setShowMedInfo] = useState<boolean>(false)
-  const [checklistData, setChecklistData] = useState<ChecklistItem[]>([])
+  const [checklistData, setChecklistData] = useState<Item[]>([])
   const [hasPresentedData, setHasPresentedData] = useState<SelectState>({
     value: '',
     list: [],
@@ -104,9 +108,7 @@ const JoinFieldtrip = () => {
     switch (type) {
       case 'checklist':
         setChecklistData((prevData) =>
-          prevData.map((item) =>
-            item.id === itemID ? { ...item, checked: !item.checked } : item,
-          ),
+          prevData.map((item) => (item.id === itemID ? { ...item, checked: !item.checked } : item)),
         )
         break
     }
@@ -121,18 +123,16 @@ const JoinFieldtrip = () => {
         router.replace('/login')
         return
       }
-      const jwt: any = jwtDecode(token)
+      const jwt = jwtDecode<Payload>(token)
       const checklistStatusList = checklistData.map((item) => {
         return { item: item.id, status: !!item.checked }
       })
       const healthSpecificList = inputList.map((item) => {
         return { item: item.id, value: item.value }
       })
-      const parseHasPresentedData = hasPresentedData.selectedList.map(
-        (item) => {
-          return { item: item._id, status: true }
-        },
-      )
+      const parseHasPresentedData = hasPresentedData.selectedList.map((item) => {
+        return { item: item._id, status: true }
+      })
       const parsePresentsData = presentsData.selectedList.map((item) => {
         return { item: item._id, status: true }
       })
@@ -144,13 +144,13 @@ const JoinFieldtrip = () => {
         health_general: healthGeneralList,
         health_specific: healthSpecificList,
       })
-        .then(async (res: any) => {
+        .then(async (res) => {
           if (res) {
             router.replace('/')
             alert('Su información ha sido enviada exitosamente')
           }
         })
-        .catch((error: any) => {
+        .catch((error) => {
           throw new Error(error.response?.data?.detail || error.message)
         })
         .finally(() => {
@@ -196,7 +196,7 @@ const JoinFieldtrip = () => {
 
         if (checklistCompleted) {
           setChecklistData(
-            checklistRes.map((item: any) => ({
+            checklistRes.map((item: ChecklistItem) => ({
               ...item,
               checked: true,
             })),
@@ -206,24 +206,24 @@ const JoinFieldtrip = () => {
         }
 
         const pastList: SelectOption[] =
-          pastDiseasesRes?.map((item: any) => ({
+          pastDiseasesRes?.map((item: ChecklistItem) => ({
             _id: item.id,
             value: item.item,
           })) || []
         const currentList: SelectOption[] =
-          currentDiseasesRes?.map((item: any) => ({
+          currentDiseasesRes?.map((item: ChecklistItem) => ({
             _id: item.id,
             value: item.item,
           })) || []
 
         const selectedPast = pastList.filter((disease) =>
-          healthData?.health_general?.some(
-            (h: any) => h.item === disease.value && h.status === true,
+          healthData.health_general.some(
+            (h: HealthInfo) => h.item === disease.value && h.status === true,
           ),
         )
         const selectedCurrent = currentList.filter((disease) =>
-          healthData?.health_general?.some(
-            (h: any) => h.item === disease.value && h.status === true,
+          healthData.health_general.some(
+            (h: HealthInfo) => h.item === disease.value && h.status === true,
           ),
         )
 
@@ -243,10 +243,8 @@ const JoinFieldtrip = () => {
 
         let filledInputs: InputItem[] = []
         if (specificHealthRes?.length > 0) {
-          filledInputs = specificHealthRes.map((item: any) => {
-            const prev = healthData?.health_specific?.find(
-              (h: any) => h.item === item.item,
-            )
+          filledInputs = specificHealthRes.map((item: Item) => {
+            const prev = healthData?.health_specific?.find((h: HealthInfo) => h.item === item.item)
             return {
               label: item.item,
               id: item.id,
@@ -271,11 +269,7 @@ const JoinFieldtrip = () => {
   return (
     <Page style={styles.page} showTabs={true}>
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primary_50}
-          style={styles.loader}
-        />
+        <ActivityIndicator size="large" color={COLORS.primary_50} style={styles.loader} />
       ) : (
         <>
           <ScrollView
@@ -290,9 +284,7 @@ const JoinFieldtrip = () => {
                   styles.btnMarginRight,
                   styles.btnMarginBottom,
                   {
-                    backgroundColor: showChecklist
-                      ? MD3Colors.primary50
-                      : COLORS.gray_100,
+                    backgroundColor: showChecklist ? MD3Colors.primary50 : COLORS.gray_100,
                   },
                 ]}
                 onPress={() => {
@@ -307,9 +299,7 @@ const JoinFieldtrip = () => {
                   styles.btnMarginRight,
                   styles.btnMarginBottom,
                   {
-                    backgroundColor: showMedInfo
-                      ? MD3Colors.primary50
-                      : COLORS.gray_100,
+                    backgroundColor: showMedInfo ? MD3Colors.primary50 : COLORS.gray_100,
                   },
                 ]}
                 onPress={() => {
@@ -330,9 +320,9 @@ const JoinFieldtrip = () => {
                       Checklist
                     </Text>
                     <Divider style={styles.divider} />
-                    {checklistData.map((item) => (
+                    {checklistData.map((item, i) => (
                       <CheckboxItem
-                        key={String(item.id)}
+                        key={i}
                         label={item.item}
                         status={item.checked ? 'checked' : 'unchecked'}
                         onPress={() => handleToggleCheck('checklist', item.id)}
@@ -340,9 +330,7 @@ const JoinFieldtrip = () => {
                     ))}
                   </View>
                 </Surface>
-                <View
-                  style={{ justifyContent: 'flex-start', marginBottom: 24 }}
-                >
+                <View style={{ justifyContent: 'flex-start', marginBottom: 24 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Icon
                       name="download-box"
@@ -369,17 +357,14 @@ const JoinFieldtrip = () => {
                       Información médica
                     </Text>
                     <Divider style={styles.divider} />
-                    <Text
-                      variant="titleMedium"
-                      style={[styles.weight600, { marginBottom: 10 }]}
-                    >
+                    <Text variant="titleMedium" style={[styles.weight600, { marginBottom: 10 }]}>
                       Información general de enfermedades
                     </Text>
                     <PaperSelect
                       dialogStyle={styles.select}
                       label="Ha presentado *"
                       value={hasPresentedData.value}
-                      onSelection={(value: any) => {
+                      onSelection={(value: SelectedItem) => {
                         setHasPresentedData({
                           ...hasPresentedData,
                           value: value.text,
@@ -415,7 +400,7 @@ const JoinFieldtrip = () => {
                       dialogStyle={styles.select}
                       label="Presenta actualmente *"
                       value={presentsData.value}
-                      onSelection={(value: any) => {
+                      onSelection={(value: SelectedItem) => {
                         setPresentsData({
                           ...presentsData,
                           value: value.text,
@@ -446,15 +431,12 @@ const JoinFieldtrip = () => {
                         marginBottom: 14,
                       }}
                     />
-                    <Text
-                      variant="titleMedium"
-                      style={[styles.weight600, { marginTop: 10 }]}
-                    >
+                    <Text variant="titleMedium" style={[styles.weight600, { marginTop: 10 }]}>
                       Información específica
                     </Text>
                     <Text variant="bodySmall" style={{ marginBottom: 10 }}>
-                      Si algún campo no aplica para usted, debe indicarlo
-                      escribiendo 'N/A' o 'No aplica'.
+                      Si algún campo no aplica para usted, debe indicarlo escribiendo 'N/A' o 'No
+                      aplica'.
                     </Text>
                     {renderInputs()}
                   </View>
@@ -470,11 +452,7 @@ const JoinFieldtrip = () => {
         disabled={loading || signingUp}
         onPress={_toggleModal('modal')}
       >
-        {signingUp ? (
-          <ActivityIndicator color="white" size="small" />
-        ) : (
-          'Enviar información'
-        )}
+        {signingUp ? <ActivityIndicator color="white" size="small" /> : 'Enviar información'}
       </ContainedButton>
       <ConfirmationModal
         visible={_getVisible('modal')}

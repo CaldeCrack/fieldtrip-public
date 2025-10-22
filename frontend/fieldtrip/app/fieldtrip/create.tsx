@@ -5,25 +5,22 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
 } from 'react-native'
 import { TextInput, MD3Colors, Text } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import DateTimePicker from '@react-native-community/datetimepicker'
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
 
-import {
-  Page,
-  SimpleInput,
-  DatePicker,
-  ContainedButton,
-  Modal,
-} from '@components'
+import { Page, SimpleInput, DatePicker, ContainedButton, Modal } from '@components'
 import { getTeachers, getCourses, newFieldtrip } from '@services'
 import { COLORS } from '@colors'
+import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 
 interface SelectOption {
   _id: string
@@ -34,6 +31,12 @@ interface SelectState {
   value: string
   list: SelectOption[]
   selectedList: SelectOption[]
+}
+
+interface Payload {
+  custom_data: {
+    is_teacher: boolean
+  }
 }
 
 const CreateFieldtrip = () => {
@@ -62,7 +65,7 @@ const CreateFieldtrip = () => {
   const [showS, setShowS] = useState<boolean>(false)
   const [showE, setShowE] = useState<boolean>(false)
 
-  const onChangeS = (event: any, selectedDate?: Date) => {
+  const onChangeS = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (event.type === 'set') {
       const currentDate = selectedDate || mobileStartDate
       setMobileStartDate(currentDate)
@@ -70,7 +73,7 @@ const CreateFieldtrip = () => {
     setShowS(false)
   }
 
-  const onChangeE = (event: any, selectedDate?: Date) => {
+  const onChangeE = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (event.type === 'set') {
       const currentDate = selectedDate || mobileEndDate
       setMobileEndDate(currentDate)
@@ -95,8 +98,7 @@ const CreateFieldtrip = () => {
   }
 
   const [visible, setVisible] = useState<Record<string, boolean>>({})
-  const _toggleModal = (name: string) => () =>
-    setVisible({ ...visible, [name]: !visible[name] })
+  const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
 
   useEffect(() => {
@@ -106,7 +108,7 @@ const CreateFieldtrip = () => {
         router.replace('/login')
         return
       }
-      const jwt: any = jwtDecode(token)
+      const jwt = jwtDecode<Payload>(token)
       if (!jwt.custom_data.is_teacher) {
         router.replace('/')
       }
@@ -130,18 +132,20 @@ const CreateFieldtrip = () => {
       try {
         const teachers = await getTeachers()
         if (teachers.length > 0) {
-          const proffesors = teachers.map((item: any) => {
-            return { _id: item.id, value: `${item.names} ${item.surnames}` }
-          })
+          const professors = teachers.map(
+            (item: { id: number; names: string; surnames: string }) => {
+              return { _id: item.id, value: `${item.names} ${item.surnames}` }
+            },
+          )
           setProfessor({
             ...professor,
-            list: proffesors,
+            list: professors,
           })
         }
 
         const courses = await getCourses()
         if (courses.length > 0) {
-          const courseList = courses.map((item: any) => {
+          const courseList = courses.map((item: { id: number; name: string }) => {
             return { _id: item.id, value: item.name }
           })
           setCourse({
@@ -153,6 +157,7 @@ const CreateFieldtrip = () => {
         setLoading(false)
       }
     })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function formatDateToYYYYMMDD(date: Date): string {
@@ -169,18 +174,17 @@ const CreateFieldtrip = () => {
       newFieldtrip({
         name,
         sector,
-        teacher_id: professor.list.find((obj) => obj.value === professor.value)
-          ?._id,
+        teacher_id: professor.list.find((obj) => obj.value === professor.value)?._id,
         course_id: course.list.find((obj) => obj.value === course.value)?._id,
         start_date: formatDateToYYYYMMDD(new Date()),
         end_date: formatDateToYYYYMMDD(new Date()),
       })
-        .then(async (res: any) => {
+        .then(async (res: { id: number }) => {
           if (res.id) {
             router.replace('/')
           }
         })
-        .catch((error: any) => {
+        .catch((error) => {
           throw new Error(error.response?.data?.detail || error.message)
         })
         .finally(() => {
@@ -205,7 +209,9 @@ const CreateFieldtrip = () => {
         <View style={{ minWidth: '100%', height: 32 }}>
           <SimpleInput
             label="Nombre de la salida *"
-            onChange={(e: any) => setName(e.target.value)}
+            onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+              setName(e.nativeEvent.text)
+            }
             onChangeText={(val: string) => setName(val)}
             value={name}
           />
@@ -214,7 +220,7 @@ const CreateFieldtrip = () => {
               dialogStyle={styles.select}
               label="Profesor a cargo *"
               value={professor.value}
-              onSelection={(value: any) => {
+              onSelection={(value: { text: string; selectedList: ListItem[] }) => {
                 setProfessor({
                   ...professor,
                   value: value.text,
@@ -230,8 +236,7 @@ const CreateFieldtrip = () => {
               dialogDoneButtonText="Terminar"
               textInputMode="outlined"
               textInputProps={{
-                // @ts-ignore: PaperSelectTextInputProps may not accept style
-                style: styles.selectInput,
+                // style: styles.selectInput,
                 outlineColor: COLORS.gray_100,
                 activeOutlineColor: MD3Colors.primary50,
 
@@ -263,12 +268,13 @@ const CreateFieldtrip = () => {
               containerStyle={{
                 marginBottom: 14,
               }}
+              multiEnable={false}
             />
             <PaperSelect
               dialogStyle={styles.select}
               label="Curso *"
               value={course.value}
-              onSelection={(value: any) => {
+              onSelection={(value: { text: string; selectedList: ListItem[] }) => {
                 setCourse({
                   ...course,
                   value: value.text,
@@ -320,7 +326,9 @@ const CreateFieldtrip = () => {
             />
             <SimpleInput
               label="Sector al que se irá *"
-              onChange={(e: any) => setSector(e.target.value)}
+              onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                setSector(e.nativeEvent.text)
+              }
               onChangeText={(val: string) => setSector(val)}
               value={sector}
             />
@@ -387,11 +395,7 @@ const CreateFieldtrip = () => {
         onPress={sendCreateFieldtripRequest}
         disabled={creatingFieldtrip}
       >
-        {creatingFieldtrip ? (
-          <ActivityIndicator color="white" size="small" />
-        ) : (
-          'Crear Salida'
-        )}
+        {creatingFieldtrip ? <ActivityIndicator color="white" size="small" /> : 'Crear Salida'}
       </ContainedButton>
     </Page>
   )

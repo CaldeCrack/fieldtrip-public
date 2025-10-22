@@ -23,6 +23,13 @@ type Props = {
   setState: (_id: number) => void
 }
 
+interface Payload {
+  custom_data: {
+    is_student: boolean
+    is_teacher: boolean
+  }
+}
+
 const FieldtripList = ({ data, setState }: Props) => {
   const router = useRouter()
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
@@ -35,7 +42,7 @@ const FieldtripList = ({ data, setState }: Props) => {
         router.replace('/login')
         return
       }
-      const jwt: any = jwtDecode(token)
+      const jwt = jwtDecode<Payload>(token)
       setIsStudent(jwt.custom_data.is_student)
       setIsTeacher(jwt.custom_data.is_teacher)
     })()
@@ -44,9 +51,7 @@ const FieldtripList = ({ data, setState }: Props) => {
   const copyToClipboard = async (invitationCode?: string) => {
     if (!invitationCode) return
     await Clipboard.setStringAsync(invitationCode)
-    alert(
-      'El código de invitación a la salida ha sido copiado al portapapeles.',
-    )
+    alert('El código de invitación a la salida ha sido copiado al portapapeles.')
   }
 
   return (

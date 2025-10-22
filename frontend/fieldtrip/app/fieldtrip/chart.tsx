@@ -41,8 +41,7 @@ const HealthChart = () => {
     presents: [],
     healthSpecific: [],
   })
-  const hasData =
-    constantChartData.fullName && fieldtripChartData.healthSpecific
+  const hasData = constantChartData.fullName && fieldtripChartData.healthSpecific
 
   useEffect(() => {
     ;(async () => {
@@ -55,19 +54,14 @@ const HealthChart = () => {
         }
         const jwt = jwtDecode<Payload>(token)
         if (HCState.fieldtripID) {
-          const [usersHealthChartData, viewHealthChartData] = await Promise.all(
-            [
-              getUsersHealthChart(
-                HCState.fieldtripID,
-                HCState.healthChartOwner,
-              ),
-              viewHealthChart({
-                viewer: jwt.user_id,
-                owner: HCState.healthChartOwner,
-                fieldtrip: HCState.fieldtripID,
-              }),
-            ],
-          )
+          const [usersHealthChartData, viewHealthChartData] = await Promise.all([
+            getUsersHealthChart(HCState.fieldtripID, HCState.healthChartOwner),
+            viewHealthChart({
+              viewer: jwt.user_id,
+              owner: HCState.healthChartOwner,
+              fieldtrip: HCState.fieldtripID,
+            }),
+          ])
 
           if (usersHealthChartData) {
             setFieldtripChartData(usersHealthChartData)
@@ -88,11 +82,7 @@ const HealthChart = () => {
   return (
     <Page style={styles.page} showTabs={true}>
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primary_50}
-          style={styles.loader}
-        />
+        <ActivityIndicator size="large" color={COLORS.primary_50} style={styles.loader} />
       ) : hasData ? (
         <Surface elevation={0} style={styles.container}>
           <View style={styles.title}>
@@ -112,8 +102,7 @@ const HealthChart = () => {
               Contacto de emergencia:
             </Text>
             <Text variant="bodyLarge" style={styles.weight500}>
-              {constantChartData.emergencyContact.name} (
-              {constantChartData.emergencyContact.phone})
+              {constantChartData.emergencyContact.name} ({constantChartData.emergencyContact.phone})
             </Text>
           </View>
           <View style={styles.section}>

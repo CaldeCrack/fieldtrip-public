@@ -27,20 +27,14 @@ const HealthLog = () => {
   const [page, setPage] = useState(0)
   const [sortAscending, setSortAscending] = useState(true)
   const [numberOfItemsPerPageList] = useState([5, 10, 15])
-  const [itemsPerPage, onItemsPerPageChange] = useState(
-    numberOfItemsPerPageList[0],
-  )
+  const [itemsPerPage, onItemsPerPageChange] = useState(numberOfItemsPerPageList[0])
   const [items, setItems] = useState<IHealthLog[]>([] as IHealthLog[])
   const [loading, setLoading] = useState(false)
 
   const sortedItems = items
     .slice()
     .sort((item1, item2) =>
-      (
-        sortAscending
-          ? item1.timestamp < item2.timestamp
-          : item2.timestamp < item1.timestamp
-      )
+      (sortAscending ? item1.timestamp < item2.timestamp : item2.timestamp < item1.timestamp)
         ? 1
         : -1,
     )
@@ -84,13 +78,8 @@ const HealthLog = () => {
         <Card style={{ backgroundColor: COLORS.gray_25 }}>
           <DataTable>
             <DataTable.Header>
-              <DataTable.Title textStyle={styles.title}>
-                Usuario
-              </DataTable.Title>
-              <DataTable.Title
-                textStyle={styles.title}
-                style={{ marginLeft: 2 }}
-              >
+              <DataTable.Title textStyle={styles.title}>Usuario</DataTable.Title>
+              <DataTable.Title textStyle={styles.title} style={{ marginLeft: 2 }}>
                 Fieldtrip
               </DataTable.Title>
               <DataTable.Title
@@ -106,9 +95,7 @@ const HealthLog = () => {
             {sortedItems.slice(from, to).map((item) => (
               <DataTable.Row key={item.id}>
                 <DataTable.Cell>{item.viewer}</DataTable.Cell>
-                <DataTable.Cell style={{ marginLeft: 2 }}>
-                  {item.fieldtrip}
-                </DataTable.Cell>
+                <DataTable.Cell style={{ marginLeft: 2 }}>{item.fieldtrip}</DataTable.Cell>
                 <DataTable.Cell style={{ marginLeft: 2 }}>
                   {item.timestamp.toDateString()}
                 </DataTable.Cell>
@@ -130,8 +117,8 @@ const HealthLog = () => {
         </Card>
       ) : (
         <Text>
-          No hay datos para mostrar en este momento.{'\n'}Cuando un profesor
-          revise tu ficha de salud lo podrás ver aquí.{' '}
+          No hay datos para mostrar en este momento.{'\n'}Cuando un profesor revise tu ficha de
+          salud lo podrás ver aquí.{' '}
         </Text>
       )}
       {!loading && (

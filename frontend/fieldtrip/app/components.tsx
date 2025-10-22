@@ -26,8 +26,7 @@ const Components = () => {
   const [checked, setChecked] = useState(true)
   const [visible, setVisible] = useState<Record<string, boolean>>({})
 
-  const _toggleModal = (name: string) => () =>
-    setVisible({ ...visible, [name]: !visible[name] })
+  const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
 
   const _getVisible = (name: string) => !!visible[name]
 
@@ -122,9 +121,7 @@ const Components = () => {
           marginBottom: 14,
         }}
       />
-      <ContainedButton onPress={_toggleModal('modal')}>
-        Abrir modal
-      </ContainedButton>
+      <ContainedButton onPress={_toggleModal('modal')}>Abrir modal</ContainedButton>
       <ConfirmationModal
         visible={_getVisible('modal')}
         close={_toggleModal('modal')}

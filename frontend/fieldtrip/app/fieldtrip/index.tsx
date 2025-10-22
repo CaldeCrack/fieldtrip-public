@@ -1,10 +1,4 @@
-import {
-  StyleSheet,
-  View,
-  ScrollView,
-  Dimensions,
-  Platform,
-} from 'react-native'
+import { StyleSheet, View, ScrollView, Dimensions, Platform } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
 import { MD3Colors, Text } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
@@ -27,11 +21,7 @@ interface Disease {
 const Fieldtrip = () => {
   const { FState } = useContext(FieldtriptContext)
   const { HCDispatch } = useContext(HealthChartContext)
-  const setState = (
-    fieldtripID: number,
-    fieldtripName: string,
-    healthChartOwner: number,
-  ) => {
+  const setState = (fieldtripID: number, fieldtripName: string, healthChartOwner: number) => {
     HCDispatch({
       fieldtripID,
       fieldtripName,
@@ -107,11 +97,9 @@ const Fieldtrip = () => {
           if (res) {
             // { diseases: [{name, count}], allergies: [{name, count}] }
             const diseases = res.diseases?.map((d: Disease) => d.name) || []
-            const diseaseCounts =
-              res.diseases?.map((d: Disease) => d.count) || []
+            const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
             const allergies = res.allergies?.map((a: Allergy) => a.name) || []
-            const allergyCounts =
-              res.allergies?.map((a: Allergy) => a.count) || []
+            const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
 
             setChartData({
               diseases: {
@@ -146,9 +134,7 @@ const Fieldtrip = () => {
               styles.btnMarginRight,
               styles.btnMarginBottom,
               {
-                backgroundColor: showStudentList
-                  ? MD3Colors.primary50
-                  : COLORS.gray_100,
+                backgroundColor: showStudentList ? MD3Colors.primary50 : COLORS.gray_100,
               },
             ]}
             onPress={() => {
@@ -163,9 +149,7 @@ const Fieldtrip = () => {
               styles.btnMarginRight,
               styles.btnMarginBottom,
               {
-                backgroundColor: showMetrics
-                  ? MD3Colors.primary50
-                  : COLORS.gray_100,
+                backgroundColor: showMetrics ? MD3Colors.primary50 : COLORS.gray_100,
               },
             ]}
             onPress={() => {
@@ -188,9 +172,7 @@ const Fieldtrip = () => {
           )}
           {showStudentList && students.length <= 0 && (
             <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>
-                No se ha registrado ningún estudiante.
-              </Text>
+              <Text style={styles.emptyStateText}>No se ha registrado ningún estudiante.</Text>
             </View>
           )}
         </>
@@ -226,25 +208,19 @@ const Fieldtrip = () => {
           ) : (
             <View style={styles.emptyStateContainer}>
               <Text style={styles.emptyStateText}>
-                No se han registrado suficientes estudiantes para mostrar esta
-                información.
+                No se han registrado suficientes estudiantes para mostrar esta información.
               </Text>
             </View>
           )}
 
           {/* Alergias */}
-          <Text
-            variant="titleMedium"
-            style={{ fontWeight: 600, marginTop: 16 }}
-          >
+          <Text variant="titleMedium" style={{ fontWeight: 600, marginTop: 16 }}>
             Alergias
           </Text>
           {Platform.OS === 'web' ? (
             <BarChart
               fromZero={true}
-              data={
-                chartData.allergies || { labels: [], datasets: [{ data: [] }] }
-              }
+              data={chartData.allergies || { labels: [], datasets: [{ data: [] }] }}
               showValuesOnTopOfBars={true}
               height={200}
               width={Dimensions.get('window').width}

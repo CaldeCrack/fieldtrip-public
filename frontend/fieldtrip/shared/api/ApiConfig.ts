@@ -1,12 +1,12 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
 
 const validToken = (token: string): boolean => {
   try {
-    const jwt: any = jwtDecode(token)
+    const jwt = jwtDecode(token)
     const currentDate = Date.now() / 1000
-    return jwt.exp >= currentDate
+    return jwt.exp! >= currentDate
   } catch (err) {
     // If decoding fails, token is invalid
     // eslint-disable-next-line no-console
@@ -22,7 +22,7 @@ export const Api: AxiosInstance = axios.create({
   },
 })
 
-Api.interceptors.request.use(async (req: AxiosRequestConfig | any) => {
+Api.interceptors.request.use(async (req: InternalAxiosRequestConfig) => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     if (token) {
