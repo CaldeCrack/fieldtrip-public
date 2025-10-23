@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignContent: 'center',
-    paddingTop: 8,
   },
 })
 

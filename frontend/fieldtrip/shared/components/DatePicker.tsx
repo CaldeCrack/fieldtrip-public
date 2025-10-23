@@ -7,7 +7,7 @@ const DatePicker = (props: any) => {
 
   return (
     <DatePickerInput
-      locale="en"
+      locale="es"
       inputMode="start"
       style={styles.datePicker}
       mode="outlined"
@@ -18,6 +18,7 @@ const DatePicker = (props: any) => {
         },
       }}
       outlineColor={COLORS.gray_100}
+      saveLabel="Guardar"
       {...rest}
     />
   )

@@ -189,7 +189,6 @@ const styles = StyleSheet.create({
   },
   showPassword: {
     alignContent: 'center',
-    paddingTop: 8,
   },
   loginBtn: {
     marginTop: 40,
