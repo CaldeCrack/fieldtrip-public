@@ -10,4 +10,9 @@ urlpatterns = [
         FieldtripAttendeesAPIView.as_view(),
         name="fieldtrip-attendees",
     ),
+    path(
+        "fieldtrip/signup-status/",
+        FieldtripSignupStatusAPIView.as_view(),
+        name="fieldtrip-signup-status",
+    ),
 ]

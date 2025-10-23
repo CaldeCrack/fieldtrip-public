@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode'
 import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
 import { Payload } from '@types'
+import { getSignupStatus } from '@services'
 
 type FieldtripItem = {
   id: number
@@ -26,8 +27,10 @@ type Props = {
 
 const FieldtripList = ({ data, setState }: Props) => {
   const router = useRouter()
+  const [userID, setUserID] = useState<number | undefined>(undefined)
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)
+  const [signupStatuses, setSignupStatuses] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
     ;(async () => {
@@ -37,10 +40,33 @@ const FieldtripList = ({ data, setState }: Props) => {
         return
       }
       const jwt = jwtDecode<Payload>(token)
+      setUserID(jwt.user_id)
+      console.log(jwt.user_id)
       setIsStudent(jwt.custom_data.is_student)
       setIsTeacher(jwt.custom_data.is_teacher)
     })()
   }, [router])
+
+  useEffect(() => {
+    if (!isStudent || !userID || data.length === 0) return
+    ;(async () => {
+      try {
+        const statuses: Record<number, boolean> = {}
+        for (const fieldtrip of data) {
+          try {
+            const res = await getSignupStatus(userID, fieldtrip.id)
+            statuses[fieldtrip.id] = res.signup_complete
+          } catch {
+            // If 404 or error, assume not signed up
+            statuses[fieldtrip.id] = false
+          }
+        }
+        setSignupStatuses(statuses)
+      } catch (err) {
+        console.error('Error fetching signup statuses:', err)
+      }
+    })()
+  }, [data, userID, isStudent])
 
   const copyToClipboard = async (invitationCode?: string) => {
     if (!invitationCode) return
@@ -50,64 +76,77 @@ const FieldtripList = ({ data, setState }: Props) => {
 
   return (
     <View style={styles.view}>
-      {data.map((item) => (
-        <TouchableRipple
-          style={styles.ripple}
-          key={String(item.id)}
-          onPress={() => {
-            setState(item.id)
-            const [day, month, year] = item.startDate.split('/').map(Number)
-            const twoWeeksLater = new Date(year, month - 1, day)
-            twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)
-            if (isStudent) router.push('/fieldtrip/join/form')
-            if (isTeacher) router.push('/fieldtrip')
-          }}
-        >
-          <Surface elevation={0} style={styles.container}>
-            {/* Copy Button */}
-            {isTeacher && (
-              <IconButton
-                icon="content-copy"
-                size={20}
-                style={styles.copyButton}
-                onPress={() => copyToClipboard(item.invitationCode)}
-              />
-            )}
-            <Text variant="titleLarge" style={{ fontWeight: 500 }}>
-              {item.title}
-            </Text>
-            <Text variant="bodyLarge">{item.professor}</Text>
-            <View style={styles.dates}>
-              <Icon
-                name="calendar"
-                size={24}
-                style={{ marginRight: 8, color: COLORS.primary_50 }}
-              />
-              <Text
-                variant="bodyLarge"
-                style={{
-                  paddingRight: 10,
-                  color: COLORS.primary_50,
-                  fontWeight: 500,
-                }}
-              >
-                {item.startDate}
+      {data.map((item) => {
+        const notSignedUp = isStudent && signupStatuses[item.id] === false
+        return (
+          <TouchableRipple
+            style={styles.ripple}
+            key={String(item.id)}
+            onPress={() => {
+              setState(item.id)
+              const [day, month, year] = item.startDate.split('/').map(Number)
+              const twoWeeksLater = new Date(year, month - 1, day)
+              twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)
+              if (isStudent) router.push('/fieldtrip/join/form')
+              if (isTeacher) router.push('/fieldtrip')
+            }}
+          >
+            <Surface elevation={0} style={styles.container}>
+              {/* Copy Button */}
+              {isTeacher && (
+                <IconButton
+                  icon="content-copy"
+                  size={20}
+                  style={styles.copyButton}
+                  onPress={() => copyToClipboard(item.invitationCode)}
+                />
+              )}
+              {/* Not Signed Up Warning */}
+              {notSignedUp && (
+                <IconButton
+                  icon="alert-circle-outline"
+                  size={20}
+                  style={styles.alertButton}
+                  onPress={() => alert('Aún no te has inscrito en esta salida a campo.')}
+                  iconColor={COLORS.error_500 || 'orange'}
+                />
+              )}
+              <Text variant="titleLarge" style={{ fontWeight: 500 }}>
+                {item.title}
               </Text>
-              <View style={styles.line} />
-              <Text
-                variant="bodyLarge"
-                style={{
-                  paddingLeft: 10,
-                  color: COLORS.primary_50,
-                  fontWeight: 500,
-                }}
-              >
-                {item.endDate}
-              </Text>
-            </View>
-          </Surface>
-        </TouchableRipple>
-      ))}
+              <Text variant="bodyLarge">{item.professor}</Text>
+              <View style={styles.dates}>
+                <Icon
+                  name="calendar"
+                  size={24}
+                  style={{ marginRight: 8, color: COLORS.primary_50 }}
+                />
+                <Text
+                  variant="bodyLarge"
+                  style={{
+                    paddingRight: 10,
+                    color: COLORS.primary_50,
+                    fontWeight: 500,
+                  }}
+                >
+                  {item.startDate}
+                </Text>
+                <View style={styles.line} />
+                <Text
+                  variant="bodyLarge"
+                  style={{
+                    paddingLeft: 10,
+                    color: COLORS.primary_50,
+                    fontWeight: 500,
+                  }}
+                >
+                  {item.endDate}
+                </Text>
+              </View>
+            </Surface>
+          </TouchableRipple>
+        )
+      })}
     </View>
   )
 }
@@ -153,6 +192,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   copyButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  alertButton: {
     position: 'absolute',
     top: 10,
     right: 10,

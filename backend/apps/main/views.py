@@ -108,3 +108,59 @@ class FieldtripAttendeesAPIView(APIView):
             fieldtrip=id, user__role='student')
         serializer = FieldtripAttendeeListSerializer(attendees, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class FieldtripSignupStatusAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_description="Obtener el estado de registro de un usuario en una salida a campo específica.",
+        manual_parameters=[
+            openapi.Parameter(
+                'user_id',
+                openapi.IN_QUERY,
+                description="ID del usuario",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            ),
+            openapi.Parameter(
+                'fieldtrip_id',
+                openapi.IN_QUERY,
+                description="ID de la salida a campo",
+                type=openapi.TYPE_INTEGER,
+                required=True
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description="Estado del registro del usuario.",
+                examples={
+                    "application/json": {"signup_complete": True}
+                }
+            ),
+            400: "Solicitud inválida.",
+            404: "No se encontró el registro del usuario en la salida especificada."
+        }
+    )
+    def get(self, request, format=None):
+        user_id = request.query_params.get('user_id')
+        fieldtrip_id = request.query_params.get('fieldtrip_id')
+
+        if not user_id or not fieldtrip_id:
+            return Response(
+                {"detail": "Parámetros 'user_id' y 'fieldtrip_id' son requeridos."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            attendee = FieldtripAttendee.objects.get(user_id=user_id, fieldtrip_id=fieldtrip_id)
+        except FieldtripAttendee.DoesNotExist:
+            return Response(
+                {"detail": "El usuario no está registrado en esta salida a campo."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {"signup_complete": attendee.signup_complete},
+            status=status.HTTP_200_OK
+        )
