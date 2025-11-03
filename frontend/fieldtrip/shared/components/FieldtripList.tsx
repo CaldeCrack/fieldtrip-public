@@ -102,13 +102,23 @@ const FieldtripList = ({ data, setState }: Props) => {
                 />
               )}
               {/* Not Signed Up Warning */}
-              {notSignedUp && (
+              {isStudent && notSignedUp && (
                 <IconButton
                   icon="alert-circle-outline"
                   size={20}
-                  style={styles.alertButton}
+                  style={styles.alertIcon}
                   onPress={() => alert('Aún no te has inscrito en esta salida a campo.')}
                   iconColor={COLORS.error_500 || 'orange'}
+                />
+              )}
+              {/* Signed Up Check */}
+              {isStudent && !notSignedUp && (
+                <IconButton
+                  icon="check-circle-outline"
+                  size={20}
+                  style={styles.checkIcon}
+                  onPress={() => alert('Estás inscrito/a en esta salida a campo.')}
+                  iconColor={COLORS.success_500 || 'green'}
                 />
               )}
               <Text variant="titleLarge" style={{ fontWeight: 500 }}>
@@ -197,7 +207,13 @@ const styles = StyleSheet.create({
     right: 10,
     zIndex: 1,
   },
-  alertButton: {
+  alertIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  checkIcon: {
     position: 'absolute',
     top: 10,
     right: 10,
