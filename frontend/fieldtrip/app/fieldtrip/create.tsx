@@ -118,7 +118,7 @@ const CreateFieldtrip = () => {
         if (teachers.length > 0) {
           const professors = teachers.map(
             (item: { id: number; names: string; surnames: string }) => {
-              return { _id: item.id, value: `${item.names} ${item.surnames}` }
+              return { _id: String(item.id), value: `${item.names} ${item.surnames}` }
             },
           )
           setProfessor({

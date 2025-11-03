@@ -58,12 +58,12 @@ const Signup = () => {
   })
   const [substanceAllergy, setSubstanceAllergy] = useState({
     value: '',
-    list: [],
+    list: [] as { _id: string, value: string }[],
     selectedList: [] as ListItem[],
   })
   const [medAllergy, setMedAllergy] = useState({
     value: '',
-    list: [],
+    list: [] as { _id: string, value: string }[],
     selectedList: [] as ListItem[],
   })
 
@@ -141,7 +141,7 @@ const Signup = () => {
       getSubstanceAllergies().then(async (res) => {
         if (res.length > 0) {
           const substanceAllergies = res.map((item: Item) => {
-            return { _id: item.id, value: item.type }
+            return { _id: String(item.id), value: item.type }
           })
           setSubstanceAllergy({
             ...substanceAllergy,
@@ -152,7 +152,7 @@ const Signup = () => {
       getMedAllergies().then(async (res) => {
         if (res.length > 0) {
           const medAllergies = res.map((item: Item) => {
-            return { _id: item.id, value: item.type }
+            return { _id: String(item.id), value: item.type }
           })
           setMedAllergy({
             ...medAllergy,

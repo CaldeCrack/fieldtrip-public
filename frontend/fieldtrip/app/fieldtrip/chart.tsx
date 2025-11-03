@@ -17,6 +17,11 @@ interface Item {
   value: string
 }
 
+interface HealthItem {
+  item: string
+  value: string
+}
+
 const HealthChart = () => {
   const router = useRouter()
   const { HCState } = useContext(HealthChartContext)
@@ -24,8 +29,8 @@ const HealthChart = () => {
   const [constantChartData, setConstantChartData] = useState({
     fullName: '',
     bloodType: '',
-    medAllergies: [],
-    substanceAllergies: [],
+    medAllergies: [] as string[],
+    substanceAllergies: [] as string[],
     emergencyContact: {
       name: '',
       phone: '',
@@ -34,9 +39,9 @@ const HealthChart = () => {
   const [fieldtripChartData, setFieldtripChartData] = useState({
     inTreatmentFor: '',
     takingMeds: '',
-    hasPresented: [],
-    presents: [],
-    healthSpecific: [],
+    hasPresented: [] as string[],
+    presents: [] as string[],
+    healthSpecific: [] as HealthItem[],
   })
   const hasData = constantChartData.fullName && fieldtripChartData.healthSpecific
 

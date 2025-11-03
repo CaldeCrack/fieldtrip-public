@@ -25,7 +25,7 @@ const theme = {
 interface HCStateType {
   fieldtripID: number | null
   fieldtripName: string | null
-  healthChartOwner: string | null
+  healthChartOwner: number | null
 }
 
 interface FStateType {

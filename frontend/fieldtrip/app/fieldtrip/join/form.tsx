@@ -192,7 +192,7 @@ const JoinFieldtrip = () => {
 
         const pastList: SelectOption[] =
           pastDiseasesRes?.map((item: ChecklistItem) => ({
-            _id: item.id,
+            _id: String(item.id),
             value: item.item,
           })) || []
         const currentList: SelectOption[] =
