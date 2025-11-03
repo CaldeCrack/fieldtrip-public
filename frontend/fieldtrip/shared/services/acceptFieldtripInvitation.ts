@@ -3,11 +3,11 @@ import { Api } from '../api/ApiConfig'
 
 interface InvitationBody {
   invitation_code: string
-  user: string | number
+  user: number
 }
 
 interface InvitationResponse {
-  id?: string | number
+  id?: number
   alreadyRegistered?: boolean
 }
 

@@ -20,7 +20,7 @@ const JoinFieldtrip = () => {
   const router = useRouter()
 
   const [fieldtripCode, setFieldtripCode] = useState<string>('')
-  const [userID, setUserID] = useState<string | number | undefined>(undefined)
+  const [userID, setUserID] = useState<number | undefined>(undefined)
   const [loading, setLoading] = useState<boolean>(false)
 
   const sendJoinFieldtripRequest = async () => {
@@ -28,7 +28,7 @@ const JoinFieldtrip = () => {
       setLoading(true)
       acceptFieldtripInvitation({
         invitation_code: fieldtripCode,
-        user: userID,
+        user: userID!,
       })
         .then(async (res) => {
           if (res.id) {
