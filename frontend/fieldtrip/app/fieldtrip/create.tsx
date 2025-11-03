@@ -129,8 +129,8 @@ const CreateFieldtrip = () => {
 
         const courses = await getCourses()
         if (courses.length > 0) {
-          const courseList = courses.map((item: { id: number; name: string }) => {
-            return { _id: item.id, value: item.name }
+          const courseList = courses.map((item) => {
+            return { _id: String(item.id), value: item.name }
           })
           setCourse({
             ...course,

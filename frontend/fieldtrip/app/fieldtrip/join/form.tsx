@@ -32,7 +32,7 @@ import { SelectedItem } from 'react-native-paper-select/lib/typescript/interface
 
 type InputItem = {
   label: string
-  id: string | number
+  id: number
   value: string
 }
 
@@ -197,7 +197,7 @@ const JoinFieldtrip = () => {
           })) || []
         const currentList: SelectOption[] =
           currentDiseasesRes?.map((item: ChecklistItem) => ({
-            _id: item.id,
+            _id: String(item.id),
             value: item.item,
           })) || []
 

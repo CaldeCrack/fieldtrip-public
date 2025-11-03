@@ -130,7 +130,7 @@ const Signup = () => {
       getDiets().then(async (res) => {
         if (res.length > 0) {
           const diets = res.map((item: Item) => {
-            return { _id: item.id, value: item.type }
+            return { _id: String(item.id), value: item.type }
           })
           setDiet({
             ...diet,

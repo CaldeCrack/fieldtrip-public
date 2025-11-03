@@ -6,7 +6,7 @@ interface Course {
   name: string
 }
 
-const getCourses = async (): Promise<Course[] | undefined> => {
+const getCourses = async (): Promise<Course[]> => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.get('course/', {
@@ -17,7 +17,7 @@ const getCourses = async (): Promise<Course[] | undefined> => {
     return response.data
   } catch (error) {
     console.log(error)
-    return undefined
+    return []
   }
 }
 
