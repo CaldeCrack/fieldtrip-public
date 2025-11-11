@@ -47,6 +47,7 @@ const JoinFieldtrip = () => {
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const [loading, setLoading] = useState<boolean>(true)
   const [signingUp, setSigningUp] = useState<boolean>(false)
+  const [signedUp, setSignedUp] = useState(false)
 
   const _getVisible = (name: string) => !!visible[name]
 
@@ -180,6 +181,7 @@ const JoinFieldtrip = () => {
         ])
 
         if (checklistCompleted) {
+          setSignedUp(true)
           setChecklistData(
             checklistRes.map((item: ChecklistItem) => ({
               ...item,
@@ -187,6 +189,7 @@ const JoinFieldtrip = () => {
             })),
           )
         } else {
+          setSignedUp(false)
           setChecklistData(checklistRes)
         }
 
@@ -437,7 +440,15 @@ const JoinFieldtrip = () => {
         disabled={loading || signingUp}
         onPress={_toggleModal('modal')}
       >
-        {signingUp ? <ActivityIndicator color="white" size="small" /> : 'Enviar información'}
+        {signingUp ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : loading ? (
+          'Cargando...'
+        ) : signedUp ? (
+          'Actualizar información'
+        ) : (
+          'Enviar información'
+        )}
       </ContainedButton>
       <ConfirmationModal
         visible={_getVisible('modal')}
