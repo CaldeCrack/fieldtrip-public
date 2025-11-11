@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build:web": "expo export --platform web",
+    "deploy:web": "npm run build:web && mkdir -p ../../backend/static && cp -r dist/* ../../backend/static"
   },
   "jest": {
     "preset": "jest-expo"
