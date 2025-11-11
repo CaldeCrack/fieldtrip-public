@@ -58,12 +58,12 @@ const Signup = () => {
   })
   const [substanceAllergy, setSubstanceAllergy] = useState({
     value: '',
-    list: [] as { _id: string, value: string }[],
+    list: [] as { _id: string; value: string }[],
     selectedList: [] as ListItem[],
   })
   const [medAllergy, setMedAllergy] = useState({
     value: '',
-    list: [] as { _id: string, value: string }[],
+    list: [] as { _id: string; value: string }[],
     selectedList: [] as ListItem[],
   })
 
