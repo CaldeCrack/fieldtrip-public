@@ -10,11 +10,12 @@ import { getUsersFieldtrips } from '@services'
 import { FieldtriptContext } from './_layout'
 import { COLORS } from '@colors'
 import { Payload } from '@types'
+import FieldtripItem from 'types/FieldtripItem'
 
 const Home = () => {
   const router = useRouter()
   const [serverError, setServerError] = useState(false)
-  const [fieldtripsData, setFieldtripsData] = useState([])
+  const [fieldtripsData, setFieldtripsData] = useState<FieldtripItem[]>([])
   const [loading, setLoading] = useState(true)
   const { FDispatch } = useContext(FieldtriptContext)
   const setState = (fieldtripID: number) => {

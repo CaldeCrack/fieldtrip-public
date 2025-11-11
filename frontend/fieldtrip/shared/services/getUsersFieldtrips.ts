@@ -1,14 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
-
-interface FieldtripItem {
-  id: number
-  title: string
-  professor?: string
-  startDate: string
-  endDate: string
-  invitationCode?: string
-}
+import FieldtripItem from 'types/FieldtripItem'
 
 const getUsersFieldtrips = async (id: string | number): Promise<FieldtripItem[]> => {
   try {

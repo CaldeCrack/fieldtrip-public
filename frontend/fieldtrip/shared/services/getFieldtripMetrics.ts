@@ -16,7 +16,7 @@ interface FieldtripMetrics {
   allergies?: Allergy[]
 }
 
-const getFieldtripMetrics = async (id: number): Promise<FieldtripMetrics> => {
+const getFieldtripMetrics = async (id: number | null): Promise<FieldtripMetrics> => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.get(`fieldtrip/${id}/metrics/`, {

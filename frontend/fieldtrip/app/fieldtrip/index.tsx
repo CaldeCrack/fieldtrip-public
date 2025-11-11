@@ -7,6 +7,7 @@ import { ContainedButton, Page, StudentList, BulletList } from '@components'
 import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
+import StudentAttendee from 'types/StudentAttendee'
 
 interface Allergy {
   name: string
@@ -16,6 +17,17 @@ interface Allergy {
 interface Disease {
   name: string
   count: number
+}
+
+interface chartData {
+  diseases: {
+    labels: string[]
+    datasets: [{ data: number[] }]
+  }
+  allergies: {
+    labels: string[]
+    datasets: [{ data: number[] }]
+  }
 }
 
 const Fieldtrip = () => {
@@ -31,9 +43,9 @@ const Fieldtrip = () => {
 
   const [showStudentList, setShowStudentList] = useState(true)
   const [showMetrics, setShowMetrics] = useState(false)
-  const [students, setStudents] = useState([])
+  const [students, setStudents] = useState<StudentAttendee[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
-  const [chartData, setChartData] = useState({
+  const [chartData, setChartData] = useState<chartData>({
     diseases: {
       labels: [
         /*

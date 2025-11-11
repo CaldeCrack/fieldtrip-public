@@ -1,12 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
-
-interface StudentAttendee {
-  id: number
-  name: string
-  signupComplete?: boolean
-  fieldtripID?: number
-}
+import StudentAttendee from 'types/StudentAttendee'
 
 const getFieldtripAttendees = async (id: number): Promise<StudentAttendee[]> => {
   try {
