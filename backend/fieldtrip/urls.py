@@ -66,10 +66,9 @@ router.register(r"fieldtrip-attendee", FieldtripAttendeeViewSet)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', index, name='index'),
-    path('login/', login, name='login'),
+    re_path(r'^favicon.ico$', icon_redirect),
     re_path(r'^_expo/(?P<path>.*)$', expo_redirect),
     re_path(r'^assets/(?P<path>.*)$', assets_redirect),
-    re_path(r'^favicon.ico$', icon_redirect),
     path("", include("apps.user.urls", namespace="user")),
     path("", include("apps.main.urls", namespace="main")),
     path("", include("apps.health.urls", namespace="health")),

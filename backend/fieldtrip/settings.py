@@ -33,8 +33,6 @@ ALLOWED_HOSTS = config(
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8081",
-    "http://172.17.69.240",
-    "http://172.17.69.240:8081",
     "https://172.17.69.240:8081",
     "https://front-hleu.onrender.com",
 ]
@@ -66,6 +64,11 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://fieldtrip.dcc.uchile.cl",
+    "http://172.17.69.240:8000",
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -190,10 +193,6 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-TEMPLATES[0]['DIRS'] = [
-    BASE_DIR / "static",
-]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

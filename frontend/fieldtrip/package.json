@@ -11,6 +11,7 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "build:web": "expo export --platform web",
+    "deploy:web": "npm run build:web && rm -rf ../../backend/static && mkdir -p ../../backend/static && cp -r dist/* ../../backend/static",
     "serve": "expo serve"
   },
   "jest": {
