@@ -33,6 +33,9 @@ ALLOWED_HOSTS = config(
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8081",
+    "http://172.17.69.240",
+    "http://172.17.69.240:8081",
+    "https://172.17.69.240:8081",
     "https://front-hleu.onrender.com",
 ]
 
@@ -101,13 +104,13 @@ INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'fieldtrip.urls'

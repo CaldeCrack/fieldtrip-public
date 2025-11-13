@@ -16,7 +16,8 @@ const validToken = (token: string): boolean => {
 }
 
 export const Api: AxiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  // baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'http://172.17.69.240:8000',
   headers: {
     accept: 'application/json',
   },
