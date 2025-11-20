@@ -1,11 +1,13 @@
 import { useRouter } from 'expo-router'
-import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
+import { StyleSheet, View, ScrollView, ActivityIndicator, Platform } from 'react-native'
 import { MD3Colors, Text, Surface, Divider } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
 import { useState, useEffect, useContext } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
+import * as FileSystem from 'expo-file-system'
+import * as Sharing from 'expo-sharing'
 
 import {
   ContainedButton,
@@ -50,6 +52,30 @@ const JoinFieldtrip = () => {
   const [signedUp, setSignedUp] = useState(false)
 
   const _getVisible = (name: string) => !!visible[name]
+
+  const downloadPDF = async () => {
+    const filename = 'Ficha_personal_seguridad_en_terreno_v3.pdf'
+    const pdfUrl = `https://fieldtrip.dcc.uchile.cl/static/${filename}`
+    if (Platform.OS === 'web') {
+      const link = document.createElement('a')
+      link.href = pdfUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else {
+      try {
+        const result = await FileSystem.downloadAsync(
+          pdfUrl,
+          FileSystem.documentDirectory! + filename,
+        )
+        await Sharing.shareAsync(result.uri)
+      } catch (error) {
+        console.error('Error downloading PDF:', error)
+        alert('Error al descargar el archivo')
+      }
+    }
+  }
 
   const [formDone, setFormDone] = useState<boolean>(false)
   const [showChecklist, setShowChecklist] = useState<boolean>(true)
@@ -327,7 +353,7 @@ const JoinFieldtrip = () => {
                       onPress={() => null}
                     />
                     <TextButton
-                      onPress={() => null}
+                      onPress={downloadPDF}
                       style={styles.underline}
                       labelStyle={styles.label}
                     >
