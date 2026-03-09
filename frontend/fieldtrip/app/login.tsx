@@ -85,6 +85,7 @@ const Login = () => {
           label="Email *"
           onChangeText={(val: string) => setEmail(val)}
           value={email}
+          onSubmitEditing={sendLoginRequest}
         />
         <IconInput
           iconName="lock"
@@ -92,8 +93,10 @@ const Login = () => {
           onChangeText={(val: string) => setPassword(val)}
           secureTextEntry={textSecure}
           value={password}
+          onSubmitEditing={sendLoginRequest}
           right={
             <TextInput.Icon
+              tabIndex={-1}
               icon={() => (
                 <Icon
                   name={textSecure ? 'eye' : 'eye-off'}
