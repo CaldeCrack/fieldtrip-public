@@ -93,7 +93,7 @@ const JoinFieldtrip = () => {
   })
   const [inputList, setInputList] = useState<InputItem[]>([])
 
-  const handleInputChange = (index: string | number, text: string) => {
+  const handleInputChange = (index: number, text: string) => {
     const updatedInputs = [...inputList]
     const found = updatedInputs.find((obj) => obj.id === index)
     if (found) {

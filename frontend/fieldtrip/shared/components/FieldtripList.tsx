@@ -41,7 +41,6 @@ const FieldtripList = ({ data, setState }: Props) => {
       }
       const jwt = jwtDecode<Payload>(token)
       setUserID(jwt.user_id)
-      console.log(jwt.user_id)
       setIsStudent(jwt.custom_data.is_student)
       setIsTeacher(jwt.custom_data.is_teacher)
     })()
