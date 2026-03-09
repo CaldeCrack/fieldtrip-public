@@ -23,6 +23,8 @@ const IconInput = ({ iconName, ...rest }: IconInputProps) => {
       left={
         <TextInput.Icon
           icon={() => <Icon name={iconName} size={24} color="black" style={styles.icon} />}
+          forceTextInputFocus
+          tabIndex={-1}
         />
       }
       {...rest}
