@@ -29,17 +29,19 @@ from django.urls import path, re_path
 
 from .views import *
 
+from decouple import config
+
 schema_view = get_schema_view(
-    openapi.Info(
-        title="Fieldtrip API",
-        default_version="v1",
-        description="Documentación de endpoints para la App Fieldtrip",
-        terms_of_service="",
-        contact=openapi.Contact(email="x"),
-        license=openapi.License(name="BSD License"),
-    ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
+  openapi.Info(
+    title="Fieldtrip API",
+    default_version="v1",
+    description="Documentación de endpoints para la App Fieldtrip",
+    terms_of_service="",
+    contact=openapi.Contact(email="x"),
+    license=openapi.License(name="BSD License"),
+  ),
+  public=True,
+  permission_classes=[permissions.AllowAny],
 )
 
 
@@ -64,28 +66,32 @@ router.register(r"fieldtrip-attendee", FieldtripAttendeeViewSet)
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path('', index, name='index'),
-    re_path(r'^favicon.ico$', icon_redirect),
-    re_path(r'^_expo/(?P<path>.*)$', expo_redirect),
-    re_path(r'^assets/(?P<path>.*)$', assets_redirect),
-    path("", include("apps.user.urls", namespace="user")),
-    path("", include("apps.main.urls", namespace="main")),
-    path("", include("apps.health.urls", namespace="health")),
-    path("", include(router.urls)),
-    path(
-        "docs/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    re_path(
-        r"^swagger(?P<format>\.json|\.yaml)$",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    re_path(
-        r"^redoc/$",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc",
-    ),
+  path('', index, name='index'),
+  re_path(r'^favicon.ico$', icon_redirect),
+  re_path(r'^_expo/(?P<path>.*)$', expo_redirect),
+  re_path(r'^assets/(?P<path>.*)$', assets_redirect),
+  path("", include("apps.user.urls", namespace="user")),
+  path("", include("apps.main.urls", namespace="main")),
+  path("", include("apps.health.urls", namespace="health")),
+  path("", include(router.urls)),
+  path(
+    "docs/",
+    schema_view.with_ui("swagger", cache_timeout=0),
+    name="schema-swagger-ui",
+  ),
+  re_path(
+    r"^swagger(?P<format>\.json|\.yaml)$",
+    schema_view.without_ui(cache_timeout=0),
+    name="schema-json",
+  ),
+  re_path(
+    r"^redoc/$",
+    schema_view.with_ui("redoc", cache_timeout=0),
+    name="schema-redoc",
+  ),
 ]
+
+if config('ENV') == 'dev':
+  urlpatterns += [
+    path("admin/", admin.site.urls),
+  ]
