@@ -89,6 +89,7 @@ urlpatterns = [
     schema_view.with_ui("redoc", cache_timeout=0),
     name="schema-redoc",
   ),
+  re_path(r'^.*$', FrontendAppView.as_view()),
 ]
 
 if config('ENV') == 'dev':

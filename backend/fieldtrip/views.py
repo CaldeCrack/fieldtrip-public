@@ -3,7 +3,10 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
 from drf_yasg import openapi
 from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
 
+class FrontendAppView(TemplateView):
+    template_name = "index.html"
 
 def index(request):
     if request.method == 'GET':
