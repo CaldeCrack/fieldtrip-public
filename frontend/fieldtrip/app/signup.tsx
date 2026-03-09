@@ -125,6 +125,27 @@ const Signup = () => {
     }
   }
 
+  const formatRUT = (value: string) => {
+    const clean = value
+      .replace(/[^\dkK]/g, '')
+      .toUpperCase()
+      .slice(0, 9)
+
+    if (clean.length === 0) return ''
+
+    const body = clean.slice(0, -1)
+    const dv = clean.slice(-1)
+
+    const formattedBody = body
+      .split('')
+      .reverse()
+      .reduce((acc, digit, i) => {
+        return digit + (i && i % 3 === 0 ? '.' : '') + acc
+      }, '')
+
+    return body.length ? `${formattedBody}-${dv}` : dv
+  }
+
   useEffect(() => {
     ;(async () => {
       getDiets().then(async (res) => {
@@ -220,9 +241,9 @@ const Signup = () => {
             <SimpleInput
               label="RUT *"
               onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
-                setRUT(e.nativeEvent.text)
+                setRUT(formatRUT(e.nativeEvent.text))
               }
-              onChangeText={(val: string) => setRUT(val)}
+              onChangeText={(val: string) => setRUT(formatRUT(val))}
               value={RUT}
             />
             <View style={{ marginLeft: 16, marginBottom: 8 }}>
