@@ -153,10 +153,10 @@ const Signup = () => {
           const diets = res.map((item: Item) => {
             return { _id: String(item.id), value: item.type }
           })
-          setDiet({
-            ...diet,
+          setDiet((prev) => ({
+            ...prev,
             list: diets,
-          })
+          }))
         }
       })
       getSubstanceAllergies().then(async (res) => {
@@ -164,10 +164,10 @@ const Signup = () => {
           const substanceAllergies = res.map((item: Item) => {
             return { _id: String(item.id), value: item.type }
           })
-          setSubstanceAllergy({
-            ...substanceAllergy,
+          setSubstanceAllergy((prev) => ({
+            ...prev,
             list: substanceAllergies,
-          })
+          }))
         }
       })
       getMedAllergies().then(async (res) => {
@@ -175,10 +175,10 @@ const Signup = () => {
           const medAllergies = res.map((item: Item) => {
             return { _id: String(item.id), value: item.type }
           })
-          setMedAllergy({
-            ...medAllergy,
+          setMedAllergy((prev) => ({
+            ...prev,
             list: medAllergies,
-          })
+          }))
         }
       })
     })()
