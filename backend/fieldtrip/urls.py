@@ -65,15 +65,19 @@ router.register(r"fieldtrip", FieldtripViewSet, basename='fieldtrip')
 router.register(r"fieldtrip-attendee", FieldtripAttendeeViewSet)
 
 
+api_urlpatterns = [
+  path("", include("apps.user.urls", namespace="user")),
+  path("", include("apps.main.urls", namespace="main")),
+  path("", include("apps.health.urls", namespace="health")),
+  path("", include(router.urls)),
+]
+
 urlpatterns = [
   path('', index, name='index'),
   re_path(r'^favicon.ico$', icon_redirect),
   re_path(r'^_expo/(?P<path>.*)$', expo_redirect),
   re_path(r'^assets/(?P<path>.*)$', assets_redirect),
-  path("", include("apps.user.urls", namespace="user")),
-  path("", include("apps.main.urls", namespace="main")),
-  path("", include("apps.health.urls", namespace="health")),
-  path("", include(router.urls)),
+  path("api/", include(api_urlpatterns)),
   path(
     "docs/",
     schema_view.with_ui("swagger", cache_timeout=0),
