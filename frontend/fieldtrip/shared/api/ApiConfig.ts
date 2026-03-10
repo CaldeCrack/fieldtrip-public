@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
+import config from '@config'
 
 const validToken = (token: string): boolean => {
   try {
@@ -16,8 +17,7 @@ const validToken = (token: string): boolean => {
 }
 
 export const Api: AxiosInstance = axios.create({
-  // baseURL: 'http://127.0.0.1:8000',
-  baseURL: 'https://fieldtrip.dcc.uchile.cl',
+  baseURL: config.BASE_URL,
   headers: {
     accept: 'application/json',
   },

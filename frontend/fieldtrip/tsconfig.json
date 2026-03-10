@@ -9,7 +9,8 @@
       "@colors": ["styles/colors.ts"],
       "@components": ["shared/components"],
       "@services": ["shared/services"],
-      "@types": ["types/"]
+      "@types": ["types/"],
+      "@config": ["shared/utils/config.ts"]
     }
   },
   "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.js", ".expo/types/**/*.ts", "expo-env.d.ts"]
