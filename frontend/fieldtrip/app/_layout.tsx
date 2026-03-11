@@ -126,6 +126,23 @@ const StackLayout = () => {
               <Stack.Screen name="fieldtrip/chart" options={{ title: 'Ficha de salud' }} />
               <Stack.Screen name="fieldtrip/join/index" options={{ title: 'Unirse a fieldtrip' }} />
               <Stack.Screen name="fieldtrip/join/form" options={{ title: 'Fieldtrip' }} />
+              <Stack.Screen
+                name="+not-found"
+                options={{
+                  title: 'Página no existe',
+                  headerRight: () => {
+                    return (
+                      <TouchableOpacity>
+                        <Icon
+                          name="logout"
+                          size={0}
+                          style={{ marginRight: 16, color: '#00796b' }}
+                        />
+                      </TouchableOpacity>
+                    )
+                  },
+                }}
+              />
             </Stack>
             <ConfirmationModal
               visible={_getVisible('modal')}
