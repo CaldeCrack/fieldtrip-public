@@ -21,6 +21,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.urls import include, re_path
+from django.views.generic.base import RedirectView
 
 from apps.main.views import *
 from apps.user.views import *
@@ -74,7 +75,10 @@ api_urlpatterns = [
 
 urlpatterns = [
   path('', index, name='index'),
-  re_path(r'^favicon.ico$', icon_redirect),
+  path(
+    "favicon.ico",
+    RedirectView.as_view(url="/static/favicon.ico", permanent=True)
+  ),
   re_path(r'^_expo/(?P<path>.*)$', expo_redirect),
   re_path(r'^assets/(?P<path>.*)$', assets_redirect),
   path("api/", include(api_urlpatterns)),

@@ -20,10 +20,6 @@ def assets_redirect(request, path):
     if request.method == 'GET': 
         return redirect(f"/static/assets/{path}")
 
-def icon_redirect(request):
-    if request.method == 'GET': 
-        return redirect(f"/static/favicon.ico")
-
 @swagger_auto_schema(
     method='GET',
     operation_description="Verifica si el servidor está funcionando.",
