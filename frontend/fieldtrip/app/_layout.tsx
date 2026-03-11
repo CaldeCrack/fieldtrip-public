@@ -131,15 +131,7 @@ const StackLayout = () => {
                 options={{
                   title: 'Página no existe',
                   headerRight: () => {
-                    return (
-                      <TouchableOpacity>
-                        <Icon
-                          name="logout"
-                          size={0}
-                          style={{ marginRight: 16, color: '#00796b' }}
-                        />
-                      </TouchableOpacity>
-                    )
+                    return <TouchableOpacity></TouchableOpacity>
                   },
                 }}
               />
