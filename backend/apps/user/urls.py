@@ -13,4 +13,5 @@ urlpatterns = [
     # path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("logout/", UserLogoutAPIView.as_view(), name="logout-user"),
     path("promote-auxiliar/<int:pk>/", PromoteToAuxiliarView.as_view(), name="promote-auxiliar"),
+    path("demote-auxiliar/<int:pk>/", DemoteFromAuxiliarView.as_view(), name="demote-auxiliar"),
 ]
