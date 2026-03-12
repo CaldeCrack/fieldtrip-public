@@ -14,6 +14,7 @@ type StudentItem = {
   name: string
   signupComplete?: boolean
   fieldtripID?: number
+  isAuxiliar?: boolean
 }
 
 type Props = {
@@ -45,72 +46,88 @@ const StudentList = ({ data, setState }: Props) => {
   return (
     <View style={styles.wrapper}>
       <List.Section style={styles.section}>
-        {data.map((item) => (
-          <View key={String(item.id)}>
-            <List.Accordion
-              title={item.name}
-              style={styles.accordion}
-              right={() => (
-                <List.Icon
-                  color={item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50}
-                  icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
-                />
-              )}
-            >
-              <List.Item
-                title="Estado de inscripción"
-                left={(props) => (
-                  <List.Icon
-                    {...props}
-                    color={item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50}
-                    icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
-                  />
+        {data
+          .sort((a, b) => {
+            // Sort auxiliars first
+            if (a.isAuxiliar && !b.isAuxiliar) return -1
+            if (!a.isAuxiliar && b.isAuxiliar) return 1
+            return 0
+          })
+          .map((item) => (
+            <View key={String(item.id)}>
+              <List.Accordion
+                title={item.name}
+                style={styles.accordion}
+                right={() => (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {item.isAuxiliar && (
+                      <List.Icon
+                        color={MD3Colors.tertiary50}
+                        icon="account-star"
+                        style={{ marginRight: 8 }}
+                      />
+                    )}
+                    <List.Icon
+                      color={item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50}
+                      icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
+                    />
+                  </View>
                 )}
-              />
-              <List.Item
-                onPress={_toggleModal(`modal-${item.id}`)}
-                title="Ver ficha de salud"
-                left={(props) => <List.Icon {...props} icon="account-heart" />}
-              />
-              <List.Item
-                onPress={_toggleModal(`promote-${item.id}`)}
-                title="Promover a auxiliar"
-                left={(props) => <List.Icon {...props} icon="account-star" />}
-              />
-              <ConfirmationModal
-                visible={_getVisible(`modal-${item.id}`)}
-                close={_toggleModal(`modal-${item.id}`)}
-                open={() => {
-                  setState(item.fieldtripID!, item.name, item.id)
-                  setVisible({ ...visible, [`modal-${item.id}`]: false })
-                  router.push('/fieldtrip/chart')
-                }}
-                title={`¿Está seguro/a que desea ver la información de salud de ${item.name}?`}
-                description={`Esta acción quedará registrada y podrá ser vista por ${item.name}.`}
-              />
-              <ConfirmationModal
-                visible={_getVisible(`promote-${item.id}`)}
-                close={_toggleModal(`promote-${item.id}`)}
-                open={async () => {
-                  try {
-                    const result = await promoteToAuxiliar(item.id, item.fieldtripID!)
-                    if (result) {
-                      console.log(result.message)
-                      // TODO: Show success message to user
+              >
+                <List.Item
+                  title="Estado de inscripción"
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      color={item.signupComplete ? MD3Colors.primary50 : MD3Colors.error50}
+                      icon={item.signupComplete ? 'check' : 'alert-circle-outline'}
+                    />
+                  )}
+                />
+                <List.Item
+                  onPress={_toggleModal(`modal-${item.id}`)}
+                  title="Ver ficha de salud"
+                  left={(props) => <List.Icon {...props} icon="account-heart" />}
+                />
+                <List.Item
+                  onPress={_toggleModal(`promote-${item.id}`)}
+                  title="Promover a auxiliar"
+                  left={(props) => <List.Icon {...props} icon="account-star" />}
+                />
+                <ConfirmationModal
+                  visible={_getVisible(`modal-${item.id}`)}
+                  close={_toggleModal(`modal-${item.id}`)}
+                  open={() => {
+                    setState(item.fieldtripID!, item.name, item.id)
+                    setVisible({ ...visible, [`modal-${item.id}`]: false })
+                    router.push('/fieldtrip/chart')
+                  }}
+                  title={`¿Está seguro/a que desea ver la información de salud de ${item.name}?`}
+                  description={`Esta acción quedará registrada y podrá ser vista por ${item.name}.`}
+                />
+                <ConfirmationModal
+                  visible={_getVisible(`promote-${item.id}`)}
+                  close={_toggleModal(`promote-${item.id}`)}
+                  open={async () => {
+                    try {
+                      const result = await promoteToAuxiliar(item.id, item.fieldtripID!)
+                      if (result) {
+                        console.log(result.message)
+                        // TODO: Show success message to user
+                      }
+                    } catch (error) {
+                      console.error('Error promoting to auxiliar:', error)
+                      // TODO: Show error message to user
                     }
-                  } catch (error) {
-                    console.error('Error promoting to auxiliar:', error)
-                    // TODO: Show error message to user
-                  }
-                  setVisible({ ...visible, [`promote-${item.id}`]: false })
-                }}
-                title={`¿Está seguro/a que desea promover a ${item.name} a auxiliar?`}
-                description={`${item.name} será marcado como auxiliar para esta salida a campo.`}
-              />
-            </List.Accordion>
-            <Divider style={styles.divider} />
-          </View>
-        ))}
+                    setVisible({ ...visible, [`promote-${item.id}`]: false })
+                  }}
+                  title={`¿Está seguro/a que desea promover a ${item.name} a auxiliar?`}
+                  description={`${item.name} será marcado como auxiliar para esta salida a campo.`}
+                />
+              </List.Accordion>
+              <Divider style={styles.divider} />
+            </View>
+          ))}
       </List.Section>
     </View>
   )
