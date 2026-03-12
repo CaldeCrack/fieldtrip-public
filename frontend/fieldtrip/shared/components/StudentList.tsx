@@ -7,7 +7,7 @@ import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 import { Payload } from '@types'
-import { promoteToAuxiliar } from '../services'
+import { promoteToAuxiliar, demoteFromAuxiliar } from '../services'
 
 type StudentItem = {
   id: number
@@ -90,9 +90,14 @@ const StudentList = ({ data, setState }: Props) => {
                   left={(props) => <List.Icon {...props} icon="account-heart" />}
                 />
                 <List.Item
-                  onPress={_toggleModal(`promote-${item.id}`)}
-                  title="Promover a auxiliar"
-                  left={(props) => <List.Icon {...props} icon="account-star" />}
+                  onPress={_toggleModal(`auxiliar-${item.id}`)}
+                  title={item.isAuxiliar ? 'Remover auxiliar' : 'Promover a auxiliar'}
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      icon={item.isAuxiliar ? 'account-star-outline' : 'account-star'}
+                    />
+                  )}
                 />
                 <ConfirmationModal
                   visible={_getVisible(`modal-${item.id}`)}
@@ -106,23 +111,36 @@ const StudentList = ({ data, setState }: Props) => {
                   description={`Esta acción quedará registrada y podrá ser vista por ${item.name}.`}
                 />
                 <ConfirmationModal
-                  visible={_getVisible(`promote-${item.id}`)}
-                  close={_toggleModal(`promote-${item.id}`)}
+                  visible={_getVisible(`auxiliar-${item.id}`)}
+                  close={_toggleModal(`auxiliar-${item.id}`)}
                   open={async () => {
                     try {
-                      const result = await promoteToAuxiliar(item.id, item.fieldtripID!)
+                      const result = item.isAuxiliar
+                        ? await demoteFromAuxiliar(item.id, item.fieldtripID!)
+                        : await promoteToAuxiliar(item.id, item.fieldtripID!)
                       if (result) {
                         console.log(result.message)
                         // TODO: Show success message to user
                       }
                     } catch (error) {
-                      console.error('Error promoting to auxiliar:', error)
+                      console.error(
+                        `Error ${item.isAuxiliar ? 'demoting from' : 'promoting to'} auxiliar:`,
+                        error,
+                      )
                       // TODO: Show error message to user
                     }
-                    setVisible({ ...visible, [`promote-${item.id}`]: false })
+                    setVisible({ ...visible, [`auxiliar-${item.id}`]: false })
                   }}
-                  title={`¿Está seguro/a que desea promover a ${item.name} a auxiliar?`}
-                  description={`${item.name} será marcado como auxiliar para esta salida a campo.`}
+                  title={
+                    item.isAuxiliar
+                      ? `¿Está seguro/a que desea remover a ${item.name} como auxiliar?`
+                      : `¿Está seguro/a que desea promover a ${item.name} a auxiliar?`
+                  }
+                  description={
+                    item.isAuxiliar
+                      ? `${item.name} ya no será auxiliar para esta salida a campo.`
+                      : `${item.name} será marcado como auxiliar para esta salida a campo.`
+                  }
                 />
               </List.Accordion>
               <Divider style={styles.divider} />
