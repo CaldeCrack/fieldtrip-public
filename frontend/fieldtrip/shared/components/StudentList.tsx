@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 import { Payload } from '@types'
+import { promoteToAuxiliar } from '../services'
 
 type StudentItem = {
   id: number
@@ -71,6 +72,11 @@ const StudentList = ({ data, setState }: Props) => {
                 title="Ver ficha de salud"
                 left={(props) => <List.Icon {...props} icon="account-heart" />}
               />
+              <List.Item
+                onPress={_toggleModal(`promote-${item.id}`)}
+                title="Promover a auxiliar"
+                left={(props) => <List.Icon {...props} icon="account-star" />}
+              />
               <ConfirmationModal
                 visible={_getVisible(`modal-${item.id}`)}
                 close={_toggleModal(`modal-${item.id}`)}
@@ -81,6 +87,25 @@ const StudentList = ({ data, setState }: Props) => {
                 }}
                 title={`¿Está seguro/a que desea ver la información de salud de ${item.name}?`}
                 description={`Esta acción quedará registrada y podrá ser vista por ${item.name}.`}
+              />
+              <ConfirmationModal
+                visible={_getVisible(`promote-${item.id}`)}
+                close={_toggleModal(`promote-${item.id}`)}
+                open={async () => {
+                  try {
+                    const result = await promoteToAuxiliar(item.id, item.fieldtripID!)
+                    if (result) {
+                      console.log(result.message)
+                      // TODO: Show success message to user
+                    }
+                  } catch (error) {
+                    console.error('Error promoting to auxiliar:', error)
+                    // TODO: Show error message to user
+                  }
+                  setVisible({ ...visible, [`promote-${item.id}`]: false })
+                }}
+                title={`¿Está seguro/a que desea promover a ${item.name} a auxiliar?`}
+                description={`${item.name} será marcado como auxiliar para esta salida a campo.`}
               />
             </List.Accordion>
             <Divider style={styles.divider} />
