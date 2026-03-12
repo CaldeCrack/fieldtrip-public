@@ -14,6 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from . import serializers
 from .models import *
 from apps.utils.custom_permissions import IsTeacher
+from apps.main.models import Fieldtrip, FieldtripAttendee
 
 User = get_user_model()
 
@@ -219,3 +220,65 @@ class SubstanceAllergyViewSet(viewsets.ModelViewSet):
     queryset = Allergy.objects.filter(category=1)
     serializer_class = serializers.AllergySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class PromoteToAuxiliarView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @swagger_auto_schema(
+        operation_description="Promover un estudiante a auxiliar en una salida a campo específica. Solo disponible para profesores.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "fieldtrip_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID de la salida a campo.")
+            },
+            required=["fieldtrip_id"]
+        ),
+        responses={
+            200: openapi.Response("Usuario promovido a auxiliar exitosamente."),
+            400: "El usuario no es un estudiante o no está registrado en la salida.",
+            403: "No tienes permiso para realizar esta acción.",
+            404: "Usuario o salida a campo no encontrado."
+        }
+    )
+    def post(self, request, pk, *args, **kwargs):
+        if request.user.role != 'teacher':
+            return Response(
+                {"error": "Solo los profesores pueden promover estudiantes a auxiliar."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Usuario no encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if user.role != 'student':
+            return Response(
+                {"error": "El usuario no es un estudiante."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        fieldtrip_id = request.data.get('fieldtrip_id')
+        if not fieldtrip_id:
+            return Response(
+                {"error": "fieldtrip_id es requerido."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            fieldtrip = Fieldtrip.objects.get(pk=fieldtrip_id)
+            attendee, created = FieldtripAttendee.objects.get_or_create(
+                user=user,
+                fieldtrip=fieldtrip
+            ) #* maybe just a get
+            attendee.is_auxiliar = True
+            attendee.save()
+            return Response(
+                {"message": f"{user.names} {user.surnames} ha sido promovido a auxiliar en {fieldtrip.name}."},
+                status=status.HTTP_200_OK,
+            )
+        except Fieldtrip.DoesNotExist:
+            return Response(
+                {"error": "Salida a campo no encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
