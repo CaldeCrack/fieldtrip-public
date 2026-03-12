@@ -72,8 +72,10 @@ class User(AbstractUser):
         ('teacher', 'Teacher'),
         ('student', 'Student'),
         ('admin', 'Admin'),
+        ('auxiliar', 'Auxiliar'),
+        ('inventory_manager', 'Inventory Manager'),
     ]
-    def validate_emergency_number(value):
+    def validate_emergency_number(self, value):
         if len(str(value)) != 9:
             raise ValidationError("El número debe tener exactamente 9 dígitos.")
 
@@ -103,7 +105,7 @@ class User(AbstractUser):
         null=True, validators=[validate_emergency_number],
         verbose_name='Número de emergencia'
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, verbose_name="Role")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, verbose_name="Role")
     has_previous_experience = models.BooleanField(
         verbose_name='¿Tiene experiencia previa en salidas a campo?',
         default=True)
