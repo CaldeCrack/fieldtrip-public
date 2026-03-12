@@ -26,8 +26,17 @@ const StudentList = ({ data, setState }: Props) => {
   const router = useRouter()
 
   const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const [auxiliarUpdates, setAuxiliarUpdates] = useState<Record<number, boolean>>({})
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
+
+  // Merge original data with local auxiliar updates
+  const mergedData = data.map((item) => ({
+    ...item,
+    isAuxiliar: auxiliarUpdates.hasOwnProperty(item.id)
+      ? auxiliarUpdates[item.id]
+      : item.isAuxiliar,
+  }))
 
   useEffect(() => {
     ;(async () => {
@@ -46,7 +55,7 @@ const StudentList = ({ data, setState }: Props) => {
   return (
     <View style={styles.wrapper}>
       <List.Section style={styles.section}>
-        {data
+        {mergedData
           .sort((a, b) => {
             // Sort auxiliars first
             if (a.isAuxiliar && !b.isAuxiliar) return -1
@@ -120,6 +129,11 @@ const StudentList = ({ data, setState }: Props) => {
                         : await promoteToAuxiliar(item.id, item.fieldtripID!)
                       if (result) {
                         console.log(result.message)
+                        // Update local state to reflect the change immediately
+                        setAuxiliarUpdates((prev) => ({
+                          ...prev,
+                          [item.id]: !item.isAuxiliar,
+                        }))
                         // TODO: Show success message to user
                       }
                     } catch (error) {
