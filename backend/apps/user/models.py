@@ -72,7 +72,6 @@ class User(AbstractUser):
         ('teacher', 'Teacher'),
         ('student', 'Student'),
         ('admin', 'Admin'),
-        ('auxiliar', 'Auxiliar'),
         ('inventory_manager', 'Inventory Manager'),
     ]
     def validate_emergency_number(self, value):
