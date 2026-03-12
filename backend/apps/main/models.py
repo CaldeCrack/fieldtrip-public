@@ -97,6 +97,10 @@ class FieldtripAttendee(models.Model):
         default=False,
         verbose_name="Status de registro en salida",
     )
+    is_auxiliar = models.BooleanField(
+        default=False,
+        verbose_name="Es auxiliar en esta salida a campo"
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
