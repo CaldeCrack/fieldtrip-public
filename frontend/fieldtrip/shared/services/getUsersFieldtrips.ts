@@ -4,6 +4,10 @@ import FieldtripItem from 'types/FieldtripItem'
 
 const getUsersFieldtrips = async (id: string | number): Promise<FieldtripItem[]> => {
   try {
+    if (id === undefined || id === null || Number.isNaN(Number(id))) {
+      throw new Error('Invalid user id for fieldtrip lookup')
+    }
+
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.get(`/fieldtrip-attendee/user/?user-id=${id}`, {
       headers: {
