@@ -10,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from .models import *
 from .serializers import *
 from .helpers import *
-from apps.utils.custom_permissions import IsTeacher, IsStudent
+from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
 
 
 class HealthDataLogViewSet(viewsets.ModelViewSet):
@@ -63,7 +63,7 @@ class UserAllergyViewSet(viewsets.ModelViewSet):
 
 
 class FieldtripViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, IsTeacher)
+    permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
     queryset = Fieldtrip.objects.prefetch_related('course', 'teacher').all()
     serializer_class = FieldtripSerializer
 
@@ -132,7 +132,7 @@ class FieldtripViewSet(viewsets.ModelViewSet):
 
 
 class FieldtripMetricsAPIView(APIView):
-    permission_classes = (IsAuthenticated, IsTeacher)
+    permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
 
     @swagger_auto_schema(
         operation_description="Recuperar estadísticas de salud y alergias de los estudiantes asistentes a una salida a campo.",

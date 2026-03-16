@@ -7,7 +7,7 @@ import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 import { Payload } from '@types'
-import { promoteToAuxiliar, demoteFromAuxiliar } from '../services'
+import { promoteToAuxiliar, demoteFromAuxiliar, getSignupStatus } from '../services'
 
 type StudentItem = {
   id: number
@@ -46,11 +46,26 @@ const StudentList = ({ data, setState }: Props) => {
         return
       }
       const jwt = jwtDecode<Payload>(token)
-      if (!jwt.custom_data.is_teacher) {
+      if (jwt.custom_data.is_teacher) {
+        return
+      }
+
+      const currentFieldtripID = data[0]?.fieldtripID
+      if (!currentFieldtripID) {
+        router.replace('/')
+        return
+      }
+
+      try {
+        const status = await getSignupStatus(jwt.user_id, currentFieldtripID)
+        if (!status.is_auxiliar) {
+          router.replace('/')
+        }
+      } catch {
         router.replace('/')
       }
     })()
-  }, [router])
+  }, [router, data])
 
   return (
     <View style={styles.wrapper}>

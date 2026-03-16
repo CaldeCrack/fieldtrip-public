@@ -12,7 +12,7 @@ from django.db import IntegrityError
 
 from .models import *
 from .serializers import *
-from apps.utils.custom_permissions import IsStudent, IsTeacher
+from apps.utils.custom_permissions import IsStudent, IsTeacher, IsAuxiliar
 
 
 class ChecklistViewSet(viewsets.ModelViewSet):
@@ -89,7 +89,7 @@ class FieldtripAttendeeViewSet(viewsets.ModelViewSet):
 
 
 class FieldtripAttendeesAPIView(APIView):
-    permission_classes = (IsAuthenticated, IsTeacher)
+    permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
 
     @swagger_auto_schema(
         operation_description="Obtener los asistentes de una salida a campo específica.",
@@ -135,7 +135,7 @@ class FieldtripSignupStatusAPIView(APIView):
             200: openapi.Response(
                 description="Estado del registro del usuario.",
                 examples={
-                    "application/json": {"signup_complete": True}
+                        "application/json": {"signup_complete": True, "is_auxiliar": False}
                 }
             ),
             400: "Solicitud inválida.",
@@ -161,6 +161,9 @@ class FieldtripSignupStatusAPIView(APIView):
             )
 
         return Response(
-            {"signup_complete": attendee.signup_complete},
+            {
+                "signup_complete": attendee.signup_complete,
+                "is_auxiliar": attendee.is_auxiliar,
+            },
             status=status.HTTP_200_OK
         )
