@@ -8,6 +8,8 @@ import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
 import StudentAttendee from 'types/StudentAttendee'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { router } from 'expo-router'
 
 interface Allergy {
   name: string
@@ -90,6 +92,11 @@ const Fieldtrip = () => {
 
   useEffect(() => {
     ;(async () => {
+      const token = await AsyncStorage.getItem('access_token')
+      if (!token) {
+        router.replace('/login')
+        return
+      }
       if (FState.fieldtripID) {
         setLoading(true)
         try {
