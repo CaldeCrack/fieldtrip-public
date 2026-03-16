@@ -27,6 +27,7 @@ const StudentList = ({ data, setState }: Props) => {
 
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const [auxiliarUpdates, setAuxiliarUpdates] = useState<Record<number, boolean>>({})
+  const [isTeacher, setIsTeacher] = useState(false)
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
 
@@ -46,6 +47,7 @@ const StudentList = ({ data, setState }: Props) => {
         return
       }
       const jwt = jwtDecode<Payload>(token)
+      setIsTeacher(!!jwt.custom_data.is_teacher)
       if (jwt.custom_data.is_teacher) {
         return
       }
@@ -108,21 +110,25 @@ const StudentList = ({ data, setState }: Props) => {
                     />
                   )}
                 />
-                <List.Item
-                  onPress={_toggleModal(`modal-${item.id}`)}
-                  title="Ver ficha de salud"
-                  left={(props) => <List.Icon {...props} icon="account-heart" />}
-                />
-                <List.Item
-                  onPress={_toggleModal(`auxiliar-${item.id}`)}
-                  title={item.isAuxiliar ? 'Remover auxiliar' : 'Promover a auxiliar'}
-                  left={(props) => (
-                    <List.Icon
-                      {...props}
-                      icon={item.isAuxiliar ? 'account-star-outline' : 'account-star'}
-                    />
-                  )}
-                />
+                {isTeacher && (
+                  <List.Item
+                    onPress={_toggleModal(`modal-${item.id}`)}
+                    title="Ver ficha de salud"
+                    left={(props) => <List.Icon {...props} icon="account-heart" />}
+                  />
+                )}
+                {isTeacher && (
+                  <List.Item
+                    onPress={_toggleModal(`auxiliar-${item.id}`)}
+                    title={item.isAuxiliar ? 'Remover auxiliar' : 'Promover a auxiliar'}
+                    left={(props) => (
+                      <List.Icon
+                        {...props}
+                        icon={item.isAuxiliar ? 'account-star-outline' : 'account-star'}
+                      />
+                    )}
+                  />
+                )}
                 <ConfirmationModal
                   visible={_getVisible(`modal-${item.id}`)}
                   close={_toggleModal(`modal-${item.id}`)}
