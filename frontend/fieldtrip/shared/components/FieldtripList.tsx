@@ -11,6 +11,11 @@ import { useEffect, useState } from 'react'
 import { Payload } from '@types'
 import { getSignupStatus } from '@services'
 
+type FieldtripStatus = {
+  signupComplete: boolean
+  isAuxiliar: boolean
+}
+
 type FieldtripItem = {
   id: number
   title: string
@@ -30,7 +35,7 @@ const FieldtripList = ({ data, setState }: Props) => {
   const [userID, setUserID] = useState<number | undefined>(undefined)
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)
-  const [signupStatuses, setSignupStatuses] = useState<Record<number, boolean>>({})
+  const [fieldtripStatuses, setFieldtripStatuses] = useState<Record<number, FieldtripStatus>>({})
 
   useEffect(() => {
     ;(async () => {
@@ -50,17 +55,23 @@ const FieldtripList = ({ data, setState }: Props) => {
     if (!isStudent || !userID || data.length === 0) return
     ;(async () => {
       try {
-        const statuses: Record<number, boolean> = {}
+        const statuses: Record<number, FieldtripStatus> = {}
         for (const fieldtrip of data) {
           try {
             const res = await getSignupStatus(userID, fieldtrip.id)
-            statuses[fieldtrip.id] = res.signup_complete
+            statuses[fieldtrip.id] = {
+              signupComplete: res.signup_complete,
+              isAuxiliar: res.is_auxiliar,
+            }
           } catch {
             // If 404 or error, assume not signed up
-            statuses[fieldtrip.id] = false
+            statuses[fieldtrip.id] = {
+              signupComplete: false,
+              isAuxiliar: false,
+            }
           }
         }
-        setSignupStatuses(statuses)
+        setFieldtripStatuses(statuses)
       } catch (err) {
         console.error('Error fetching signup statuses:', err)
       }
@@ -75,87 +86,108 @@ const FieldtripList = ({ data, setState }: Props) => {
 
   return (
     <View style={styles.view}>
-      {data.map((item) => {
-        const notSignedUp = isStudent && signupStatuses[item.id] === false
-        return (
-          <TouchableRipple
-            style={styles.ripple}
-            key={String(item.id)}
-            onPress={() => {
-              setState(item.id)
-              const [day, month, year] = item.startDate.split('/').map(Number)
-              const twoWeeksLater = new Date(year, month - 1, day)
-              twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)
-              if (isStudent) router.push('/fieldtrip/join/form')
-              if (isTeacher) router.push('/fieldtrip')
-            }}
-          >
-            <Surface elevation={0} style={styles.container}>
-              {/* Copy Button */}
-              {isTeacher && (
-                <IconButton
-                  icon="content-copy"
-                  size={20}
-                  style={styles.copyButton}
-                  onPress={() => copyToClipboard(item.invitationCode)}
-                />
-              )}
-              {/* Not Signed Up Warning */}
-              {isStudent && notSignedUp && (
-                <IconButton
-                  icon="alert-circle-outline"
-                  size={20}
-                  style={styles.alertIcon}
-                  onPress={() => alert('Aún no te has inscrito en esta salida a campo.')}
-                  iconColor={COLORS.error_500 || 'orange'}
-                />
-              )}
-              {/* Signed Up Check */}
-              {isStudent && !notSignedUp && (
-                <IconButton
-                  icon="check-circle-outline"
-                  size={20}
-                  style={styles.checkIcon}
-                  onPress={() => alert('Estás inscrito/a en esta salida a campo.')}
-                  iconColor={COLORS.success_500 || 'green'}
-                />
-              )}
-              <Text variant="titleLarge" style={{ fontWeight: 500 }}>
-                {item.title}
-              </Text>
-              <Text variant="bodyLarge">{item.professor}</Text>
-              <View style={styles.dates}>
-                <Icon
-                  name="calendar"
-                  size={24}
-                  style={{ marginRight: 8, color: COLORS.primary_50 }}
-                />
-                <Text
-                  variant="bodyLarge"
-                  style={{
-                    paddingRight: 10,
-                    color: COLORS.primary_50,
-                    fontWeight: 500,
-                  }}
-                >
-                  {item.startDate}
+      {[...data]
+        .sort((a, b) => {
+          const aAux = !!fieldtripStatuses[a.id]?.isAuxiliar
+          const bAux = !!fieldtripStatuses[b.id]?.isAuxiliar
+          if (aAux && !bAux) return -1
+          if (!aAux && bAux) return 1
+          return 0
+        })
+        .map((item) => {
+          const fieldtripStatus = fieldtripStatuses[item.id]
+          const isAuxiliar = !!fieldtripStatus?.isAuxiliar
+          const notSignedUp = isStudent && fieldtripStatus?.signupComplete === false
+          return (
+            <TouchableRipple
+              style={styles.ripple}
+              key={String(item.id)}
+              onPress={() => {
+                setState(item.id)
+                const [day, month, year] = item.startDate.split('/').map(Number)
+                const twoWeeksLater = new Date(year, month - 1, day)
+                twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)
+                if (isStudent) {
+                  router.push(isAuxiliar ? '/fieldtrip' : '/fieldtrip/join/form')
+                }
+                if (isTeacher) router.push('/fieldtrip')
+              }}
+            >
+              <Surface elevation={0} style={styles.container}>
+                {/* Copy Button */}
+                {isTeacher && (
+                  <IconButton
+                    icon="content-copy"
+                    size={20}
+                    style={styles.copyButton}
+                    onPress={() => copyToClipboard(item.invitationCode)}
+                  />
+                )}
+                {/* Not Signed Up Warning */}
+                {isStudent && notSignedUp && (
+                  <IconButton
+                    icon="alert-circle-outline"
+                    size={20}
+                    style={styles.alertIcon}
+                    onPress={() => alert('Aún no te has inscrito en esta salida a campo.')}
+                    iconColor={COLORS.error_500 || 'orange'}
+                  />
+                )}
+                {/* Auxiliar Star */}
+                {isStudent && isAuxiliar && (
+                  <IconButton
+                    icon="account-star"
+                    size={20}
+                    style={styles.auxiliarIcon}
+                    iconColor={COLORS.primary_50}
+                  />
+                )}
+                {/* Signed Up Check */}
+                {isStudent && !notSignedUp && (
+                  <IconButton
+                    icon="check-circle-outline"
+                    size={20}
+                    style={styles.checkIcon}
+                    onPress={() => alert('Estás inscrito/a en esta salida a campo.')}
+                    iconColor={COLORS.success_500 || 'green'}
+                  />
+                )}
+                <Text variant="titleLarge" style={{ fontWeight: 500 }}>
+                  {item.title}
                 </Text>
-                <View style={styles.line} />
-                <Text
-                  variant="bodyLarge"
-                  style={{
-                    paddingLeft: 10,
-                    color: COLORS.primary_50,
-                    fontWeight: 500,
-                  }}
-                >
-                  {item.endDate}
-                </Text>
-              </View>
-            </Surface>
-          </TouchableRipple>
-        )
-      })}
+                <Text variant="bodyLarge">{item.professor}</Text>
+                <View style={styles.dates}>
+                  <Icon
+                    name="calendar"
+                    size={24}
+                    style={{ marginRight: 8, color: COLORS.primary_50 }}
+                  />
+                  <Text
+                    variant="bodyLarge"
+                    style={{
+                      paddingRight: 10,
+                      color: COLORS.primary_50,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {item.startDate}
+                  </Text>
+                  <View style={styles.line} />
+                  <Text
+                    variant="bodyLarge"
+                    style={{
+                      paddingLeft: 10,
+                      color: COLORS.primary_50,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {item.endDate}
+                  </Text>
+                </View>
+              </Surface>
+            </TouchableRipple>
+          )
+        })}
     </View>
   )
 }
@@ -216,6 +248,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+    zIndex: 1,
+  },
+  auxiliarIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 44,
     zIndex: 1,
   },
 })
