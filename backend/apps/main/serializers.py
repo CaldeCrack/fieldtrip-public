@@ -94,12 +94,15 @@ class FieldtripAttendeeSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        id = instance.fieldtrip.id
-        fieldtrip = Fieldtrip.objects.get(pk=id)
+        fieldtrip = instance.fieldtrip
+        professor = None
+        if fieldtrip.teacher:
+            professor = f"{fieldtrip.teacher.names} {fieldtrip.teacher.surnames}"
+
         data = {
-            "id": id,
+            "id": fieldtrip.id,
             "title": fieldtrip.name,
-            "professor": f"{fieldtrip.teacher.names} {fieldtrip.teacher.surnames}",
+            "professor": professor,
             "startDate": format_date(fieldtrip.start_date),
             "endDate": format_date(fieldtrip.end_date),
             "invitationCode": fieldtrip.invitation_code,
