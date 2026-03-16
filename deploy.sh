@@ -8,6 +8,6 @@ npm run deploy:web
 cd ../../backend
 source .venv/bin/activate
 pkill -f gunicorn
-python3 manage.py collectstatic
+python3 manage.py collectstatic --noinput
 gunicorn fieldtrip.wsgi --bind 0.0.0.0:8000 &
 
