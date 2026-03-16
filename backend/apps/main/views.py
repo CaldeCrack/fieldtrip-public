@@ -77,9 +77,52 @@ class FieldtripAttendeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def user(self, request):
         user_id = request.query_params.get('user-id')
-        instances = FieldtripAttendee.objects.filter(user=user_id)
-        serializer = FieldtripAttendeeSerializer(instances, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if user_id is None:
+            user_id = request.query_params.get('user_id')
+
+        if user_id is None:
+            return Response(
+                {"detail": "El parámetro 'user-id' es requerido."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user_id = int(user_id)
+        except (TypeError, ValueError):
+            return Response(
+                {"detail": "El parámetro 'user-id' debe ser un entero válido."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        instances = FieldtripAttendee.objects.select_related("fieldtrip", "fieldtrip__teacher").filter(
+            user_id=user_id
+        )
+
+        data = []
+        for attendee in instances:
+            fieldtrip = attendee.fieldtrip
+            if not fieldtrip:
+                continue
+
+            professor = None
+            if fieldtrip.teacher:
+                professor = f"{fieldtrip.teacher.names} {fieldtrip.teacher.surnames}"
+
+            start_date = fieldtrip.start_date.strftime("%d-%m-%Y") if fieldtrip.start_date else None
+            end_date = fieldtrip.end_date.strftime("%d-%m-%Y") if fieldtrip.end_date else None
+
+            data.append(
+                {
+                    "id": fieldtrip.id,
+                    "title": fieldtrip.name,
+                    "professor": professor,
+                    "startDate": start_date,
+                    "endDate": end_date,
+                    "invitationCode": fieldtrip.invitation_code,
+                }
+            )
+
+        return Response(data, status=status.HTTP_200_OK)
     
     def perform_create(self, serializer):
         try:
