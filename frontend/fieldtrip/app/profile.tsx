@@ -20,7 +20,7 @@ const Profile = () => {
       const token = await AsyncStorage.getItem('access_token')
       if (token) {
         const jwt = jwtDecode<Payload>(token)
-        setIsStudent(jwt.is_student)
+        setIsStudent(jwt.custom_data.is_student)
         const names = await AsyncStorage.getItem('names')
         const surnames = await AsyncStorage.getItem('surnames')
         const email = await AsyncStorage.getItem('email')
