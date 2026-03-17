@@ -13,7 +13,7 @@ import { Payload } from '@types'
 
 interface IHealthLog {
   id: number
-  timestamp: Date
+  timestamp: string
   viewer: number
   fieldtrip: number
 }
@@ -28,13 +28,6 @@ const HealthLog = () => {
   const [items, setItems] = useState<IHealthLog[]>([] as IHealthLog[])
   const [loading, setLoading] = useState(false)
 
-  const sortedItems = items
-    .slice()
-    .sort((item1, item2) =>
-      (sortAscending ? item1.timestamp < item2.timestamp : item2.timestamp < item1.timestamp)
-        ? 1
-        : -1,
-    )
   const from = page * itemsPerPage
   const to = Math.min((page + 1) * itemsPerPage, items.length)
 
@@ -50,11 +43,21 @@ const HealthLog = () => {
         router.replace('/login')
         return
       }
+      const sortItems = (items: IHealthLog[]) => {
+        return items
+          .slice()
+          .sort((item1, item2) =>
+            (sortAscending ? item1.timestamp < item2.timestamp : item2.timestamp < item1.timestamp)
+              ? 1
+              : -1,
+          )
+      }
       const jwt = jwtDecode<Payload>(token)
       getHealthLog(jwt.user_id)
         .then(async (res) => {
           if (res) {
-            setItems(res)
+            setItems(sortItems(res))
+            console.log(sortItems(res))
             setRefresh(false)
           }
         })
@@ -65,7 +68,7 @@ const HealthLog = () => {
           setLoading(false)
         })
     })()
-  }, [refresh, router])
+  }, [refresh, router, sortAscending])
 
   return (
     <Page style={styles.page} showTabs={true}>
@@ -89,21 +92,19 @@ const HealthLog = () => {
               </DataTable.Title>
             </DataTable.Header>
 
-            {sortedItems.slice(from, to).map((item) => (
+            {items.slice(from, to).map((item) => (
               <DataTable.Row key={item.id}>
                 <DataTable.Cell>{item.viewer}</DataTable.Cell>
                 <DataTable.Cell style={{ marginLeft: 2 }}>{item.fieldtrip}</DataTable.Cell>
-                <DataTable.Cell style={{ marginLeft: 2 }}>
-                  {item.timestamp.toDateString()}
-                </DataTable.Cell>
+                <DataTable.Cell style={{ marginLeft: 2 }}>{item.timestamp}</DataTable.Cell>
               </DataTable.Row>
             ))}
 
             <DataTable.Pagination
               page={page}
-              numberOfPages={Math.ceil(sortedItems.length / itemsPerPage)}
+              numberOfPages={Math.ceil(items.length / itemsPerPage)}
               onPageChange={(page) => setPage(page)}
-              label={`${from + 1}-${to} of ${sortedItems.length}`}
+              label={`${from + 1}-${to} of ${items.length}`}
               numberOfItemsPerPageList={numberOfItemsPerPageList}
               numberOfItemsPerPage={itemsPerPage}
               onItemsPerPageChange={onItemsPerPageChange}

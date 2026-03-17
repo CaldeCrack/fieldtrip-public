@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
@@ -14,10 +15,25 @@ from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
 
 
 class HealthDataLogViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, IsTeacher)
+    permission_classes = (IsAuthenticated,)
     queryset = HealthDataLog.objects.select_related(
         'owner', 'viewer', 'fieldtrip').all()
     serializer_class = HealthDataLogSerializer
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve', 'user'):
+            return [IsAuthenticated()]
+        return [IsAuthenticated(), IsTeacher()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+
+        if user.role == 'teacher':
+            return queryset
+        if user.role == 'student':
+            return queryset.filter(owner=user)
+        raise PermissionDenied("No tiene permisos para acceder a los logs de salud.")
 
     @swagger_auto_schema(
         operation_description="Obtener logs de salud de un estudiante.",
@@ -30,10 +46,15 @@ class HealthDataLogViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['GET'])
     def user(self, request):
+        requester = request.user
         user_id = request.query_params.get('user-id')
-        if not user_id:
+
+        if requester.role == 'student':
+            user_id = requester.id
+        elif not user_id:
             return Response({"error": "user-id is required"}, status=status.HTTP_400_BAD_REQUEST)
-        instances = HealthDataLog.objects.filter(owner=user_id)
+
+        instances = self.get_queryset().filter(owner=user_id)
         serializer = HealthDataLogSerializer(instances, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

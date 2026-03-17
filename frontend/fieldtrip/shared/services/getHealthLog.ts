@@ -3,7 +3,7 @@ import { Api } from '../api/ApiConfig'
 
 interface HealthLogEntry {
   id: number
-  timestamp: Date
+  timestamp: string
   viewer: number
   fieldtrip: number
 }
