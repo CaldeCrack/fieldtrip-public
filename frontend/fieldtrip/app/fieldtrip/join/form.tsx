@@ -31,6 +31,7 @@ import { FieldtriptContext } from '../../_layout'
 import type { ChecklistItem, Payload, SelectOption, SelectState } from '@types'
 import HealthInfo from 'types/HealthInfo'
 import { SelectedItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
+import { useGlobalSnackbar } from '../../../shared/context/useGlobalSnackbar'
 
 type InputItem = {
   label: string
@@ -44,6 +45,7 @@ interface Item extends ChecklistItem {
 
 const JoinFieldtrip = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
   const { FState } = useContext(FieldtriptContext)
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
@@ -72,7 +74,7 @@ const JoinFieldtrip = () => {
         await Sharing.shareAsync(result.uri)
       } catch (error) {
         console.error('Error downloading PDF:', error)
-        alert('Error al descargar el archivo')
+        showSnackbar('Error al descargar el archivo', { isError: true })
       }
     }
   }
@@ -158,8 +160,8 @@ const JoinFieldtrip = () => {
       })
         .then(async (res) => {
           if (res) {
+            showSnackbar('Su información ha sido enviada exitosamente')
             router.replace('/')
-            alert('Su información ha sido enviada exitosamente')
           }
         })
         .catch((error) => {
@@ -170,7 +172,7 @@ const JoinFieldtrip = () => {
         })
     } else {
       setVisible({ ...visible, ['modal']: !visible['modal'] })
-      alert('Debe completar todo el formulario')
+      showSnackbar('Debe completar todo el formulario', { isError: true })
     }
   }
 

@@ -14,9 +14,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { login } from '@services'
 import { Modal, ContainedButton, IconInput, Page, TextButton, SimpleInput } from '@components'
 import { COLORS } from '@colors'
+import { useGlobalSnackbar } from '../shared/context/useGlobalSnackbar'
 
 const Login = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loginFailed, setLoginFailed] = useState(false)
@@ -56,7 +58,7 @@ const Login = () => {
           setLoading(false)
         })
     } else {
-      alert('Debe completar todos los campos')
+      showSnackbar('Debe completar todos los campos', { isError: true })
     }
   }
 

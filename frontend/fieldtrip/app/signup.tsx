@@ -17,6 +17,7 @@ import { ListItem } from 'react-native-paper-select/lib/typescript/interface/pap
 import { signup, getSubstanceAllergies, getMedAllergies, getDiets } from '@services'
 import { ContainedButton, SimpleInput, Page, TextButton, CheckboxItem } from '@components'
 import { COLORS } from '@colors'
+import { useGlobalSnackbar } from '../shared/context/useGlobalSnackbar'
 
 interface Item {
   id: number
@@ -25,6 +26,7 @@ interface Item {
 
 const Signup = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
   const [errorMsgs, setErrorMsgs] = useState({
     default: 'No se pudo iniciar sesión.\nInténtelo nuevamente.',
   })
@@ -121,7 +123,7 @@ const Signup = () => {
           setLoading(false)
         })
     } else {
-      alert('Debe completar todos los campos')
+      showSnackbar('Debe completar todos los campos', { isError: true })
     }
   }
 

@@ -15,9 +15,11 @@ import { Page, SimpleInput, ContainedButton } from '@components'
 import { acceptFieldtripInvitation } from '@services'
 import { COLORS } from '@colors'
 import { Payload } from '@types'
+import { useGlobalSnackbar } from '../../../shared/context/useGlobalSnackbar'
 
 const JoinFieldtrip = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
 
   const [fieldtripCode, setFieldtripCode] = useState<string>('')
   const [userID, setUserID] = useState<number | undefined>(undefined)
@@ -32,11 +34,11 @@ const JoinFieldtrip = () => {
       })
         .then(async (res) => {
           if (res.id) {
+            showSnackbar('Se ha unido a la salida exitosamente')
             router.replace('/')
-            alert('Se ha unido a la salida exitosamente')
           }
           if (res.alreadyRegistered) {
-            alert('Ya estás registrado en la salida')
+            showSnackbar('Ya estás registrado en la salida')
             router.replace('/')
           }
         })
@@ -47,7 +49,7 @@ const JoinFieldtrip = () => {
           setLoading(false)
         })
     } else {
-      alert('Debe ingresar un código')
+      showSnackbar('Debe ingresar un código', { isError: true })
     }
   }
 

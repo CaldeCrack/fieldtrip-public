@@ -10,6 +10,7 @@ import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
 import { Payload } from '@types'
 import { getSignupStatus } from '@services'
+import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
 type FieldtripStatus = {
   signupComplete: boolean
@@ -32,6 +33,7 @@ type Props = {
 
 const FieldtripList = ({ data, setState }: Props) => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
   const [userID, setUserID] = useState<number | undefined>(undefined)
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)
@@ -81,7 +83,7 @@ const FieldtripList = ({ data, setState }: Props) => {
   const copyToClipboard = async (invitationCode?: string) => {
     if (!invitationCode) return
     await Clipboard.setStringAsync(invitationCode)
-    alert('El código de invitación a la salida ha sido copiado al portapapeles.')
+    showSnackbar('El código de invitación a la salida ha sido copiado al portapapeles.')
   }
 
   return (
@@ -129,7 +131,7 @@ const FieldtripList = ({ data, setState }: Props) => {
                     icon="alert-circle-outline"
                     size={20}
                     style={styles.alertIcon}
-                    onPress={() => alert('Aún no te has inscrito en esta salida a campo.')}
+                    onPress={() => showSnackbar('Aún no te has inscrito en esta salida a campo.')}
                     iconColor={COLORS.error_500 || 'orange'}
                   />
                 )}
@@ -148,7 +150,7 @@ const FieldtripList = ({ data, setState }: Props) => {
                     icon="check-circle-outline"
                     size={20}
                     style={styles.checkIcon}
-                    onPress={() => alert('Estás inscrito/a en esta salida a campo.')}
+                    onPress={() => showSnackbar('Estás inscrito/a en esta salida a campo.')}
                     iconColor={COLORS.success_500 || 'green'}
                   />
                 )}

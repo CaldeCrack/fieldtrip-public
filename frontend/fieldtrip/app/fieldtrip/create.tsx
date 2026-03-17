@@ -22,9 +22,11 @@ import { getTeachers, getCourses, newFieldtrip } from '@services'
 import { COLORS } from '@colors'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 import { Payload, SelectState } from '@types'
+import { useGlobalSnackbar } from '../../shared/context/useGlobalSnackbar'
 
 const CreateFieldtrip = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
 
   const [name, setName] = useState<string>('')
   const [professor, setProfessor] = useState<SelectState>({
@@ -175,7 +177,7 @@ const CreateFieldtrip = () => {
           setCreatingFieldtrip(false)
         })
     } else {
-      alert('Debe completar todo el formulario')
+      showSnackbar('Debe completar todo el formulario', { isError: true })
     }
   }
 

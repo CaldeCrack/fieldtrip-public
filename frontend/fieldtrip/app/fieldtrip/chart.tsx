@@ -11,6 +11,7 @@ import { viewHealthChart, getUsersHealthChart } from '@services'
 import { HealthChartContext } from '../_layout'
 import { COLORS } from '@colors'
 import { Payload } from '@types'
+import { useGlobalSnackbar } from '../../shared/context/useGlobalSnackbar'
 
 interface Item {
   item: string
@@ -24,6 +25,7 @@ interface HealthItem {
 
 const HealthChart = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
   const { HCState } = useContext(HealthChartContext)
   const [loading, setLoading] = useState(true)
   const [constantChartData, setConstantChartData] = useState({
@@ -74,12 +76,12 @@ const HealthChart = () => {
         }
       } catch (error) {
         console.error(error)
-        alert('Error al cargar los datos')
+        showSnackbar('Error al cargar los datos', { isError: true })
       } finally {
         setLoading(false)
       }
     })()
-  }, [HCState, router])
+  }, [HCState, router, showSnackbar])
 
   return (
     <Page style={styles.page} showTabs={true}>
