@@ -57,7 +57,6 @@ const HealthLog = () => {
         .then(async (res) => {
           if (res) {
             setItems(sortItems(res))
-            console.log(sortItems(res))
             setRefresh(false)
           }
         })
