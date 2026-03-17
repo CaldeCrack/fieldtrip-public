@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 import { Payload } from '@types'
 import { promoteToAuxiliar, demoteFromAuxiliar, getSignupStatus } from '../services'
+import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
 type StudentItem = {
   id: number
@@ -24,10 +25,12 @@ type Props = {
 
 const StudentList = ({ data, setState }: Props) => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
 
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const [auxiliarUpdates, setAuxiliarUpdates] = useState<Record<number, boolean>>({})
   const [isTeacher, setIsTeacher] = useState(false)
+
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
 
@@ -155,14 +158,23 @@ const StudentList = ({ data, setState }: Props) => {
                           ...prev,
                           [item.id]: !item.isAuxiliar,
                         }))
-                        // TODO: Show success message to user
+                        showSnackbar(
+                          item.isAuxiliar
+                            ? `${item.name} ya no es auxiliar.`
+                            : `${item.name} ahora es auxiliar.`,
+                        )
                       }
                     } catch (error) {
                       console.error(
                         `Error ${item.isAuxiliar ? 'demoting from' : 'promoting to'} auxiliar:`,
                         error,
                       )
-                      // TODO: Show error message to user
+                      showSnackbar(
+                        item.isAuxiliar
+                          ? `No se pudo remover a ${item.name} como auxiliar.`
+                          : `No se pudo promover a ${item.name} como auxiliar.`,
+                        { isError: true },
+                      )
                     }
                     setVisible({ ...visible, [`auxiliar-${item.id}`]: false })
                   }}

@@ -9,6 +9,7 @@ import { Stack, useRouter } from 'expo-router'
 
 import { COLORS } from '@colors'
 import { ConfirmationModal } from '@components'
+import { GlobalSnackbarProvider } from '../shared/context/GlobalSnackbarContext'
 
 const theme = {
   ...DefaultTheme,
@@ -90,61 +91,67 @@ const StackLayout = () => {
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       <PaperProvider theme={theme}>
-        <FieldtriptContext.Provider value={{ FState, FDispatch }}>
-          <HealthChartContext.Provider value={{ HCState, HCDispatch }}>
-            <Stack
-              screenOptions={() => ({
-                headerStyle: {
-                  backgroundColor: '#fafafa',
-                  borderBottomWidth: 1,
-                  borderBottomColor: COLORS.gray_100,
-                  height: 70,
-                },
-                headerTintColor: '#00796b',
-                headerTitleStyle: {
-                  fontSize: 28,
-                  fontWeight: '700',
-                  letterSpacing: 1,
-                  paddingVertical: 6,
-                },
-                headerRight: () => {
-                  return (
-                    <TouchableOpacity onPress={() => _toggleModal('modal')()}>
-                      <Icon name="logout" size={24} style={{ marginRight: 16, color: '#00796b' }} />
-                    </TouchableOpacity>
-                  )
-                },
-              })}
-            >
-              <Stack.Screen name="login" options={{ headerShown: false }} />
-              <Stack.Screen name="signup" options={{ headerShown: false }} />
-              <Stack.Screen name="index" options={{ title: 'Salidas' }} />
-              <Stack.Screen name="health-log" options={{ title: 'Log de salud' }} />
-              <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
-              <Stack.Screen name="fieldtrip/index" options={{ title: 'Fieldtrip' }} />
-              <Stack.Screen name="fieldtrip/create" options={{ title: 'Crear salida' }} />
-              <Stack.Screen name="fieldtrip/chart" options={{ title: 'Ficha de salud' }} />
-              <Stack.Screen name="fieldtrip/join/index" options={{ title: 'Unirse a fieldtrip' }} />
-              <Stack.Screen name="fieldtrip/join/form" options={{ title: 'Fieldtrip' }} />
-              <Stack.Screen
-                name="+not-found"
-                options={{
-                  title: 'Página no existe',
-                  headerRight: () => {
-                    return <TouchableOpacity></TouchableOpacity>
+        <GlobalSnackbarProvider>
+          <FieldtriptContext.Provider value={{ FState, FDispatch }}>
+            <HealthChartContext.Provider value={{ HCState, HCDispatch }}>
+              <Stack
+                screenOptions={() => ({
+                  headerStyle: {
+                    backgroundColor: '#fafafa',
+                    borderBottomWidth: 1,
+                    borderBottomColor: COLORS.gray_100,
+                    height: 70,
                   },
-                }}
+                  headerTintColor: '#00796b',
+                  headerTitleStyle: {
+                    fontSize: 28,
+                    fontWeight: '700',
+                    letterSpacing: 1,
+                    paddingVertical: 6,
+                  },
+                  headerRight: () => {
+                    return (
+                      <TouchableOpacity onPress={() => _toggleModal('modal')()}>
+                        <Icon
+                          name="logout"
+                          size={24}
+                          style={{ marginRight: 16, color: '#00796b' }}
+                        />
+                      </TouchableOpacity>
+                    )
+                  },
+                })}
+              >
+                <Stack.Screen name="login" options={{ headerShown: false }} />
+                <Stack.Screen name="signup" options={{ headerShown: false }} />
+                <Stack.Screen name="index" options={{ title: 'Salidas' }} />
+                <Stack.Screen name="health-log" options={{ title: 'Log de salud' }} />
+                <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
+                <Stack.Screen name="fieldtrip/index" options={{ title: 'Fieldtrip' }} />
+                <Stack.Screen name="fieldtrip/create" options={{ title: 'Crear salida' }} />
+                <Stack.Screen name="fieldtrip/chart" options={{ title: 'Ficha de salud' }} />
+                <Stack.Screen name="fieldtrip/join/index" options={{ title: 'Unirse a salida' }} />
+                <Stack.Screen name="fieldtrip/join/form" options={{ title: 'Fieldtrip' }} />
+                <Stack.Screen
+                  name="+not-found"
+                  options={{
+                    title: 'Página no existe',
+                    headerRight: () => {
+                      return <TouchableOpacity />
+                    },
+                  }}
+                />
+              </Stack>
+              <ConfirmationModal
+                visible={_getVisible('modal')}
+                close={_toggleModal('modal')}
+                open={logout}
+                title="¿Está seguro/a que desea cerrar sesión?"
+                description=""
               />
-            </Stack>
-            <ConfirmationModal
-              visible={_getVisible('modal')}
-              close={_toggleModal('modal')}
-              open={logout}
-              title="¿Está seguro/a que desea cerrar sesión?"
-              description=""
-            />
-          </HealthChartContext.Provider>
-        </FieldtriptContext.Provider>
+            </HealthChartContext.Provider>
+          </FieldtriptContext.Provider>
+        </GlobalSnackbarProvider>
       </PaperProvider>
     </SafeAreaProvider>
   )
