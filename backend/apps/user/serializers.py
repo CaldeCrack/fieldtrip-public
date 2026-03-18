@@ -112,3 +112,30 @@ class AllergySerializer(serializers.ModelSerializer):
     class Meta:
         model = Allergy
         fields = ["id", "type"]
+
+
+class PersonalInfoUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("emergency_contact", "emergency_number", "diet_type", "diet_info")
+
+    def validate(self, attrs):
+        diet_type = attrs.get("diet_type")
+        if diet_type is None and self.instance is not None:
+            diet_type = self.instance.diet_type
+
+        diet_info = attrs.get("diet_info")
+        if diet_info is None and self.instance is not None:
+            diet_info = self.instance.diet_info
+
+        requires_details = (
+            diet_type is not None
+            and isinstance(diet_type.type, str)
+            and "detallar" in diet_type.type.lower()
+        )
+        if requires_details and not str(diet_info or "").strip():
+            raise serializers.ValidationError(
+                {"diet_info": "Debe completar este campo para el tipo de alimentación seleccionado."}
+            )
+
+        return attrs

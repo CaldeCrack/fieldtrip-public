@@ -181,6 +181,39 @@ class UserLogoutAPIView(GenericAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class UpdatePersonalInfoAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.PersonalInfoUpdateSerializer
+
+    @swagger_auto_schema(
+        operation_description="Actualizar contacto/número de emergencia y alimentación del usuario autenticado.",
+        request_body=serializers.PersonalInfoUpdateSerializer,
+        responses={
+            200: openapi.Response("Información personal actualizada exitosamente."),
+            400: "Error en la solicitud.",
+        },
+    )
+    def patch(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description="Reemplazar contacto/número de emergencia y alimentación del usuario autenticado.",
+        request_body=serializers.PersonalInfoUpdateSerializer,
+        responses={
+            200: openapi.Response("Información personal actualizada exitosamente."),
+            400: "Error en la solicitud.",
+        },
+    )
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class BloodChoicesAPIView(APIView):
     @swagger_auto_schema(
         operation_description="Obtener las opciones de tipos de sangre.",
