@@ -1,5 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -9,6 +13,7 @@ from rest_framework.views import APIView
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 from . import serializers
@@ -89,7 +94,7 @@ class UserLoginAPIView(GenericAPIView):
 
 class UserResetPasswordAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
-    serializer_class = serializers.UserLoginSerializer  # TODO: remove or use
+    serializer_class = serializers.PasswordResetSerializer
 
     @swagger_auto_schema(
         operation_description="Enviar un correo para resetear la contraseña.",
@@ -101,15 +106,21 @@ class UserResetPasswordAPIView(GenericAPIView):
         }
     )
     def post(self, request, *args, **kwargs):
-        serializer = serializers.PasswordResetSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user_email = serializer.validated_data["email"]
             try:
-                token = (
-                    ""  # configure link to send and the view it will redirect them to
+                user = User.objects.get(email=user_email)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = PasswordResetTokenGenerator().make_token(user)
+                base_reset_url = getattr(
+                    settings,
+                    "FRONTEND_RESET_PASSWORD_URL",
+                    "http://localhost:8081/reset-password",
                 )
+                reset_link = f"{base_reset_url}?uid={uid}&token={token}"
                 subject = "Restablecimiento de contraseña"
-                message = f"Link para crear una nueva contraseña: {token}"
+                message = f"Link para crear una nueva contraseña: {reset_link}"
                 from_email = "noreply@fieldtrip.cl"
                 recipient_list = [user_email]
                 send_mail(
@@ -146,7 +157,6 @@ class ChangePasswordView(UpdateAPIView):
 
 class UserLogoutAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = serializers.UserLoginSerializer  # TODO: remove or use
 
     @swagger_auto_schema(
         operation_description="Cerrar sesión del usuario autenticado.",
@@ -164,10 +174,10 @@ class UserLogoutAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.data["refresh"]
-            token = "token"  # RefreshToken(refresh_token)
+            token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
+        except (KeyError, TokenError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
