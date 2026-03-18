@@ -7,7 +7,7 @@ import { ListItem } from 'react-native-paper-select/lib/typescript/interface/pap
 
 import { ContainedButton, Page, SimpleInput } from '@components'
 import { COLORS } from '@colors'
-import { getDiets, updatePersonalInfo } from '@services'
+import { getDiets, getPersonalInfo, updatePersonalInfo } from '@services'
 import { useGlobalSnackbar } from '../shared/context/useGlobalSnackbar'
 
 interface DietItem {
@@ -34,19 +34,35 @@ const PersonalInfo = () => {
   useEffect(() => {
     ;(async () => {
       setLoading(true)
-      getDiets()
-        .then((res) => {
-          const diets = res.map((item: DietItem) => ({
+      Promise.all([getDiets(), getPersonalInfo()])
+        .then(([dietRes, personalInfoRes]) => {
+          const diets = dietRes.map((item: DietItem) => ({
             _id: String(item.id),
             value: item.type,
           }))
+          const prefilledDiet = personalInfoRes?.diet_type
+            ? diets.find((item) => Number(item._id) === personalInfoRes.diet_type)
+            : undefined
+
+          if (personalInfoRes?.emergency_contact) {
+            setEmergencyContact(personalInfoRes.emergency_contact)
+          }
+          if (personalInfoRes?.emergency_number) {
+            setEmergencyNumber(String(personalInfoRes.emergency_number))
+          }
+          if (personalInfoRes?.diet_info) {
+            setDietInfo(personalInfoRes.diet_info)
+          }
+
           setDiet((prev) => ({
             ...prev,
             list: diets,
+            value: prefilledDiet?.value || prev.value,
+            selectedList: prefilledDiet ? [prefilledDiet] : prev.selectedList,
           }))
         })
         .catch(() => {
-          showSnackbar('No se pudo obtener la lista de dietas.', { isError: true })
+          showSnackbar('No se pudo cargar la informacion personal.', { isError: true })
         })
         .finally(() => {
           setLoading(false)
@@ -97,28 +113,30 @@ const PersonalInfo = () => {
   return (
     <Page style={styles.page}>
       <View style={styles.container}>
-        <Text variant="titleLarge" style={styles.title}>
-          Editar informacion personal
-        </Text>
-
         {loading ? (
           <ActivityIndicator size="large" color={COLORS.primary_50} style={styles.loader} />
         ) : (
           <>
+            <Text variant="titleMedium" style={styles.title}>
+              Contacto de emergencia
+            </Text>
             <SimpleInput
-              label="Contacto de emergencia"
+              label="Nombre completo *"
               value={emergencyContact}
               onChangeText={setEmergencyContact}
             />
             <SimpleInput
-              label="Número de emergencia"
+              label="Número telefónico *"
               value={emergencyNumber}
               onChangeText={setEmergencyNumber}
               keyboardType="number-pad"
             />
+            <Text variant="titleMedium" style={styles.title}>
+              Información de salud
+            </Text>
             <PaperSelect
               dialogStyle={styles.select}
-              label="Tipo de dieta"
+              label="Tipo de dieta *"
               value={diet.value}
               onSelection={(value) => {
                 setDiet({
@@ -169,7 +187,7 @@ const PersonalInfo = () => {
             />
             {shouldShowDietInfo && (
               <SimpleInput
-                label="Información extra de alimentación"
+                label="Información extra de alimentación *"
                 value={dietInfo}
                 onChangeText={setDietInfo}
                 multiline={true}
