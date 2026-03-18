@@ -14,6 +14,7 @@ interface SignupRequest {
   substance_allergies: ListItem[]
   emergency_contact: string
   emergency_number: string
+  diet_info?: string
   has_previous_experience: boolean
   role: string
 }

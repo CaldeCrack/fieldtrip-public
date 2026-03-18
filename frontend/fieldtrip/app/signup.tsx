@@ -24,6 +24,8 @@ interface Item {
   type: string
 }
 
+const DIET_DETAILS_LABEL = '(detallar en el siguiente campo)'
+
 const Signup = () => {
   const router = useRouter()
   const { showSnackbar } = useGlobalSnackbar()
@@ -42,6 +44,7 @@ const Signup = () => {
   const [emergencyContact, setEmergencyContact] = useState('')
   const [emergencyNumber, setEmergencyNumber] = useState('')
   const [checked, setChecked] = useState(false)
+  const [dietInfo, setDietInfo] = useState('')
   const [diet, setDiet] = useState({
     value: '',
     list: [] as ListItem[],
@@ -70,6 +73,8 @@ const Signup = () => {
   })
 
   const [signupFailed, setSignupFailed] = useState(false)
+  const shouldShowDietInfo = diet.value.toLowerCase().includes(DIET_DETAILS_LABEL)
+
   const sendSignupRequest = async () => {
     if (
       email.length > 0 &&
@@ -100,6 +105,7 @@ const Signup = () => {
         substance_allergies: substanceAllergy.selectedList,
         emergency_contact: emergencyContact,
         emergency_number: emergencyNumber,
+        diet_info: dietInfo.trim(),
         has_previous_experience: checked,
         role: 'student',
       })
@@ -319,6 +325,19 @@ const Signup = () => {
                 marginBottom: 14,
               }}
             />
+            {shouldShowDietInfo && (
+              <SimpleInput
+                label="Información extra de alimentación"
+                onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
+                  setDietInfo(e.nativeEvent.text)
+                }
+                onChangeText={(val: string) => setDietInfo(val)}
+                value={dietInfo}
+                multiline={true}
+                numberOfLines={3}
+                style={styles.multilineInput}
+              />
+            )}
             <PaperSelect
               dialogStyle={styles.select}
               label="Tipo sanguíneo *"
@@ -608,6 +627,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderColor: COLORS.gray_100,
     backgroundColor: MD3Colors.primary100,
+  },
+  multilineInput: {
+    height: 96,
+    textAlignVertical: 'top',
   },
   label: {
     fontSize: 16,

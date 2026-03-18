@@ -15,6 +15,8 @@ interface DietItem {
   type: string
 }
 
+const DIET_DETAILS_LABEL = '(detallar en el siguiente campo)'
+
 const PersonalInfo = () => {
   const { showSnackbar } = useGlobalSnackbar()
   const [loading, setLoading] = useState(false)
@@ -90,6 +92,8 @@ const PersonalInfo = () => {
     }
   }
 
+  const shouldShowDietInfo = diet.value.toLowerCase().includes(DIET_DETAILS_LABEL)
+
   return (
     <Page style={styles.page}>
       <View style={styles.container}>
@@ -163,14 +167,16 @@ const PersonalInfo = () => {
                 marginBottom: 14,
               }}
             />
-            <SimpleInput
-              label="Información extra de alimentación"
-              value={dietInfo}
-              onChangeText={setDietInfo}
-              multiline={true}
-              numberOfLines={3}
-              style={styles.multilineInput}
-            />
+            {shouldShowDietInfo && (
+              <SimpleInput
+                label="Información extra de alimentación"
+                value={dietInfo}
+                onChangeText={setDietInfo}
+                multiline={true}
+                numberOfLines={3}
+                style={styles.multilineInput}
+              />
+            )}
 
             <ContainedButton
               onPress={handleSave}
