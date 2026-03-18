@@ -186,6 +186,16 @@ class UpdatePersonalInfoAPIView(GenericAPIView):
     serializer_class = serializers.PersonalInfoUpdateSerializer
 
     @swagger_auto_schema(
+        operation_description="Obtener contacto/número de emergencia y alimentación del usuario autenticado.",
+        responses={
+            200: serializers.PersonalInfoUpdateSerializer,
+        },
+    )
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
         operation_description="Actualizar contacto/número de emergencia y alimentación del usuario autenticado.",
         request_body=serializers.PersonalInfoUpdateSerializer,
         responses={

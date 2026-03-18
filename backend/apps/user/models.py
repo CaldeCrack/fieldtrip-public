@@ -17,6 +17,11 @@ DIET_CHOICES = [
 ]
 
 
+def validate_emergency_number(value):
+    if len(str(value)) != 9:
+        raise ValidationError("El número debe tener exactamente 9 dígitos.")
+
+
 class Diet(models.Model):
     type = models.CharField(max_length=100, verbose_name='Tipo')
 
@@ -72,10 +77,6 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('inventory_manager', 'Inventory Manager'),
     ]
-    def validate_emergency_number(self, value):
-        if len(str(value)) != 9:
-            raise ValidationError("El número debe tener exactamente 9 dígitos.")
-
     username = None
     first_name = None
     last_name = None
