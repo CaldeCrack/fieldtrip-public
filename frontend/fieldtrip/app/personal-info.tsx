@@ -107,7 +107,7 @@ const PersonalInfo = () => {
               onChangeText={setEmergencyContact}
             />
             <SimpleInput
-              label="Numero de emergencia"
+              label="Número de emergencia"
               value={emergencyNumber}
               onChangeText={setEmergencyNumber}
               keyboardType="number-pad"
@@ -164,7 +164,7 @@ const PersonalInfo = () => {
               }}
             />
             <SimpleInput
-              label="Informacion extra de alimentacion"
+              label="Información extra de alimentación"
               value={dietInfo}
               onChangeText={setDietInfo}
               multiline={true}
