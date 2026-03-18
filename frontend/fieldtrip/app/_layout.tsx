@@ -127,6 +127,10 @@ const StackLayout = () => {
                 <Stack.Screen name="index" options={{ title: 'Salidas' }} />
                 <Stack.Screen name="health-log" options={{ title: 'Log de salud' }} />
                 <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
+                <Stack.Screen
+                  name="personal-info"
+                  options={{ title: 'Editar información personal' }}
+                />
                 <Stack.Screen name="fieldtrip/index" options={{ title: 'Fieldtrip' }} />
                 <Stack.Screen name="fieldtrip/create" options={{ title: 'Crear salida' }} />
                 <Stack.Screen name="fieldtrip/chart" options={{ title: 'Ficha de salud' }} />

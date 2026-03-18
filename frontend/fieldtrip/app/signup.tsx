@@ -508,7 +508,7 @@ const Signup = () => {
               <Text variant="bodySmall">Sólo ingrese valores númericos.</Text>
             </View>
           </View>
-          <View style={styles.checkbox}>
+          <View>
             <CheckboxItem
               label="¿Tiene experiencia previa en salidas a campo?"
               status={checked ? 'checked' : 'unchecked'}
@@ -566,9 +566,6 @@ const styles = StyleSheet.create({
   bottomMargin: {
     marginBottom: 30,
   },
-  maxWidth: {
-    maxWidth: 300,
-  },
   sectionTitle: {
     marginBottom: 12,
   },
@@ -607,14 +604,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 20,
   },
-  /*
-  select: {
-    borderRadius: 28,
-    backgroundColor: '#fafafa',
-    maxWidth: 400,
-    marginHorizontal: 'auto',
-  },*/
-  checkbox: {},
   searchBox: {
     borderRadius: 4,
     borderColor: COLORS.gray_100,

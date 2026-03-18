@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router'
+import { Href, useRouter } from 'expo-router'
 import { StyleSheet, View } from 'react-native'
 import { Avatar, Text } from 'react-native-paper'
 import { useEffect, useState } from 'react'
@@ -54,6 +54,13 @@ const Profile = () => {
           <Text variant="bodyLarge">{email}</Text>
         </View>
       </View>
+      <ContainedButton
+        style={styles.btn}
+        labelStyle={{ fontSize: 20, lineHeight: 24 }}
+        onPress={() => router.push('/personal-info' as Href)}
+      >
+        Editar informacion personal
+      </ContainedButton>
       {isStudent && (
         <ContainedButton
           style={styles.btn}
