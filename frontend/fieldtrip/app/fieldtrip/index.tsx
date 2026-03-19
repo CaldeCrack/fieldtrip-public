@@ -82,13 +82,29 @@ const Fieldtrip = () => {
   const chartConfig = {
     backgroundGradientFrom: '#fafafa',
     backgroundGradientTo: '#fafafa',
-    color: (opacity = 1) => `rgba(127, 103, 190, ${opacity})`,
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     decimalPlaces: 0,
-
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    propsForLabels: {
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    propsForDataLabels: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    },
     propsForBackgroundLines: {
-      strokeWidth: 0,
+      strokeWidth: 1,
     },
   }
+
+  const chartWidth =
+    Platform.OS === 'web'
+      ? Math.min(Dimensions.get('window').width - 32, 600)
+      : Dimensions.get('window').width
+  const chartRenderWidth =
+    Platform.OS === 'web' ? Math.max(chartWidth - 48, 280) : Math.max(chartWidth - 24, 280)
 
   useEffect(() => {
     ;(async () => {
@@ -114,7 +130,6 @@ const Fieldtrip = () => {
       getFieldtripMetrics(FState.fieldtripID)
         .then((res) => {
           if (res) {
-            // { diseases: [{name, count}], allergies: [{name, count}] }
             const diseases = res.diseases?.map((d: Disease) => d.name) || []
             const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
             const allergies = res.allergies?.map((a: Allergy) => a.name) || []
@@ -204,23 +219,21 @@ const Fieldtrip = () => {
           </Text>
           {chartData.diseases && chartData.diseases.labels.length > 0 ? (
             Platform.OS === 'web' ? (
-              <BarChart
-                fromZero={true}
-                data={chartData.diseases}
-                showValuesOnTopOfBars={true}
-                height={200}
-                width={Dimensions.get('window').width}
-                chartConfig={chartConfig}
-                withHorizontalLabels={false}
-                verticalLabelRotation={0}
-                yAxisLabel=""
-                yAxisSuffix=""
-                style={{
-                  paddingLeft: 0,
-                  paddingRight: 10,
-                  width: '100%',
-                }}
-              />
+              <View style={styles.chartWrapper}>
+                <BarChart
+                  fromZero={true}
+                  data={chartData.diseases}
+                  showValuesOnTopOfBars={true}
+                  height={250}
+                  width={chartRenderWidth}
+                  chartConfig={chartConfig}
+                  withHorizontalLabels={false}
+                  verticalLabelRotation={0}
+                  xLabelsOffset={0}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                />
+              </View>
             ) : (
               <BulletList data={chartData.diseases.labels} />
             )
@@ -237,23 +250,21 @@ const Fieldtrip = () => {
             Alergias
           </Text>
           {Platform.OS === 'web' ? (
-            <BarChart
-              fromZero={true}
-              data={chartData.allergies || { labels: [], datasets: [{ data: [] }] }}
-              showValuesOnTopOfBars={true}
-              height={200}
-              width={Dimensions.get('window').width}
-              chartConfig={chartConfig}
-              withHorizontalLabels={false}
-              verticalLabelRotation={0}
-              yAxisLabel=""
-              yAxisSuffix=""
-              style={{
-                paddingLeft: 0,
-                paddingRight: 10,
-                width: '100%',
-              }}
-            />
+            <View style={styles.chartWrapper}>
+              <BarChart
+                fromZero={true}
+                data={chartData.allergies || { labels: [], datasets: [{ data: [] }] }}
+                showValuesOnTopOfBars={true}
+                height={250}
+                width={chartRenderWidth}
+                chartConfig={chartConfig}
+                withHorizontalLabels={false}
+                verticalLabelRotation={0}
+                xLabelsOffset={0}
+                yAxisLabel=""
+                yAxisSuffix=""
+              />
+            </View>
           ) : (
             <BulletList data={chartData.allergies?.labels || []} />
           )}
@@ -300,6 +311,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     borderColor: COLORS.primary_50,
     width: '100%',
+  },
+  chartWrapper: {
+    width: '100%',
+    alignItems: 'center',
   },
 })
 
