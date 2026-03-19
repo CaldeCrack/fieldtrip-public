@@ -48,7 +48,7 @@ const Home = () => {
   return (
     <Page style={styles.page} showTabs={true}>
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.primary_50} />
+        <ActivityIndicator size="large" color={COLORS.primary_50} style={styles.loading} />
       ) : fieldtripsData.length === 0 && !serverError ? (
         <Text>No hay salidas a campo para mostrar.</Text>
       ) : (
@@ -64,6 +64,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     maxWidth: 600,
     paddingHorizontal: 16,
+  },
+  loading: {
+    marginTop: '48%',
   },
 })
 

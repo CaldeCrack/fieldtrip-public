@@ -1,11 +1,11 @@
-import React, { useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import { Stack, useRouter } from 'expo-router'
+import { Stack, usePathname, useRouter } from 'expo-router'
 
 import { COLORS } from '@colors'
 import { ConfirmationModal } from '@components'
@@ -53,14 +53,24 @@ const FReducer = (_state: FStateType, action: FStateType) => {
 
 const StackLayout = () => {
   const router = useRouter()
+  const pathname = usePathname()
   const [visible, setVisible] = useState<Record<string, boolean>>({})
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
 
   const _getVisible = (name: string) => !!visible[name]
   const [HCState, HCDispatch] = useReducer(HCReducer, HCInitialState)
   const [FState, FDispatch] = useReducer(FReducer, FInitialState)
 
+  useEffect(() => {
+    ;(async () => {
+      const token = await AsyncStorage.getItem('access_token')
+      setIsLoggedIn(!!token)
+    })()
+  }, [pathname])
+
   const logout = async () => {
+    setIsLoggedIn(false)
     setVisible({ ...visible, ['modal']: !visible['modal'] })
     await AsyncStorage.removeItem('EXPO_CONSTANTS_INSTALLATION_ID')
     await AsyncStorage.removeItem('access_token')
@@ -79,6 +89,7 @@ const StackLayout = () => {
             <HealthChartContext.Provider value={{ HCState, HCDispatch }}>
               <Stack
                 screenOptions={() => ({
+                  headerShown: isLoggedIn,
                   headerStyle: {
                     backgroundColor: '#fafafa',
                     borderBottomWidth: 1,
