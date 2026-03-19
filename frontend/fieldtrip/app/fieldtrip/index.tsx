@@ -5,7 +5,7 @@ import { BarChart } from 'react-native-chart-kit'
 
 import { ContainedButton, Page, StudentList, BulletList } from '@components'
 import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
-import { FieldtriptContext, HealthChartContext } from '../_layout'
+import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
 import StudentAttendee from 'types/StudentAttendee'
 import AsyncStorage from '@react-native-async-storage/async-storage'

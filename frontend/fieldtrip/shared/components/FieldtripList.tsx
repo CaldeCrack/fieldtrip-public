@@ -99,7 +99,7 @@ const FieldtripList = ({ data, setState }: Props) => {
         .map((item) => {
           const fieldtripStatus = fieldtripStatuses[item.id]
           const isAuxiliar = !!fieldtripStatus?.isAuxiliar
-          const notSignedUp = isStudent && fieldtripStatus?.signupComplete === false
+          const notSignedUp = fieldtripStatus?.signupComplete === false
           return (
             <TouchableRipple
               style={styles.ripple}
@@ -121,7 +121,7 @@ const FieldtripList = ({ data, setState }: Props) => {
                   <IconButton
                     icon="content-copy"
                     size={20}
-                    style={styles.copyButton}
+                    style={styles.cornerIcon}
                     onPress={() => copyToClipboard(item.invitationCode)}
                   />
                 )}
@@ -130,7 +130,7 @@ const FieldtripList = ({ data, setState }: Props) => {
                   <IconButton
                     icon="alert-circle-outline"
                     size={20}
-                    style={styles.alertIcon}
+                    style={styles.cornerIcon}
                     onPress={() => showSnackbar('Aún no te has inscrito en esta salida a campo.')}
                     iconColor={COLORS.error_500 || 'orange'}
                   />
@@ -149,7 +149,7 @@ const FieldtripList = ({ data, setState }: Props) => {
                   <IconButton
                     icon="check-circle-outline"
                     size={20}
-                    style={styles.checkIcon}
+                    style={styles.cornerIcon}
                     onPress={() => showSnackbar('Estás inscrito/a en esta salida a campo.')}
                     iconColor={COLORS.success_500 || 'green'}
                   />
@@ -234,19 +234,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  copyButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 1,
-  },
-  alertIcon: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 1,
-  },
-  checkIcon: {
+  cornerIcon: {
     position: 'absolute',
     top: 10,
     right: 10,

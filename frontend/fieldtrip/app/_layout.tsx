@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useState } from 'react'
+import React, { useReducer, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
@@ -10,6 +10,12 @@ import { Stack, useRouter } from 'expo-router'
 import { COLORS } from '@colors'
 import { ConfirmationModal } from '@components'
 import { GlobalSnackbarProvider } from '../shared/context/GlobalSnackbarContext'
+import {
+  FStateType,
+  FieldtriptContext,
+  HCStateType,
+  HealthChartContext,
+} from '../shared/context/FieldtripContext'
 
 const theme = {
   ...DefaultTheme,
@@ -22,29 +28,6 @@ const theme = {
     tertiary: '#bc4749',
   },
 }
-
-interface HCStateType {
-  fieldtripID: number | null
-  fieldtripName: string | null
-  healthChartOwner: number | null
-}
-
-interface FStateType {
-  fieldtripID: number | null
-}
-
-interface IHealthChartContext {
-  HCState: HCStateType
-  HCDispatch: React.Dispatch<any>
-}
-
-interface IFieldtriptContext {
-  FState: FStateType
-  FDispatch: React.Dispatch<any>
-}
-
-export const HealthChartContext = createContext<IHealthChartContext>({} as IHealthChartContext)
-export const FieldtriptContext = createContext<IFieldtriptContext>({} as IFieldtriptContext)
 
 const HCInitialState = {
   fieldtripID: null,
@@ -127,10 +110,7 @@ const StackLayout = () => {
                 <Stack.Screen name="index" options={{ title: 'Salidas' }} />
                 <Stack.Screen name="health-log" options={{ title: 'Log de salud' }} />
                 <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
-                <Stack.Screen
-                  name="personal-info"
-                  options={{ title: 'Editar información personal' }}
-                />
+                <Stack.Screen name="personal-info" options={{ title: 'Editar datos personales' }} />
                 <Stack.Screen name="fieldtrip/index" options={{ title: 'Fieldtrip' }} />
                 <Stack.Screen name="fieldtrip/create" options={{ title: 'Crear salida' }} />
                 <Stack.Screen name="fieldtrip/chart" options={{ title: 'Ficha de salud' }} />
@@ -140,9 +120,7 @@ const StackLayout = () => {
                   name="+not-found"
                   options={{
                     title: 'Página no existe',
-                    headerRight: () => {
-                      return <TouchableOpacity />
-                    },
+                    headerRight: () => <TouchableOpacity />,
                   }}
                 />
               </Stack>

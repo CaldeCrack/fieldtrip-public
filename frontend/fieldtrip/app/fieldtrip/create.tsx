@@ -276,8 +276,6 @@ const CreateFieldtrip = () => {
               dialogDoneButtonText="Terminar"
               textInputMode="outlined"
               textInputProps={{
-                // @ts-ignore: PaperSelectTextInputProps may not accept style
-                style: styles.selectInput,
                 outlineColor: COLORS.gray_100,
                 activeOutlineColor: MD3Colors.primary50,
 
@@ -288,7 +286,6 @@ const CreateFieldtrip = () => {
                         name={'delete'}
                         size={24}
                         color={MD3Colors.primary0}
-                        // @ts-ignore: icon style may not exist
                         style={styles.icon}
                         onPress={() =>
                           setCourse({
@@ -309,6 +306,7 @@ const CreateFieldtrip = () => {
               containerStyle={{
                 marginBottom: 14,
               }}
+              multiEnable={false}
             />
             <SimpleInput
               label="Sector al que se irá *"

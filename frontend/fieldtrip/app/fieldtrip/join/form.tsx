@@ -27,7 +27,7 @@ import {
   getLatestFieldtripHealth,
 } from '@services'
 import { COLORS } from '@colors'
-import { FieldtriptContext } from '../../_layout'
+import { FieldtriptContext } from '../../../shared/context/FieldtripContext'
 import type { ChecklistItem, Payload, SelectOption, SelectState } from '@types'
 import HealthInfo from 'types/HealthInfo'
 import { SelectedItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'

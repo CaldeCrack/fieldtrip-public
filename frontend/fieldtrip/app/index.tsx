@@ -7,7 +7,7 @@ import { Text } from 'react-native-paper'
 
 import { FieldtripList, Page } from '@components'
 import { getUsersFieldtrips } from '@services'
-import { FieldtriptContext } from './_layout'
+import { FieldtriptContext } from '../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
 import { Payload } from '@types'
 import FieldtripItem from 'types/FieldtripItem'

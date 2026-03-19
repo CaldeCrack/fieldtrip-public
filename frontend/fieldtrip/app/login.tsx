@@ -74,10 +74,6 @@ const Login = () => {
 
   return (
     <Page style={styles.page}>
-      {/*
-      <Tabs.Screen
-        options={{ header: () => null, tabBarHideOnKeyboard: true }}
-      />*/}
       <Text variant="headlineLarge" style={styles.title}>
         Fieldtrip
       </Text>

@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { BulletList, Page } from '@components'
 import { viewHealthChart, getUsersHealthChart } from '@services'
-import { HealthChartContext } from '../_layout'
+import { HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
 import { Payload } from '@types'
 import { useGlobalSnackbar } from '../../shared/context/useGlobalSnackbar'
