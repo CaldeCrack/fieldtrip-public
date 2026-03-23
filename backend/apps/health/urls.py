@@ -1,9 +1,14 @@
 from django.urls import path
-from .views import FieldtripSignupViewSet, FieldtripHealthChartAPIView, LatestFieldtripHealthAPIView, FieldtripMetricsAPIView, FieldtripSignUpStatusAPIView
+from .views import FieldtripSignupViewSet, FieldtripHealthChartAPIView, LatestFieldtripHealthAPIView, FieldtripMetricsAPIView, FieldtripSignUpStatusAPIView, HealthGralCreateAPIView
 
 app_name = "health"
 
 urlpatterns = [
+    path(
+        "health/general/",
+        HealthGralCreateAPIView.as_view(),
+        name="health-general-create",
+    ),
     path(
         "fieldtrip/signup/",
         FieldtripSignupViewSet.as_view({'post': 'complete_signup'}),

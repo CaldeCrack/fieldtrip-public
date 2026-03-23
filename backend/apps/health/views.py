@@ -77,6 +77,31 @@ class CurrentHealthGralViewSet(viewsets.ModelViewSet):
     serializer_class = HealthGralSerializer
 
 
+class HealthGralCreateAPIView(APIView):
+    permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
+
+    @swagger_auto_schema(
+        operation_description="Crear un nuevo item de salud general.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["item", "situation"],
+            properties={
+                "item": openapi.Schema(type=openapi.TYPE_STRING, description="Nombre del item"),
+                "situation": openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="1: Ha presentado, 2: Presenta",
+                ),
+            },
+        ),
+        responses={201: HealthGralSerializer()},
+    )
+    def post(self, request):
+        serializer = HealthGralSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        return Response(HealthGralSerializer(instance).data, status=status.HTTP_201_CREATED)
+
+
 class UserAllergyViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()

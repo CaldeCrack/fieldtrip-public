@@ -52,6 +52,25 @@ class HealthSpecificValueSerializer(serializers.ModelSerializer):
 
 
 class HealthGralSerializer(serializers.ModelSerializer):
+    def validate_item(self, value):
+        # Normalize spacing and capitalize each word for consistent catalog entries.
+        return " ".join(value.split()).title()
+
+    def validate(self, attrs):
+        situation = attrs.get("situation", getattr(self.instance, "situation", None))
+        item = attrs.get("item", getattr(self.instance, "item", None))
+
+        if situation is not None and item:
+            queryset = HealthGral.objects.filter(situation=situation, item__iexact=item)
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise serializers.ValidationError(
+                    {"item": "Ya existe un item de salud general con ese nombre para esta categoria."}
+                )
+
+        return attrs
+
     class Meta:
         model = HealthGral
         fields = ["id", "item", "situation"]
