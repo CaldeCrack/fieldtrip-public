@@ -24,7 +24,13 @@ const newHealthGeneralItem = async (
     })
     return response.data
   } catch (error) {
-    throw new Error((error as any).response?.data?.detail || (error as any).message)
+    const responseData = (error as any).response?.data
+    const detailMessage = responseData?.detail
+    const itemMessage = Array.isArray(responseData?.item)
+      ? responseData.item[0]
+      : responseData?.item
+
+    throw new Error(itemMessage || detailMessage || (error as any).message)
   }
 }
 

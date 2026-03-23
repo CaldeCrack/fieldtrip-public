@@ -25,6 +25,7 @@ import {
   sendFieldtripSignupForm,
   getFieldtripSignUpStatus,
   getLatestFieldtripHealth,
+  newHealthGeneralItem,
 } from '@services'
 import { COLORS } from '@colors'
 import { FieldtriptContext } from '../../../shared/context/FieldtripContext'
@@ -94,6 +95,63 @@ const JoinFieldtrip = () => {
     selectedList: [],
   })
   const [inputList, setInputList] = useState<InputItem[]>([])
+  const [newDisease, setNewDisease] = useState<string>('')
+  const [creatingDisease, setCreatingDisease] = useState<boolean>(false)
+
+  const addDiseaseToState = (prev: SelectState, newOption: SelectOption): SelectState => {
+    const existsInList = prev.list.some(
+      (option) =>
+        option._id === newOption._id ||
+        option.value.toLowerCase() === newOption.value.toLowerCase(),
+    )
+    const existsInSelected = prev.selectedList.some((option) => option._id === newOption._id)
+
+    const updatedSelected = existsInSelected ? prev.selectedList : [...prev.selectedList, newOption]
+
+    return {
+      ...prev,
+      list: existsInList ? prev.list : [...prev.list, newOption],
+      selectedList: updatedSelected,
+      value: updatedSelected.map((item) => item.value).join(', '),
+    }
+  }
+
+  const createDisease = async (situation: 1 | 2) => {
+    const cleanedDisease = newDisease.trim()
+
+    if (!cleanedDisease) {
+      showSnackbar('Debe ingresar una enfermedad para agregarla.', { isError: true })
+      return
+    }
+
+    try {
+      setCreatingDisease(true)
+      const createdDisease = await newHealthGeneralItem({
+        item: cleanedDisease,
+        situation,
+      })
+
+      const createdOption: SelectOption = {
+        _id: String(createdDisease.id),
+        value: createdDisease.item,
+      }
+
+      if (situation === 1) {
+        setHasPresentedData((prev) => addDiseaseToState(prev, createdOption))
+      } else {
+        setPresentsData((prev) => addDiseaseToState(prev, createdOption))
+      }
+
+      setNewDisease('')
+      showSnackbar('Enfermedad agregada correctamente.')
+    } catch (error) {
+      showSnackbar((error as Error).message || 'No se pudo agregar la enfermedad.', {
+        isError: true,
+      })
+    } finally {
+      setCreatingDisease(false)
+    }
+  }
 
   const handleInputChange = (index: number, text: string) => {
     const updatedInputs = [...inputList]
@@ -447,6 +505,31 @@ const JoinFieldtrip = () => {
                         marginBottom: 14,
                       }}
                     />
+                    <Text variant="bodySmall" style={styles.addDiseaseHelperText}>
+                      No encuentra su enfermedad? Agreguela y seleccionela.
+                    </Text>
+                    <SimpleInput
+                      label="Nueva enfermedad"
+                      value={newDisease}
+                      onChangeText={(text: string) => setNewDisease(text)}
+                      style={styles.newDiseaseInput}
+                    />
+                    <View style={styles.addDiseaseButtonsContainer}>
+                      <ContainedButton
+                        style={styles.addDiseaseButton}
+                        disabled={creatingDisease}
+                        onPress={() => createDisease(1)}
+                      >
+                        Agregar a "Ha presentado"
+                      </ContainedButton>
+                      <ContainedButton
+                        style={styles.addDiseaseButton}
+                        disabled={creatingDisease}
+                        onPress={() => createDisease(2)}
+                      >
+                        Agregar a "Presenta actualmente"
+                      </ContainedButton>
+                    </View>
                     <Text variant="titleMedium" style={[styles.weight600, { marginTop: 10 }]}>
                       Información específica
                     </Text>
@@ -557,6 +640,23 @@ const styles = StyleSheet.create({
     height: 56,
     marginBottom: 14,
     backgroundColor: MD3Colors.primary100,
+  },
+  addDiseaseHelperText: {
+    marginBottom: 10,
+  },
+  newDiseaseInput: {
+    fontSize: 16,
+    marginBottom: 12,
+    backgroundColor: MD3Colors.primary100,
+  },
+  addDiseaseButtonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 14,
+  },
+  addDiseaseButton: {
+    marginRight: 8,
+    marginBottom: 8,
   },
   loader: {
     marginTop: 20,
