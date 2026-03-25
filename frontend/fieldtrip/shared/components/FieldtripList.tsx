@@ -28,7 +28,7 @@ type FieldtripItem = {
 
 type Props = {
   data: FieldtripItem[]
-  setState: (_id: number) => void
+  setState: (_id: number, _title: string) => void
 }
 
 const FieldtripList = ({ data, setState }: Props) => {
@@ -105,7 +105,7 @@ const FieldtripList = ({ data, setState }: Props) => {
               style={styles.ripple}
               key={String(item.id)}
               onPress={() => {
-                setState(item.id)
+                setState(item.id, item.title)
                 const [day, month, year] = item.startDate.split('/').map(Number)
                 const twoWeeksLater = new Date(year, month - 1, day)
                 twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)

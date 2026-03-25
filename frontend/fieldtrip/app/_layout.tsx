@@ -37,6 +37,7 @@ const HCInitialState = {
 
 const FInitialState = {
   fieldtripID: null,
+  fieldtripName: null,
 }
 
 const HCReducer = (_state: HCStateType, action: HCStateType) => {
@@ -48,7 +49,10 @@ const HCReducer = (_state: HCStateType, action: HCStateType) => {
 }
 
 const FReducer = (_state: FStateType, action: FStateType) => {
-  return { fieldtripID: action.fieldtripID }
+  return {
+    fieldtripID: action.fieldtripID,
+    fieldtripName: action.fieldtripName,
+  }
 }
 
 const StackLayout = () => {

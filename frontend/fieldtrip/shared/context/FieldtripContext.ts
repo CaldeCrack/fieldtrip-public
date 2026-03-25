@@ -8,6 +8,7 @@ export interface HCStateType {
 
 export interface FStateType {
   fieldtripID: number | null
+  fieldtripName: string | null
 }
 
 export interface IHealthChartContext {
