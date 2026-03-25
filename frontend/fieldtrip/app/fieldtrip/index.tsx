@@ -1,6 +1,6 @@
-import { StyleSheet, View, ScrollView, Dimensions, Platform } from 'react-native'
+import { StyleSheet, View, ScrollView, Dimensions, Platform, Alert, Share } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
-import { MD3Colors, Text } from 'react-native-paper'
+import { MD3Colors, Text, Menu } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
 
 import { ContainedButton, Page, StudentList, BulletList } from '@components'
@@ -32,9 +32,17 @@ interface chartData {
   }
 }
 
+interface ExportRow {
+  category: string
+  name: string
+  count: number
+}
+
+type ExportFormat = 'txt' | 'csv' | 'tsv' | 'json'
+
 const Fieldtrip = () => {
   const { FState } = useContext(FieldtriptContext)
-  const { HCDispatch } = useContext(HealthChartContext)
+  const { HCState, HCDispatch } = useContext(HealthChartContext)
   const setState = (fieldtripID: number, fieldtripName: string, healthChartOwner: number) => {
     HCDispatch({
       fieldtripID,
@@ -45,6 +53,7 @@ const Fieldtrip = () => {
 
   const [showStudentList, setShowStudentList] = useState(true)
   const [showMetrics, setShowMetrics] = useState(false)
+  const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
   const [chartData, setChartData] = useState<chartData>({
@@ -105,6 +114,152 @@ const Fieldtrip = () => {
       : Dimensions.get('window').width
   const chartRenderWidth =
     Platform.OS === 'web' ? Math.max(chartWidth - 48, 280) : Math.max(chartWidth - 24, 280)
+
+  const buildExportRows = (): ExportRow[] => {
+    const diseaseCounts = chartData.diseases.datasets[0]?.data || []
+    const allergyCounts = chartData.allergies.datasets[0]?.data || []
+
+    const diseaseRows = chartData.diseases.labels.map((name, index) => ({
+      category: 'Enfermedades',
+      name,
+      count: diseaseCounts[index] || 0,
+    }))
+    const allergyRows = chartData.allergies.labels.map((name, index) => ({
+      category: 'Alergias',
+      name,
+      count: allergyCounts[index] || 0,
+    }))
+
+    return [...diseaseRows, ...allergyRows]
+  }
+
+  const generateTxtExport = (rows: ExportRow[]) => {
+    const lines = rows.map((row) => `- [${row.category}] ${row.name}: ${row.count}`)
+    return ['Metricas del paseo', '', ...lines].join('\n')
+  }
+
+  const generateCsvExport = (rows: ExportRow[]) => {
+    const escapeCsv = (value: string | number) => {
+      const parsed = String(value).replace(/"/g, '""')
+      return '"' + parsed + '"'
+    }
+
+    const headers = 'categoria,nombre,cantidad'
+    const csvRows: string[] = []
+    rows.forEach((row) => {
+      csvRows.push([escapeCsv(row.category), escapeCsv(row.name), escapeCsv(row.count)].join(','))
+    })
+    return [headers, ...csvRows].join('\n')
+  }
+
+  const generateTsvExport = (rows: ExportRow[]) => {
+    const escapeTsv = (value: string | number) => {
+      const parsed = String(value).replace(/\t/g, ' ')
+      return parsed.replace(/\n/g, ' ')
+    }
+
+    const headers = 'categoria\tnombre\tcantidad'
+    const tsvRows: string[] = []
+    rows.forEach((row) => {
+      tsvRows.push([escapeTsv(row.category), escapeTsv(row.name), escapeTsv(row.count)].join('\t'))
+    })
+    return [headers, ...tsvRows].join('\n')
+  }
+
+  const generateJsonExport = (rows: ExportRow[]) => JSON.stringify(rows, null, 2)
+
+  const sanitizeFileNamePart = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '')
+      .toLowerCase()
+
+  const getExportData = (rows: ExportRow[], format: ExportFormat) => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const selectedFieldtripName = FState.fieldtripName || HCState.fieldtripName || 'paseo'
+    const safeFieldtripName = sanitizeFileNamePart(selectedFieldtripName)
+    const baseFileName = `${safeFieldtripName}-metricas-${timestamp}`
+
+    switch (format) {
+      case 'txt':
+        return {
+          content: generateTxtExport(rows),
+          fileName: `${baseFileName}.txt`,
+          mimeType: 'text/plain;charset=utf-8',
+          shareTitle: 'Metricas del paseo',
+        }
+      case 'csv':
+        return {
+          content: generateCsvExport(rows),
+          fileName: `${baseFileName}.csv`,
+          mimeType: 'text/csv;charset=utf-8',
+          shareTitle: 'Metricas del paseo (CSV)',
+        }
+      case 'tsv':
+        return {
+          content: generateTsvExport(rows),
+          fileName: `${baseFileName}.tsv`,
+          mimeType: 'text/tab-separated-values;charset=utf-8',
+          shareTitle: 'Metricas del paseo (TSV)',
+        }
+      case 'json':
+        return {
+          content: generateJsonExport(rows),
+          fileName: `${baseFileName}.json`,
+          mimeType: 'application/json;charset=utf-8',
+          shareTitle: 'Metricas del paseo (JSON)',
+        }
+    }
+  }
+
+  const downloadFileWeb = (content: string, fileName: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    URL.revokeObjectURL(url)
+  }
+
+  const handleExportMetrics = async (format: ExportFormat) => {
+    setShowExportMenu(false)
+
+    const rows = buildExportRows()
+    if (rows.length === 0) {
+      Alert.alert('Sin datos', 'No hay metricas para exportar.')
+      return
+    }
+
+    const exportData = getExportData(rows, format)
+
+    if (Platform.OS === 'web') {
+      downloadFileWeb(exportData.content, exportData.fileName, exportData.mimeType)
+      return
+    }
+
+    await Share.share({
+      title: exportData.shareTitle,
+      message: exportData.content,
+    })
+  }
+
+  const handleOpenExportMenu = () => {
+    const rows = buildExportRows()
+    if (rows.length === 0) {
+      Alert.alert('Sin datos', 'No hay metricas para exportar.')
+      return
+    }
+
+    setShowExportMenu(true)
+  }
 
   useEffect(() => {
     ;(async () => {
@@ -213,8 +368,25 @@ const Fieldtrip = () => {
       )}
       {showMetrics && (
         <>
+          <View style={styles.exportMenuAnchor}>
+            <Menu
+              visible={showExportMenu}
+              onDismiss={() => setShowExportMenu(false)}
+              anchorPosition="bottom"
+              anchor={
+                <ContainedButton style={styles.exportBtn} onPress={handleOpenExportMenu}>
+                  Exportar datos
+                </ContainedButton>
+              }
+            >
+              <Menu.Item onPress={() => handleExportMetrics('txt')} title="Exportar TXT" />
+              <Menu.Item onPress={() => handleExportMetrics('csv')} title="Exportar CSV" />
+              <Menu.Item onPress={() => handleExportMetrics('tsv')} title="Exportar TSV" />
+              <Menu.Item onPress={() => handleExportMetrics('json')} title="Exportar JSON" />
+            </Menu>
+          </View>
           {/* Enfermedades */}
-          <Text variant="titleMedium" style={{ fontWeight: 600, marginTop: 8 }}>
+          <Text variant="titleMedium" style={{ fontWeight: 600, marginTop: 16 }}>
             Enfermedades
           </Text>
           {chartData.diseases && chartData.diseases.labels.length > 0 ? (
@@ -313,6 +485,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   chartWrapper: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  exportBtn: {
+    marginBottom: 0,
+  },
+  exportMenuAnchor: {
     width: '100%',
     alignItems: 'center',
   },
