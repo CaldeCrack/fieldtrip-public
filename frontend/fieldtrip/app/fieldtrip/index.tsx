@@ -133,6 +133,24 @@ const Fieldtrip = () => {
     return [...diseaseRows, ...allergyRows]
   }
 
+  const filterMetricData = (labels: string[], counts: number[]) => {
+    const filteredLabels: string[] = []
+    const filteredCounts: number[] = []
+
+    labels.forEach((label, index) => {
+      const count = counts[index] || 0
+      if (count > 0) {
+        filteredLabels.push(label)
+        filteredCounts.push(count)
+      }
+    })
+
+    return {
+      labels: filteredLabels,
+      counts: filteredCounts,
+    }
+  }
+
   const generateTxtExport = (rows: ExportRow[]) => {
     const lines = rows.map((row) => `- [${row.category}] ${row.name}: ${row.count}`)
     return ['Metricas del paseo', '', ...lines].join('\n')
@@ -290,14 +308,17 @@ const Fieldtrip = () => {
             const allergies = res.allergies?.map((a: Allergy) => a.name) || []
             const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
 
+            const filteredDiseases = filterMetricData(diseases, diseaseCounts)
+            const filteredAllergies = filterMetricData(allergies, allergyCounts)
+
             setChartData({
               diseases: {
-                labels: diseases,
-                datasets: [{ data: diseaseCounts }],
+                labels: filteredDiseases.labels,
+                datasets: [{ data: filteredDiseases.counts }],
               },
               allergies: {
-                labels: allergies,
-                datasets: [{ data: allergyCounts }],
+                labels: filteredAllergies.labels,
+                datasets: [{ data: filteredAllergies.counts }],
               },
             })
           }
@@ -421,24 +442,32 @@ const Fieldtrip = () => {
           <Text variant="titleMedium" style={{ fontWeight: 600, marginTop: 16 }}>
             Alergias
           </Text>
-          {Platform.OS === 'web' ? (
-            <View style={styles.chartWrapper}>
-              <BarChart
-                fromZero={true}
-                data={chartData.allergies || { labels: [], datasets: [{ data: [] }] }}
-                showValuesOnTopOfBars={true}
-                height={250}
-                width={chartRenderWidth}
-                chartConfig={chartConfig}
-                withHorizontalLabels={false}
-                verticalLabelRotation={0}
-                xLabelsOffset={0}
-                yAxisLabel=""
-                yAxisSuffix=""
-              />
-            </View>
+          {chartData.allergies && chartData.allergies.labels.length > 0 ? (
+            Platform.OS === 'web' ? (
+              <View style={styles.chartWrapper}>
+                <BarChart
+                  fromZero={true}
+                  data={chartData.allergies || { labels: [], datasets: [{ data: [] }] }}
+                  showValuesOnTopOfBars={true}
+                  height={250}
+                  width={chartRenderWidth}
+                  chartConfig={chartConfig}
+                  withHorizontalLabels={false}
+                  verticalLabelRotation={0}
+                  xLabelsOffset={0}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                />
+              </View>
+            ) : (
+              <BulletList data={chartData.allergies?.labels || []} />
+            )
           ) : (
-            <BulletList data={chartData.allergies?.labels || []} />
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>
+                No se han registrado suficientes estudiantes para mostrar esta información.
+              </Text>
+            </View>
           )}
         </>
       )}
