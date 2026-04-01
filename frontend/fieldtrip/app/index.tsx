@@ -9,8 +9,7 @@ import { FieldtripList, Page } from '@components'
 import { getUsersFieldtrips } from '@services'
 import { FieldtriptContext } from '../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { Payload } from '@types'
-import FieldtripItem from 'types/FieldtripItem'
+import { Payload, FieldtripItem } from '@types'
 
 const Home = () => {
   const router = useRouter()

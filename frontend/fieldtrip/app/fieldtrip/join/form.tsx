@@ -30,7 +30,7 @@ import {
 import { COLORS } from '@colors'
 import { FieldtriptContext } from '../../../shared/context/FieldtripContext'
 import type { ChecklistItem, Payload, SelectOption, SelectState } from '@types'
-import HealthInfo from 'types/HealthInfo'
+import { HealthInfo } from '@types'
 import { SelectedItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 import { useGlobalSnackbar } from '../../../shared/context/useGlobalSnackbar'
 

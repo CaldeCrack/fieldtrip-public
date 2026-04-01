@@ -1,16 +1,17 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "module": "node16",
+    "moduleResolution": "node16",
     "jsx": "react-jsx",
     "types": ["react", "react-native"],
     "strict": true,
-    "baseUrl": ".",
     "paths": {
-      "@colors": ["styles/colors.ts"],
-      "@components": ["shared/components"],
-      "@services": ["shared/services"],
-      "@types": ["types/"],
-      "@config": ["shared/utils/config.ts"]
+      "@colors": ["./styles/colors.ts"],
+      "@components": ["./shared/components"],
+      "@services": ["./shared/services"],
+      "@types": ["./types/"],
+      "@config": ["./shared/utils/config.ts"]
     }
   },
   "include": ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.js", ".expo/types/**/*.ts", "expo-env.d.ts"]

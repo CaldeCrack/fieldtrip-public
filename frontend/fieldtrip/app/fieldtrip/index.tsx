@@ -7,7 +7,7 @@ import { ContainedButton, Page, StudentList, BulletList } from '@components'
 import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import StudentAttendee from 'types/StudentAttendee'
+import { StudentAttendee } from '@types'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
 
