@@ -53,6 +53,7 @@ const Fieldtrip = () => {
 
   const [showStudentList, setShowStudentList] = useState(true)
   const [showMetrics, setShowMetrics] = useState(false)
+  const [showEquipment, setShowEquipment] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
@@ -350,6 +351,7 @@ const Fieldtrip = () => {
             onPress={() => {
               setShowStudentList(!showStudentList)
               setShowMetrics(false)
+              setShowEquipment(false)
             }}
           >
             Asistentes
@@ -363,11 +365,28 @@ const Fieldtrip = () => {
               },
             ]}
             onPress={() => {
-              setShowMetrics(!showMetrics)
               setShowStudentList(false)
+              setShowMetrics(!showMetrics)
+              setShowEquipment(false)
             }}
           >
             Métricas
+          </ContainedButton>
+          <ContainedButton
+            style={[
+              styles.btnMarginRight,
+              styles.btnMarginBottom,
+              {
+                backgroundColor: showEquipment ? MD3Colors.primary50 : COLORS.gray_100,
+              },
+            ]}
+            onPress={() => {
+              setShowMetrics(false)
+              setShowStudentList(false)
+              setShowEquipment(!showEquipment)
+            }}
+          >
+            Equipamiento
           </ContainedButton>
         </View>
       </ScrollView>
