@@ -349,7 +349,7 @@ const Fieldtrip = () => {
               },
             ]}
             onPress={() => {
-              setShowStudentList(!showStudentList)
+              setShowStudentList(true)
               setShowMetrics(false)
               setShowEquipment(false)
             }}
@@ -366,7 +366,7 @@ const Fieldtrip = () => {
             ]}
             onPress={() => {
               setShowStudentList(false)
-              setShowMetrics(!showMetrics)
+              setShowMetrics(true)
               setShowEquipment(false)
             }}
           >
@@ -383,7 +383,7 @@ const Fieldtrip = () => {
             onPress={() => {
               setShowMetrics(false)
               setShowStudentList(false)
-              setShowEquipment(!showEquipment)
+              setShowEquipment(true)
             }}
           >
             Equipamiento
