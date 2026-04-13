@@ -97,6 +97,7 @@ const JoinFieldtrip = () => {
   const [inputList, setInputList] = useState<InputItem[]>([])
   const [newDisease, setNewDisease] = useState<string>('')
   const [creatingDisease, setCreatingDisease] = useState<boolean>(false)
+  const [showAddDiseaseInput, setShowAddDiseaseInput] = useState<boolean>(false)
 
   const addDiseaseToState = (prev: SelectState, newOption: SelectOption): SelectState => {
     const existsInList = prev.list.some(
@@ -506,30 +507,40 @@ const JoinFieldtrip = () => {
                       }}
                     />
                     <Text variant="bodySmall" style={styles.addDiseaseHelperText}>
-                      No encuentra su enfermedad? Agreguela y seleccionela.
+                      No encuentra su enfermedad?{' '}
+                      <Text
+                        style={styles.addDiseaseLink}
+                        onPress={() => setShowAddDiseaseInput((prev) => !prev)}
+                      >
+                        Agreguela y seleccionela.
+                      </Text>
                     </Text>
-                    <SimpleInput
-                      label="Nueva enfermedad"
-                      value={newDisease}
-                      onChangeText={(text: string) => setNewDisease(text)}
-                      style={styles.newDiseaseInput}
-                    />
-                    <View style={styles.addDiseaseButtonsContainer}>
-                      <ContainedButton
-                        style={styles.addDiseaseButton}
-                        disabled={creatingDisease}
-                        onPress={() => createDisease(1)}
-                      >
-                        Agregar a "Ha presentado"
-                      </ContainedButton>
-                      <ContainedButton
-                        style={styles.addDiseaseButton}
-                        disabled={creatingDisease}
-                        onPress={() => createDisease(2)}
-                      >
-                        Agregar a "Presenta actualmente"
-                      </ContainedButton>
-                    </View>
+                    {showAddDiseaseInput && (
+                      <>
+                        <SimpleInput
+                          label="Nueva enfermedad"
+                          value={newDisease}
+                          onChangeText={(text: string) => setNewDisease(text)}
+                          style={styles.newDiseaseInput}
+                        />
+                        <View style={styles.addDiseaseButtonsContainer}>
+                          <ContainedButton
+                            style={styles.addDiseaseButton}
+                            disabled={creatingDisease}
+                            onPress={() => createDisease(1)}
+                          >
+                            Agregar a "Ha presentado"
+                          </ContainedButton>
+                          <ContainedButton
+                            style={styles.addDiseaseButton}
+                            disabled={creatingDisease}
+                            onPress={() => createDisease(2)}
+                          >
+                            Agregar a "Presenta actualmente"
+                          </ContainedButton>
+                        </View>
+                      </>
+                    )}
                     <Text variant="titleMedium" style={[styles.weight600, { marginTop: 10 }]}>
                       Información específica
                     </Text>
@@ -643,6 +654,10 @@ const styles = StyleSheet.create({
   },
   addDiseaseHelperText: {
     marginBottom: 10,
+  },
+  addDiseaseLink: {
+    color: COLORS.primary_50,
+    textDecorationLine: 'underline',
   },
   newDiseaseInput: {
     fontSize: 16,
