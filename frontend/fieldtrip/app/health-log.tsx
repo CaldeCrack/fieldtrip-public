@@ -31,6 +31,22 @@ const HealthLog = () => {
   const from = page * itemsPerPage
   const to = Math.min((page + 1) * itemsPerPage, items.length)
 
+  const formatTimestamp = (value: string) => {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) {
+      return value
+    }
+
+    return date.toLocaleString('es-CL', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+  }
+
   useEffect(() => {
     setPage(0)
   }, [itemsPerPage])
@@ -95,7 +111,9 @@ const HealthLog = () => {
               <DataTable.Row key={item.id}>
                 <DataTable.Cell>{item.viewer}</DataTable.Cell>
                 <DataTable.Cell style={{ marginLeft: 2 }}>{item.fieldtrip}</DataTable.Cell>
-                <DataTable.Cell style={{ marginLeft: 2 }}>{item.timestamp}</DataTable.Cell>
+                <DataTable.Cell style={{ marginLeft: 2 }}>
+                  {formatTimestamp(item.timestamp)}
+                </DataTable.Cell>
               </DataTable.Row>
             ))}
 

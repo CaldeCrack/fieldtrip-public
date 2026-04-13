@@ -34,8 +34,6 @@ class HealthDataLogSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(HealthDataLogSerializer, self).to_representation(instance)
-        data["timestamp"] = data["timestamp"][:10]
-        data["timestamp"] = data["timestamp"].replace("-", "/")
         return remove_id_keys(data)
 
 
