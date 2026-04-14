@@ -70,6 +70,7 @@ api_urlpatterns = [
   path("", include("apps.user.urls", namespace="user")),
   path("", include("apps.main.urls", namespace="main")),
   path("", include("apps.health.urls", namespace="health")),
+  path("", include("apps.equipment.urls", namespace="equipment")),
   path("", include(router.urls)),
 ]
 
