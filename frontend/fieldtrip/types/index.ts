@@ -1,5 +1,6 @@
 export { default as ChecklistItem } from './ChecklistItem'
 export { default as FieldtripItem } from './FieldtripItem'
+export { default as EquipmentItem } from './EquipmentItem'
 export { default as HealthInfo } from './HealthInfo'
 export { default as Payload } from './Payload'
 export { default as SelectOption } from './SelectOption'

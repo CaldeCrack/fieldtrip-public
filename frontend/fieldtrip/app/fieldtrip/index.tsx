@@ -3,11 +3,11 @@ import { useState, useEffect, useContext } from 'react'
 import { MD3Colors, Text, Menu } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
 
-import { ContainedButton, Page, StudentList, BulletList } from '@components'
-import { getFieldtripAttendees, getFieldtripMetrics } from '@services'
+import { ContainedButton, Page, StudentList, BulletList, EquipmentList } from '@components'
+import { getFieldtripAttendees, getFieldtripMetrics, getFieldtripEquipment } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { StudentAttendee } from '@types'
+import { StudentAttendee, EquipmentItem } from '@types'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router'
 
@@ -56,7 +56,9 @@ const Fieldtrip = () => {
   const [showEquipment, setShowEquipment] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
+  const [equipment, setEquipment] = useState<EquipmentItem[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
+  const [equipmentLoading, setEquipmentLoading] = useState(true)
   const [chartData, setChartData] = useState<chartData>({
     diseases: {
       labels: [
@@ -287,20 +289,27 @@ const Fieldtrip = () => {
         router.replace('/login')
         return
       }
-      if (FState.fieldtripID) {
-        setLoading(true)
-        try {
-          const res = await getFieldtripAttendees(FState.fieldtripID)
-          if (res) {
-            setStudents(res)
-          }
-        } catch (error) {
-          // @ts-ignore
-          throw new Error(error.response?.data?.detail || error.message)
-        } finally {
-          setLoading(false)
-        }
+      if (!FState.fieldtripID) {
+        setLoading(false)
+        setEquipmentLoading(false)
+        return
       }
+
+      setLoading(true)
+      setEquipmentLoading(true)
+
+      try {
+        const res = await getFieldtripAttendees(FState.fieldtripID)
+        if (res) {
+          setStudents(res)
+        }
+      } catch (error) {
+        // @ts-ignore
+        throw new Error(error.response?.data?.detail || error.message)
+      } finally {
+        setLoading(false)
+      }
+
       getFieldtripMetrics(FState.fieldtripID)
         .then((res) => {
           if (res) {
@@ -327,6 +336,20 @@ const Fieldtrip = () => {
         .catch((error) => {
           console.log(error)
           throw new Error(error.response?.data?.detail || error.message)
+        })
+
+      getFieldtripEquipment(FState.fieldtripID)
+        .then((res) => {
+          if (res) {
+            setEquipment(res)
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+          throw new Error(error.response?.data?.detail || error.message)
+        })
+        .finally(() => {
+          setEquipmentLoading(false)
         })
     })()
   }, [FState])
@@ -490,7 +513,14 @@ const Fieldtrip = () => {
           )}
         </>
       )}
-      {/*{showEquipment && <StudentList data={fieldtripData.students} />}*/}
+      {showEquipment &&
+        (equipmentLoading ? (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateText}>Cargando equipamiento...</Text>
+          </View>
+        ) : (
+          <EquipmentList data={equipment} />
+        ))}
     </Page>
   )
 }
