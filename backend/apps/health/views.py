@@ -7,11 +7,13 @@ from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from django.shortcuts import get_object_or_404
 
 from .models import *
 from .serializers import *
 from .helpers import *
 from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
+from apps.equipment.models import EquipmentInUse, EducationalInstitutionEquipment
 
 
 class HealthDataLogViewSet(viewsets.ModelViewSet):
@@ -116,6 +118,7 @@ class FieldtripViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             teacher_id = self.request.data.get('teacher_id')
+            equipment_data = self.request.data.get('equipment', [])
             
             if not teacher_id:
                 teacher = self.request.user
@@ -128,6 +131,32 @@ class FieldtripViewSet(viewsets.ModelViewSet):
                 user=teacher,
                 fieldtrip=fieldtrip
             )
+            
+            # Create equipment records if provided
+            if equipment_data:
+                for equipment_item in equipment_data:
+                    equipment_id = equipment_item.get('id')
+                    quantity = equipment_item.get('quantity', 0)
+                    
+                    if equipment_id and quantity > 0:
+                        try:
+                            # Get the institution from the fieldtrip's course
+                            institution = fieldtrip.course.institution
+                            
+                            # Get the EducationalInstitutionEquipment for this equipment and institution
+                            inst_equipment = EducationalInstitutionEquipment.objects.get(
+                                institution=institution,
+                                type_id=equipment_id
+                            )
+                            
+                            # Create EquipmentInUse record
+                            EquipmentInUse.objects.create(
+                                fieldtrip=fieldtrip,
+                                item_in_stock=inst_equipment,
+                                quantity=quantity
+                            )
+                        except EducationalInstitutionEquipment.DoesNotExist:
+                            pass
             
             return fieldtrip
         except Exception as e:

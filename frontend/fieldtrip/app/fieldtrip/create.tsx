@@ -17,11 +17,18 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
 
-import { Page, SimpleInput, DatePicker, ContainedButton, Modal } from '@components'
-import { getTeachers, getCourses, newFieldtrip } from '@services'
+import {
+  Page,
+  SimpleInput,
+  DatePicker,
+  ContainedButton,
+  Modal,
+  EquipmentSelectionModal,
+} from '@components'
+import { getTeachers, getCourses, newFieldtrip, getEquipmentList } from '@services'
 import { COLORS } from '@colors'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
-import { Payload, SelectState } from '@types'
+import { Payload, SelectState, EquipmentItem } from '@types'
 import { useGlobalSnackbar } from '../../shared/context/useGlobalSnackbar'
 
 const CreateFieldtrip = () => {
@@ -50,6 +57,11 @@ const CreateFieldtrip = () => {
   const [mobileEndDate, setMobileEndDate] = useState<Date>(new Date())
   const [showS, setShowS] = useState<boolean>(false)
   const [showE, setShowE] = useState<boolean>(false)
+
+  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([])
+  const [selectedEquipment, setSelectedEquipment] = useState<{ id: number; quantity: number }[]>([])
+  const [equipmentLoading, setEquipmentLoading] = useState<boolean>(false)
+  const [showEquipmentModal, setShowEquipmentModal] = useState<boolean>(false)
 
   const onChangeS = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (event.type === 'set') {
@@ -83,6 +95,49 @@ const CreateFieldtrip = () => {
     showModeE()
   }
 
+  const loadEquipmentForCourse = async (courseId: string) => {
+    try {
+      setEquipmentLoading(true)
+      const selectedCourse = course.list.find((c) => String(c._id) === String(courseId))
+      if (selectedCourse) {
+        const equipment = await getEquipmentList(parseInt(String(selectedCourse._id), 10))
+        setEquipmentList(equipment)
+      } else {
+        setEquipmentList([])
+      }
+    } catch (error) {
+      console.error('Error loading equipment:', error)
+      showSnackbar('Error al cargar el equipamiento', { isError: true })
+      setEquipmentList([])
+    } finally {
+      setEquipmentLoading(false)
+    }
+  }
+
+  const handleCourseSelection = (value: { text: string; selectedList: ListItem[] }) => {
+    const selectedCourseId =
+      value.selectedList[0]?._id || course.list.find((item) => item.value === value.text)?._id || ''
+
+    setCourse({
+      ...course,
+      value: value.text,
+      selectedList: value.selectedList,
+    })
+
+    setSelectedEquipment([])
+
+    if (selectedCourseId) {
+      loadEquipmentForCourse(String(selectedCourseId))
+    } else {
+      setEquipmentList([])
+    }
+  }
+
+  const handleEquipmentConfirm = (equipment: { id: number; quantity: number }[]) => {
+    setSelectedEquipment(equipment)
+    setShowEquipmentModal(false)
+  }
+
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
@@ -106,11 +161,14 @@ const CreateFieldtrip = () => {
       sector.length > 0 &&
       course.value.length > 0 &&
       professor.value.length > 0 &&
-      name.length > 0
+      name.length > 0 &&
+      selectedEquipment.length > 0
     ) {
       setFormDone(true)
+    } else {
+      setFormDone(false)
     }
-  }, [sector, course, professor, name])
+  }, [sector, course, professor, name, selectedEquipment])
 
   useEffect(() => {
     ;(async () => {
@@ -164,20 +222,22 @@ const CreateFieldtrip = () => {
         course_id: course.list.find((obj) => obj.value === course.value)?._id,
         start_date: formatDateToYYYYMMDD(new Date()),
         end_date: formatDateToYYYYMMDD(new Date()),
+        equipment: selectedEquipment,
       })
         .then(async (res: { id: number }) => {
           if (res.id) {
+            showSnackbar('¡Salida de campo creada exitosamente!', { isError: false })
             router.replace('/')
           }
         })
         .catch((error) => {
-          throw new Error(error.response?.data?.detail || error.message)
+          showSnackbar(error.message || 'Error al crear la salida', { isError: true })
         })
         .finally(() => {
           setCreatingFieldtrip(false)
         })
     } else {
-      showSnackbar('Debe completar todo el formulario', { isError: true })
+      showSnackbar('Debe completar todo el formulario, incluyendo equipamiento', { isError: true })
     }
   }
 
@@ -192,7 +252,7 @@ const CreateFieldtrip = () => {
   return (
     <Page style={styles.page} showTabs={true}>
       <ScrollView>
-        <View style={{ minWidth: '100%', height: 32 }}>
+        <View style={{ minWidth: '100%' }}>
           <SimpleInput
             label="Nombre de la salida *"
             onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
@@ -222,10 +282,8 @@ const CreateFieldtrip = () => {
               dialogDoneButtonText="Terminar"
               textInputMode="outlined"
               textInputProps={{
-                // style: styles.selectInput,
                 outlineColor: COLORS.gray_100,
                 activeOutlineColor: MD3Colors.primary50,
-
                 left: (
                   <TextInput.Icon
                     icon={() => (
@@ -233,7 +291,6 @@ const CreateFieldtrip = () => {
                         name={'delete'}
                         size={24}
                         color={MD3Colors.primary0}
-                        // @ts-ignore: icon style may not exist
                         style={styles.icon}
                         onPress={() =>
                           setProfessor({
@@ -260,13 +317,7 @@ const CreateFieldtrip = () => {
               dialogStyle={styles.select}
               label="Curso *"
               value={course.value}
-              onSelection={(value: { text: string; selectedList: ListItem[] }) => {
-                setCourse({
-                  ...course,
-                  value: value.text,
-                  selectedList: value.selectedList,
-                })
-              }}
+              onSelection={handleCourseSelection}
               arrayList={[...course.list]}
               selectedArrayList={course.selectedList}
               hideSearchBox={true}
@@ -278,7 +329,6 @@ const CreateFieldtrip = () => {
               textInputProps={{
                 outlineColor: COLORS.gray_100,
                 activeOutlineColor: MD3Colors.primary50,
-
                 left: (
                   <TextInput.Icon
                     icon={() => (
@@ -288,11 +338,15 @@ const CreateFieldtrip = () => {
                         color={MD3Colors.primary0}
                         style={styles.icon}
                         onPress={() =>
-                          setCourse({
-                            ...course,
-                            value: '',
-                            selectedList: [],
-                          })
+                          (() => {
+                            setCourse({
+                              ...course,
+                              value: '',
+                              selectedList: [],
+                            })
+                            setEquipmentList([])
+                            setSelectedEquipment([])
+                          })()
                         }
                       />
                     )}
@@ -343,7 +397,7 @@ const CreateFieldtrip = () => {
                     onChange={onChangeS}
                   />
                 )}
-                <Button onPress={showDatepickerE} title="Fecha de término" />
+                <Button onPress={showDatepickerE} title="Fecha de termino" />
                 <Text>selected: {mobileEndDate.toLocaleString()}</Text>
                 {showE && (
                   <DateTimePicker
@@ -355,24 +409,38 @@ const CreateFieldtrip = () => {
                 )}
               </>
             )}
-          </View>
-
-          <Modal
-            visible={_getVisible('confirmationModal')}
-            close={_toggleModal('confirmationModal')}
-            title="Operación exitosa"
-            description="¡La nueva salida ha sido creada exitosamente!"
-          >
-            <Text>Link</Text>
-            <View style={styles.modalBtn}>
-              <ContainedButton onPress={() => router.replace('/')}>
-                Volver al inicio
-              </ContainedButton>
+            <View style={styles.equipmentSection}>
+              <Text style={styles.equipmentLabel}>Equipamiento *</Text>
+              <Button
+                title={`Seleccionar Equipamiento ${selectedEquipment.length > 0 ? `(${selectedEquipment.length} seleccionado)` : ''}`}
+                onPress={() => setShowEquipmentModal(true)}
+                color={MD3Colors.primary50}
+              />
             </View>
-          </Modal>
+          </View>
         </View>
       </ScrollView>
-      {/* Move modal to the home page*/}
+
+      <EquipmentSelectionModal
+        visible={showEquipmentModal}
+        onClose={() => setShowEquipmentModal(false)}
+        onConfirm={handleEquipmentConfirm}
+        equipmentList={equipmentList}
+        loading={equipmentLoading}
+      />
+
+      <Modal
+        visible={_getVisible('confirmationModal')}
+        close={_toggleModal('confirmationModal')}
+        title="Operacion exitosa"
+        description="La nueva salida ha sido creada exitosamente"
+      >
+        <Text>Link</Text>
+        <View style={styles.modalBtn}>
+          <ContainedButton onPress={() => router.replace('/')}>Volver al inicio</ContainedButton>
+        </View>
+      </Modal>
+
       <ContainedButton
         style={styles.mainBtn}
         labelStyle={{ fontSize: 20, lineHeight: 24 }}
@@ -416,6 +484,19 @@ const styles = StyleSheet.create({
   },
   icon: {
     // Optionally add icon style if needed
+  },
+  equipmentSection: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    marginBottom: 30,
+  },
+  equipmentLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 12,
+    color: '#000',
   },
 })
 

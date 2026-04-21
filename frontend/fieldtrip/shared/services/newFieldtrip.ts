@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
+interface EquipmentItem {
+  id: number
+  quantity: number
+}
+
 interface NewFieldtripRequest {
   name: string
   sector: string
@@ -8,6 +13,7 @@ interface NewFieldtripRequest {
   course_id: string | undefined
   start_date: string
   end_date: string
+  equipment: EquipmentItem[]
 }
 
 interface NewFieldtripResponse {

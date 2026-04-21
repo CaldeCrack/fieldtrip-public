@@ -10,6 +10,20 @@ class FieldtripSerializer(serializers.ModelSerializer):
     teacher = serializers.SerializerMethodField()
     course_id = serializers.IntegerField()
     course = serializers.SerializerMethodField()
+    equipment = serializers.ListField(
+        child=serializers.DictField(), write_only=True, required=False
+    )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        # Equipment is mandatory on creation, but not on update operations.
+        if self.instance is None:
+            equipment = attrs.get("equipment", [])
+            if not equipment:
+                raise serializers.ValidationError(
+                    {"equipment": "Debe seleccionar al menos un equipamiento."}
+                )
+        return attrs
 
     class Meta:
         model = Fieldtrip
@@ -25,7 +39,8 @@ class FieldtripSerializer(serializers.ModelSerializer):
             "course_id",
             "course",
             "sector",
-            "cached_checklist"
+            "cached_checklist",
+            "equipment"
         ]
 
     def get_teacher(self, obj):
