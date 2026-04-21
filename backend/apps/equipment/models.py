@@ -57,7 +57,9 @@ class UserEquipment(models.Model):
 
 class EducationalInstitutionEquipment(models.Model):
     """
-    Total stock that an institution has for a particular equipment
+    Total quantity that an institution has for a particular equipment
+
+    The quantity does not represent stock
     """
     institution = models.ForeignKey(
         EducationalInstitution,
@@ -97,26 +99,14 @@ class EquipmentInUse(models.Model):
     item_in_stock = models.ForeignKey(
         EducationalInstitutionEquipment,
         on_delete=models.CASCADE,
-        verbose_name='Stock de equipamiento'
+        verbose_name='Cantidad de equipamiento'
     )
     quantity = models.IntegerField(
-        verbose_name='Cantidad'
+        verbose_name='Cantidad a usar'
     )
 
     def __str__(self):
         return f'Fieldtrip: {self.fieldtrip}, Equipamiento: {self.item_in_stock.type}, Cantidad: {self.quantity}'
-
-    def clean(self):
-        # Validar que la cantidad no exceda el stock disponible
-        if self.quantity > self.item_in_stock.quantity:
-            raise ValidationError({'quantity': _('No hay suficiente stock disponible.')})
-
-    def save(self, *args, **kwargs):
-        # Actualizar el stock al guardar
-        self.clean()  # Asegurarse de que las validaciones se ejecuten
-        self.item_in_stock.quantity -= self.quantity
-        self.item_in_stock.save()
-        super().save(*args, **kwargs)
 
     class Meta:
         constraints = [
