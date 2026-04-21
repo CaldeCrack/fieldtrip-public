@@ -1,13 +1,17 @@
 import React, { useState } from 'react'
-import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
-import { TextInput, MD3Colors, Text, Button, Dialog, Portal } from 'react-native-paper'
+import { StyleSheet, View, ScrollView, ActivityIndicator, Pressable } from 'react-native'
+import { TextInput, MD3Colors, Text, Dialog, Portal } from 'react-native-paper'
 import { EquipmentItem } from '@types'
 import { COLORS } from '@colors'
+
+const APP_GREEN = '#00796b'
+const MODAL_HOVER_OUTLINE = '#6b7280'
+const MODAL_HOVER_BG = '#9ca3af'
 
 interface EquipmentSelectionModalProps {
   visible: boolean
   onClose: () => void
-  onConfirm: (equipment: { id: number; quantity: number }[]) => void
+  onConfirm: (_equipment: { id: number; quantity: number }[]) => void
   equipmentList: EquipmentItem[]
   loading?: boolean
 }
@@ -24,6 +28,8 @@ const EquipmentSelectionModal = ({
   loading = false,
 }: EquipmentSelectionModalProps) => {
   const [selectedEquipment, setSelectedEquipment] = useState<SelectedEquipment>({})
+  const [isCancelHovered, setIsCancelHovered] = useState(false)
+  const [isConfirmHovered, setIsConfirmHovered] = useState(false)
 
   const handleQuantityChange = (equipmentId: number, quantity: string) => {
     const numQuantity = parseInt(quantity) || 0
@@ -73,8 +79,9 @@ const EquipmentSelectionModal = ({
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={handleClose} style={styles.dialog}>
-        <Dialog.Title>Seleccionar Equipamiento</Dialog.Title>
-        <Dialog.Content>
+        <Dialog.Title style={styles.dialogTitle}>Seleccionar Equipamiento</Dialog.Title>
+        <View style={styles.titleDivider} />
+        <Dialog.Content style={styles.content}>
           <ScrollView style={styles.scrollView}>
             {equipmentList.length === 0 ? (
               <Text style={styles.emptyText}>No hay equipamiento disponible</Text>
@@ -100,19 +107,32 @@ const EquipmentSelectionModal = ({
             )}
           </ScrollView>
         </Dialog.Content>
-        <Dialog.Actions style={styles.actions}>
-          <Button onPress={handleClose} textColor={MD3Colors.primary50}>
-            Cancelar
-          </Button>
-          <Button
-            onPress={handleConfirm}
-            mode="contained"
-            buttonColor={MD3Colors.primary50}
-            textColor="white"
-          >
-            Confirmar
-          </Button>
-        </Dialog.Actions>
+        <View style={styles.actionsContainer}>
+          <Dialog.Actions style={styles.actions}>
+            <Pressable
+              onPress={handleClose}
+              onHoverIn={() => setIsCancelHovered(true)}
+              onHoverOut={() => setIsCancelHovered(false)}
+              style={({ hovered, pressed }) => [
+                styles.actionButton,
+                (hovered || isCancelHovered || pressed) && styles.actionButtonHover,
+              ]}
+            >
+              <Text style={styles.actionButtonText}>Cerrar</Text>
+            </Pressable>
+            <Pressable
+              onPress={handleConfirm}
+              onHoverIn={() => setIsConfirmHovered(true)}
+              onHoverOut={() => setIsConfirmHovered(false)}
+              style={({ hovered, pressed }) => [
+                styles.actionButton,
+                (hovered || isConfirmHovered || pressed) && styles.actionButtonHover,
+              ]}
+            >
+              <Text style={styles.actionButtonText}>Confirmar</Text>
+            </Pressable>
+          </Dialog.Actions>
+        </View>
       </Dialog>
     </Portal>
   )
@@ -120,11 +140,34 @@ const EquipmentSelectionModal = ({
 
 const styles = StyleSheet.create({
   dialog: {
-    maxHeight: '80%',
+    height: '96%',
+    maxHeight: '96%',
+    marginVertical: 12,
+    alignSelf: 'center',
+    width: 'auto',
+    maxWidth: 560,
+  },
+  dialogTitle: {
+    alignSelf: 'center',
+    textAlign: 'center',
+    width: 'auto',
+  },
+  titleDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#d1d5db',
+  },
+  content: {
+    flex: 1,
+    paddingBottom: 0,
   },
   scrollView: {
-    maxHeight: 400,
+    flex: 1,
     marginVertical: 8,
+  },
+  actionsContainer: {
+    marginTop: 'auto',
+    borderTopWidth: 1,
+    borderTopColor: '#d1d5db',
   },
   equipmentItem: {
     flexDirection: 'row',
@@ -140,22 +183,41 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '400',
     color: '#000',
     marginBottom: 4,
   },
   itemAvailable: {
     fontSize: 12,
-    color: COLORS.gray_100,
+    color: '#4b5563',
   },
   quantityInput: {
-    width: 90,
+    width: 132,
     height: 40,
   },
   actions: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingLeft: 10,
+    paddingRight: 24,
+    paddingVertical: 24,
     justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  actionButton: {
+    backgroundColor: 'transparent',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+  },
+  actionButtonHover: {
+    backgroundColor: MODAL_HOVER_BG,
+    borderColor: MODAL_HOVER_OUTLINE,
+  },
+  actionButtonText: {
+    color: APP_GREEN,
+    fontWeight: '600',
   },
   loadingContainer: {
     justifyContent: 'center',

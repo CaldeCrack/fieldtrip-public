@@ -63,6 +63,9 @@ const CreateFieldtrip = () => {
   const [equipmentLoading, setEquipmentLoading] = useState<boolean>(false)
   const [showEquipmentModal, setShowEquipmentModal] = useState<boolean>(false)
 
+  const hasSelectedCourse = course.value.length > 0
+  const canOpenEquipmentModal = hasSelectedCourse && !equipmentLoading
+
   const onChangeS = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (event.type === 'set') {
       const currentDate = selectedDate || mobileStartDate
@@ -362,6 +365,19 @@ const CreateFieldtrip = () => {
               }}
               multiEnable={false}
             />
+            <View style={styles.equipmentSection}>
+              <Text style={styles.equipmentLabel}>Equipamiento *</Text>
+              <Button
+                title={
+                  hasSelectedCourse
+                    ? `Seleccionar Equipamiento ${selectedEquipment.length > 0 ? `(${selectedEquipment.length} seleccionado)` : ''}`
+                    : 'Seleccione un curso primero'
+                }
+                onPress={() => setShowEquipmentModal(true)}
+                color={MD3Colors.primary50}
+                disabled={!canOpenEquipmentModal}
+              />
+            </View>
             <SimpleInput
               label="Sector al que se irá *"
               onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) =>
@@ -409,14 +425,6 @@ const CreateFieldtrip = () => {
                 )}
               </>
             )}
-            <View style={styles.equipmentSection}>
-              <Text style={styles.equipmentLabel}>Equipamiento *</Text>
-              <Button
-                title={`Seleccionar Equipamiento ${selectedEquipment.length > 0 ? `(${selectedEquipment.length} seleccionado)` : ''}`}
-                onPress={() => setShowEquipmentModal(true)}
-                color={MD3Colors.primary50}
-              />
-            </View>
           </View>
         </View>
       </ScrollView>
@@ -490,13 +498,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: '#f5f5f5',
     borderRadius: 8,
-    marginBottom: 30,
+    marginBottom: 14,
   },
   equipmentLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '400',
     marginBottom: 12,
-    color: '#000',
+    color: '#6b7280',
   },
 })
 
