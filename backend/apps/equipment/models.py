@@ -108,6 +108,15 @@ class EquipmentInUse(models.Model):
     def __str__(self):
         return f'Fieldtrip: {self.fieldtrip}, Equipamiento: {self.item_in_stock.type}, Cantidad: {self.quantity}'
 
+    def clean(self):
+        # Validar que la cantidad no exceda el total disponible
+        if self.quantity > self.item_in_stock.quantity:
+            raise ValidationError({'quantity': _('No hay suficiente equipamiento.')})
+
+    def save(self, *args, **kwargs):
+        self.clean()  # Asegurarse de que las validaciones se ejecuten
+        super().save(*args, **kwargs)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
