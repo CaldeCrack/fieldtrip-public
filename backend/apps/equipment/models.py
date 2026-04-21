@@ -21,6 +21,9 @@ class Equipment(models.Model):
         verbose_name = 'equipamiento'
 
 class UserEquipment(models.Model):
+    """
+    Total amount for a particular equipment that a user in a fieldtrip requires
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -53,6 +56,9 @@ class UserEquipment(models.Model):
         verbose_name = 'equipamiento de usuario'
 
 class EducationalInstitutionEquipment(models.Model):
+    """
+    Total stock that an institution has for a particular equipment
+    """
     institution = models.ForeignKey(
         EducationalInstitution,
         on_delete=models.CASCADE,
@@ -81,6 +87,9 @@ class EducationalInstitutionEquipment(models.Model):
         verbose_name = 'equipamiento de institución educacional'
 
 class EquipmentInUse(models.Model):
+    """
+    Total amount for a particular equipment that a fieldtrip requires
+    """
     fieldtrip = models.ForeignKey(
         Fieldtrip,
         on_delete=models.CASCADE
