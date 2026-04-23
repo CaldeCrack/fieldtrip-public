@@ -556,16 +556,41 @@ class FieldtripSignUpStatusAPIView(APIView):
         user = request.user
         fieldtrip = get_object_or_404(Fieldtrip, pk=id)
 
+        selected_checklist_item_id = ChecklistStatus.objects.filter(
+            user=user,
+            fieldtrip=fieldtrip,
+            status=True,
+            item__item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS,
+        ).values_list('item_id', flat=True).first()
+
         # Verifica si el usuario está inscrito y ha completado el registro
         try:
             attendee = FieldtripAttendee.objects.get(user=user, fieldtrip=fieldtrip)
         except FieldtripAttendee.DoesNotExist:
-            return Response(False, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "signup_complete": False,
+                    "selected_checklist_item_id": selected_checklist_item_id,
+                },
+                status=status.HTTP_200_OK,
+            )
 
         if not attendee.signup_complete:
-            return Response(False, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "signup_complete": False,
+                    "selected_checklist_item_id": selected_checklist_item_id,
+                },
+                status=status.HTTP_200_OK,
+            )
 
-        return Response(True, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "signup_complete": True,
+                "selected_checklist_item_id": selected_checklist_item_id,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class LatestFieldtripHealthAPIView(APIView):

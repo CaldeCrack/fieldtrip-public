@@ -284,7 +284,7 @@ const JoinFieldtrip = () => {
         setLoading(true)
         const [
           checklistRes,
-          checklistCompleted,
+          signupStatus,
           healthData,
           pastDiseasesRes,
           currentDiseasesRes,
@@ -298,7 +298,7 @@ const JoinFieldtrip = () => {
           getSpecificHealthItems(),
         ])
 
-        if (checklistCompleted) {
+        if (signupStatus.signup_complete) {
           const completedChecklist = checklistRes.map((item: ChecklistItem) => ({
             ...item,
             checked: true,
@@ -306,16 +306,12 @@ const JoinFieldtrip = () => {
 
           setSignedUp(true)
           setChecklistData(completedChecklist)
-          setSelectedRadioChecklistItemId(
-            completedChecklist.find((item) => isRadioChecklistItem(item))?.id ?? null,
-          )
         } else {
-          setSelectedRadioChecklistItemId(
-            checklistRes.find((item: ChecklistItem) => isRadioChecklistItem(item))?.id ?? null,
-          )
           setSignedUp(false)
           setChecklistData(checklistRes)
         }
+
+        setSelectedRadioChecklistItemId(signupStatus.selected_checklist_item_id)
 
         const pastList: SelectOption[] =
           pastDiseasesRes?.map((item: ChecklistItem) => ({

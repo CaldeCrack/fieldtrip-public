@@ -178,6 +178,12 @@ class FieldtripSignupStatusAPIView(APIView):
             {
                 "signup_complete": attendee.signup_complete,
                 "is_auxiliar": attendee.is_auxiliar,
+                "selected_checklist_item_id": ChecklistStatus.objects.filter(
+                    user=attendee.user,
+                    fieldtrip=attendee.fieldtrip,
+                    status=True,
+                    item__item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS,
+                ).values_list('item_id', flat=True).first(),
             },
             status=status.HTTP_200_OK
         )

@@ -1,7 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
-const getFieldtripSignUpStatus = async (id: number | null): Promise<boolean> => {
+type FieldtripSignupStatusResponse = {
+  signup_complete: boolean
+  is_auxiliar: boolean
+  selected_checklist_item_id: number | null
+}
+
+const getFieldtripSignUpStatus = async (
+  id: number | null,
+): Promise<FieldtripSignupStatusResponse> => {
   try {
     const token = await AsyncStorage.getItem('access_token')
     const response = await Api.get(`fieldtrip/${id}/signup-status/`, {
