@@ -8,10 +8,13 @@ from rest_framework.exceptions import PermissionDenied
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 
 from .models import *
 from .serializers import *
 from .helpers import *
+from apps.main.models import MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS
 from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
 from apps.equipment.models import EquipmentInUse, EducationalInstitutionEquipment
 
@@ -343,66 +346,140 @@ class FieldtripSignupViewSet(viewsets.ModelViewSet):
 
         data = request.data
 
-        checklist_status_objects = []
-        for checklist_item in data.get("checklist_status", []):
-            checklist = get_object_or_404(Checklist, pk=checklist_item["item"])
-            checklist_status, created = ChecklistStatus.objects.get_or_create(
-                user=user,
-                fieldtrip=fieldtrip,
-                item=checklist,
-                defaults={"status": checklist_item["status"]},
-            )
-            if not created:
-                checklist_status.status = checklist_item["status"]
-                checklist_status.save()
-            checklist_status_objects.append(checklist_status)
+        try:
+            with transaction.atomic():
+                # Clean up legacy rows where checklist item was deleted and became NULL.
+                ChecklistStatus.objects.filter(
+                    user=user,
+                    fieldtrip=fieldtrip,
+                    item__isnull=True,
+                ).delete()
 
-        health_general_objects = []
-        for health_gral_item in data.get("health_general", []):
-            health_gral = get_object_or_404(
-                HealthGral, pk=health_gral_item["item"])
-            health_gral_status, created = HealthGralStatus.objects.get_or_create(
-                user=user,
-                fieldtrip=fieldtrip,
-                item=health_gral,
-                defaults={"status": health_gral_item["status"]},
-            )
-            if not created:
-                health_gral_status.status = health_gral_item["status"]
-                health_gral_status.save()
-            health_general_objects.append(health_gral)
+                checklist_status_objects = []
+                checklist_items = data.get("checklist_status", [])
+                exclusive_true_item_ids = [
+                    checklist_item["item"]
+                    for checklist_item in checklist_items
+                    if checklist_item.get("status", False)
+                    and get_object_or_404(Checklist, pk=checklist_item["item"]).item
+                    in MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS
+                ]
 
-        health_specific_objects = []
-        for health_specific_item in data.get("health_specific", []):
-            health_specific = get_object_or_404(
-                HealthSpecific, pk=health_specific_item["item"]
-            )
-            health_specific_value, created = HealthSpecificValue.objects.get_or_create(
-                user=user,
-                fieldtrip=fieldtrip,
-                item=health_specific,
-                defaults={"value": health_specific_item["value"]},
-            )
-            if not created:
-                health_specific_value.value = health_specific_item["value"]
-                health_specific_value.save()
-            health_specific_objects.append(health_specific)
+                existing_exclusive_true = list(
+                    ChecklistStatus.objects.filter(
+                        user=user,
+                        fieldtrip=fieldtrip,
+                        status=True,
+                        item__item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS,
+                    ).values_list("item_id", flat=True)
+                )
 
-        fieldtrip_signup, created = FieldtripSignup.objects.get_or_create(
-            user=user,
-            fieldtrip=fieldtrip,
-        )
-        fieldtrip_signup.checklist_status.set(checklist_status_objects)
-        fieldtrip_signup.health_general.set(health_general_objects)
-        fieldtrip_signup.health_specific.set(health_specific_objects)
-        fieldtrip_signup.save()
+                selected_exclusive_item_id = None
+                if exclusive_true_item_ids:
+                    if len(exclusive_true_item_ids) == 1:
+                        selected_exclusive_item_id = exclusive_true_item_ids[0]
+                    else:
+                        current_selected_id = existing_exclusive_true[0] if len(existing_exclusive_true) == 1 else None
+                        if current_selected_id in exclusive_true_item_ids:
+                            selected_exclusive_item_id = next(
+                                (
+                                    item_id
+                                    for item_id in exclusive_true_item_ids
+                                    if item_id != current_selected_id
+                                ),
+                                exclusive_true_item_ids[-1],
+                            )
+                        else:
+                            selected_exclusive_item_id = exclusive_true_item_ids[-1]
 
-        fieldtrip_attendee, created = FieldtripAttendee.objects.get_or_create(
-            user=user,
-            fieldtrip=fieldtrip,
-        )
-        fieldtrip_attendee.signup_complete = True
-        fieldtrip_attendee.save()
+                # Replace the previous exclusive selection with the new one.
+                exclusive_qs = ChecklistStatus.objects.filter(
+                    user=user,
+                    fieldtrip=fieldtrip,
+                ).filter(
+                    item__item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS,
+                )
+
+                if selected_exclusive_item_id:
+                    exclusive_qs.exclude(item_id=selected_exclusive_item_id).delete()
+                else:
+                    exclusive_qs.delete()
+
+                for checklist_item in checklist_items:
+                    checklist = get_object_or_404(Checklist, pk=checklist_item["item"])
+
+                    # Keep only affirmative selection for exclusive options.
+                    if checklist.item in MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS and not checklist_item["status"]:
+                        ChecklistStatus.objects.filter(
+                            user=user,
+                            fieldtrip=fieldtrip,
+                            item=checklist,
+                        ).delete()
+                        continue
+
+                    if (
+                        checklist.item in MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS
+                        and selected_exclusive_item_id
+                        and checklist_item["item"] != selected_exclusive_item_id
+                    ):
+                        checklist_item = {**checklist_item, "status": False}
+
+                    checklist_status, _ = ChecklistStatus.objects.update_or_create(
+                        user=user,
+                        fieldtrip=fieldtrip,
+                        item=checklist,
+                        defaults={"status": checklist_item["status"]},
+                    )
+                    checklist_status_objects.append(checklist_status)
+
+                health_general_objects = []
+                for health_gral_item in data.get("health_general", []):
+                    health_gral = get_object_or_404(
+                        HealthGral, pk=health_gral_item["item"])
+                    health_gral_status, created = HealthGralStatus.objects.get_or_create(
+                        user=user,
+                        fieldtrip=fieldtrip,
+                        item=health_gral,
+                        defaults={"status": health_gral_item["status"]},
+                    )
+                    if not created:
+                        health_gral_status.status = health_gral_item["status"]
+                        health_gral_status.save()
+                    health_general_objects.append(health_gral)
+
+                health_specific_objects = []
+                for health_specific_item in data.get("health_specific", []):
+                    health_specific = get_object_or_404(
+                        HealthSpecific, pk=health_specific_item["item"]
+                    )
+                    health_specific_value, created = HealthSpecificValue.objects.get_or_create(
+                        user=user,
+                        fieldtrip=fieldtrip,
+                        item=health_specific,
+                        defaults={"value": health_specific_item["value"]},
+                    )
+                    if not created:
+                        health_specific_value.value = health_specific_item["value"]
+                        health_specific_value.save()
+                    health_specific_objects.append(health_specific)
+
+                fieldtrip_signup, created = FieldtripSignup.objects.get_or_create(
+                    user=user,
+                    fieldtrip=fieldtrip,
+                )
+                fieldtrip_signup.checklist_status.set(checklist_status_objects)
+                fieldtrip_signup.health_general.set(health_general_objects)
+                fieldtrip_signup.health_specific.set(health_specific_objects)
+                fieldtrip_signup.save()
+
+                fieldtrip_attendee, created = FieldtripAttendee.objects.get_or_create(
+                    user=user,
+                    fieldtrip=fieldtrip,
+                )
+                fieldtrip_attendee.signup_complete = True
+                fieldtrip_attendee.save()
+        except DjangoValidationError as error:
+            return Response({"error": error.message_dict}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"success": True}, status=status.HTTP_200_OK)
 

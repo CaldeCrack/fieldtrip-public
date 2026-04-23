@@ -117,13 +117,16 @@ class FieldtripAttendee(models.Model):
 
 
 CHECKLIST_CHOICES = [
-    (1, 'Declaro conocer el Protocolo de Seguridad en Terreno.'),
-    (2, 'Declaro conocer las bases del Seguro Escolar que me protege en caso de accidente.'),
-    (3, 'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.'),
-    (4, 'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.'),
-    (5, 'Declaro que estoy en condiciones de salud aptas para asistir a la salida de terreno.'),
-    (6, 'Declaro que no padezco COVID-19.')
+    (1, 'Declaro conocer las bases del Seguro Escolar que me protege en caso de accidente.'),
+    (2, 'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.'),
+    (3, 'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.'),
+    (4, 'Declaro que estoy en condiciones de salud aptas para asistir a la salida de terreno.'),
 ]
+
+MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS = (
+    'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.',
+    'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.',
+)
 
 
 class Checklist(models.Model):
@@ -147,9 +150,35 @@ class ChecklistStatus(models.Model):
         max_length=200, verbose_name='Valor original del ítem', blank=True)
     status = models.BooleanField(verbose_name='Estatus')
 
+    def clean(self):
+        super().clean()
+
+        # Rule applies only when one of the exclusive options is set to True.
+        if not self.status or not self.user or not self.fieldtrip:
+            return
+
+        current_item_value = self.item.item if self.item else self.cached_item
+        if current_item_value not in MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS:
+            return
+
+        has_conflict = ChecklistStatus.objects.filter(
+            user=self.user,
+            fieldtrip=self.fieldtrip,
+            status=True,
+        ).exclude(pk=self.pk).filter(
+            models.Q(cached_item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS)
+            | models.Q(item__item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS)
+        ).exists()
+
+        if has_conflict:
+            raise ValidationError({
+                'status': 'Solo puede existir una opción activa de Seguro Escolar por usuario y salida a terreno.'
+            })
+
     def save(self, *args, **kwargs):
         if not self.cached_item and self.item:
             self.cached_item = self.item.item
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):

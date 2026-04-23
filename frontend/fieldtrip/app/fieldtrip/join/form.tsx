@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router'
 import { StyleSheet, View, ScrollView, ActivityIndicator, Platform } from 'react-native'
-import { MD3Colors, Text, Surface, Divider } from 'react-native-paper'
+import { MD3Colors, Text, Surface, Divider, RadioButton } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
 import { useState, useEffect, useContext } from 'react'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -44,6 +44,13 @@ interface Item extends ChecklistItem {
   checked: boolean
 }
 
+const RADIO_CHECKLIST_ITEMS = [
+  'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.',
+  'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.',
+]
+
+const isRadioChecklistItem = (item: ChecklistItem) => RADIO_CHECKLIST_ITEMS.includes(item.item)
+
 const JoinFieldtrip = () => {
   const router = useRouter()
   const { showSnackbar } = useGlobalSnackbar()
@@ -84,6 +91,9 @@ const JoinFieldtrip = () => {
   const [showChecklist, setShowChecklist] = useState<boolean>(true)
   const [showMedInfo, setShowMedInfo] = useState<boolean>(false)
   const [checklistData, setChecklistData] = useState<Item[]>([])
+  const [selectedRadioChecklistItemId, setSelectedRadioChecklistItemId] = useState<number | null>(
+    null,
+  )
   const [hasPresentedData, setHasPresentedData] = useState<SelectState>({
     value: '',
     list: [],
@@ -180,9 +190,25 @@ const JoinFieldtrip = () => {
   const handleToggleCheck = (type: string, itemID: string | number) => {
     switch (type) {
       case 'checklist':
-        setChecklistData((prevData) =>
-          prevData.map((item) => (item.id === itemID ? { ...item, checked: !item.checked } : item)),
-        )
+        setChecklistData((prevData) => {
+          const targetItem = prevData.find((item) => item.id === itemID)
+
+          if (!targetItem) {
+            return prevData
+          }
+
+          if (isRadioChecklistItem(targetItem)) {
+            setSelectedRadioChecklistItemId(targetItem.id)
+
+            return prevData.map((item) =>
+              isRadioChecklistItem(item) ? { ...item, checked: item.id === targetItem.id } : item,
+            )
+          }
+
+          return prevData.map((item) =>
+            item.id === itemID ? { ...item, checked: !item.checked } : item,
+          )
+        })
         break
     }
   }
@@ -237,9 +263,14 @@ const JoinFieldtrip = () => {
 
   useEffect(() => {
     if (checklistData.length > 0 && inputList.length > 0) {
-      const checklistStatus = checklistData.every((obj) => obj.checked === true)
+      const regularChecklistStatus = checklistData
+        .filter((obj) => !isRadioChecklistItem(obj))
+        .every((obj) => obj.checked === true)
+      const radioChecklistStatus = checklistData
+        .filter((obj) => isRadioChecklistItem(obj))
+        .some((obj) => obj.checked === true)
       const specificDataStatus = inputList.every((obj) => obj.value.length > 0)
-      if (checklistStatus && specificDataStatus) {
+      if (regularChecklistStatus && radioChecklistStatus && specificDataStatus) {
         setFormDone(true)
       } else {
         setFormDone(false)
@@ -268,14 +299,20 @@ const JoinFieldtrip = () => {
         ])
 
         if (checklistCompleted) {
+          const completedChecklist = checklistRes.map((item: ChecklistItem) => ({
+            ...item,
+            checked: true,
+          }))
+
           setSignedUp(true)
-          setChecklistData(
-            checklistRes.map((item: ChecklistItem) => ({
-              ...item,
-              checked: true,
-            })),
+          setChecklistData(completedChecklist)
+          setSelectedRadioChecklistItemId(
+            completedChecklist.find((item) => isRadioChecklistItem(item))?.id ?? null,
           )
         } else {
+          setSelectedRadioChecklistItemId(
+            checklistRes.find((item: ChecklistItem) => isRadioChecklistItem(item))?.id ?? null,
+          )
           setSignedUp(false)
           setChecklistData(checklistRes)
         }
@@ -395,14 +432,34 @@ const JoinFieldtrip = () => {
                       Checklist
                     </Text>
                     <Divider style={styles.divider} />
-                    {checklistData.map((item, i) => (
-                      <CheckboxItem
-                        key={i}
-                        label={item.item}
-                        status={item.checked ? 'checked' : 'unchecked'}
-                        onPress={() => handleToggleCheck('checklist', item.id)}
-                      />
-                    ))}
+                    {checklistData.map((item, i) => {
+                      if (isRadioChecklistItem(item)) {
+                        return (
+                          <RadioButton.Item
+                            key={i}
+                            value={String(item.id)}
+                            label={item.item}
+                            status={
+                              selectedRadioChecklistItemId === item.id ? 'checked' : 'unchecked'
+                            }
+                            onPress={() => handleToggleCheck('checklist', item.id)}
+                            labelStyle={styles.label}
+                            style={styles.checkbox}
+                            color={COLORS.primary_50}
+                            uncheckedColor={COLORS.gray_100}
+                          />
+                        )
+                      }
+
+                      return (
+                        <CheckboxItem
+                          key={i}
+                          label={item.item}
+                          status={item.checked ? 'checked' : 'unchecked'}
+                          onPress={() => handleToggleCheck('checklist', item.id)}
+                        />
+                      )
+                    })}
                   </View>
                 </Surface>
                 <View style={{ justifyContent: 'flex-start', marginBottom: 24 }}>
@@ -591,6 +648,11 @@ const styles = StyleSheet.create({
   },
   body: {
     width: '100%',
+  },
+  checkbox: {
+    paddingLeft: 8,
+    paddingRight: 0,
+    paddingVertical: 2,
   },
   container: {
     minWidth: 320,
