@@ -16,7 +16,7 @@ from .serializers import *
 from .helpers import *
 from apps.main.models import MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS
 from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
-from apps.equipment.models import EquipmentInUse, EducationalInstitutionEquipment
+from apps.equipment.models import EquipmentRequest
 
 
 class HealthDataLogViewSet(viewsets.ModelViewSet):
@@ -135,31 +135,19 @@ class FieldtripViewSet(viewsets.ModelViewSet):
                 fieldtrip=fieldtrip
             )
             
-            # Create equipment records if provided
+            # Create pending equipment requests if provided
             if equipment_data:
                 for equipment_item in equipment_data:
                     equipment_id = equipment_item.get('id')
                     quantity = equipment_item.get('quantity', 0)
                     
                     if equipment_id and quantity > 0:
-                        try:
-                            # Get the institution from the fieldtrip's course
-                            institution = fieldtrip.course.institution
-                            
-                            # Get the EducationalInstitutionEquipment for this equipment and institution
-                            inst_equipment = EducationalInstitutionEquipment.objects.get(
-                                institution=institution,
-                                type_id=equipment_id
-                            )
-                            
-                            # Create EquipmentInUse record
-                            EquipmentInUse.objects.create(
-                                fieldtrip=fieldtrip,
-                                item_in_stock=inst_equipment,
-                                quantity=quantity
-                            )
-                        except EducationalInstitutionEquipment.DoesNotExist:
-                            pass
+                        EquipmentRequest.objects.create(
+                            fieldtrip=fieldtrip,
+                            type_id=equipment_id,
+                            quantity=quantity,
+                            status='pending',
+                        )
             
             return fieldtrip
         except Exception as e:
