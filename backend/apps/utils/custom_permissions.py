@@ -31,3 +31,11 @@ class IsAuxiliar(permissions.BasePermission):
             fieldtrip_id=fieldtrip_id,
             is_auxiliar=True,
         ).exists()
+
+
+class IsInventoryManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.role == 'inventory_manager'
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_authenticated and request.user.role == 'inventory_manager'

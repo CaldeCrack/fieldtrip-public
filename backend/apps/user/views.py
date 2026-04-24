@@ -49,8 +49,9 @@ class UserRegistrationAPIView(GenericAPIView):
         user.save()
         serializer = serializers.BasicUserSerializer(user)
         custom_payload = {"is_student": user.role ==
-                          'student', "is_teacher": user.role == 'teacher',
-                          'blood_type': user.blood_type}
+                  'student', "is_teacher": user.role == 'teacher',
+                  'role': user.role,
+                  'blood_type': user.blood_type}
         token = RefreshToken.for_user(user)
         token["custom_data"] = custom_payload
         data = serializer.data
@@ -82,8 +83,9 @@ class UserLoginAPIView(GenericAPIView):
             if id_val == user.blood_type:
                 blood_type = val
         custom_payload = {"is_student": user.role ==
-                          'student', "is_teacher": user.role == 'teacher',
-                          'blood_type': user.blood_type}
+                  'student', "is_teacher": user.role == 'teacher',
+                  'role': user.role,
+                  'blood_type': user.blood_type}
         token = RefreshToken.for_user(user)
         token["custom_data"] = custom_payload
         data = serializer.data

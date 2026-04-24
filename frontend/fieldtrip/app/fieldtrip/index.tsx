@@ -1,14 +1,21 @@
 import { StyleSheet, View, ScrollView, Dimensions, Platform, Alert, Share } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
-import { MD3Colors, Text, Menu } from 'react-native-paper'
+import { MD3Colors, Text, Menu, Chip } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { jwtDecode } from 'jwt-decode'
 
 import { ContainedButton, Page, StudentList, BulletList, EquipmentList } from '@components'
-import { getFieldtripAttendees, getFieldtripMetrics, getFieldtripEquipment } from '@services'
+import {
+  getFieldtripAttendees,
+  getFieldtripMetrics,
+  getFieldtripEquipment,
+  getFieldtripEquipmentRequests,
+  updateFieldtripEquipmentRequest,
+} from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { StudentAttendee, EquipmentItem } from '@types'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { StudentAttendee, EquipmentItem, EquipmentRequestItem, Payload } from '@types'
 import { router } from 'expo-router'
 
 interface Allergy {
@@ -54,11 +61,15 @@ const Fieldtrip = () => {
   const [showStudentList, setShowStudentList] = useState(true)
   const [showMetrics, setShowMetrics] = useState(false)
   const [showEquipment, setShowEquipment] = useState(false)
+  const [showRequests, setShowRequests] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
   const [equipment, setEquipment] = useState<EquipmentItem[]>([])
+  const [equipmentRequests, setEquipmentRequests] = useState<EquipmentRequestItem[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
   const [equipmentLoading, setEquipmentLoading] = useState(true)
+  const [requestsLoading, setRequestsLoading] = useState(true)
+  const [isInventoryManager, setIsInventoryManager] = useState(false)
   const [chartData, setChartData] = useState<chartData>({
     diseases: {
       labels: [
@@ -289,14 +300,18 @@ const Fieldtrip = () => {
         router.replace('/login')
         return
       }
+      const jwt = jwtDecode<Payload>(token)
+      setIsInventoryManager(jwt.custom_data.role === 'inventory_manager')
       if (!FState.fieldtripID) {
         setLoading(false)
         setEquipmentLoading(false)
+        setRequestsLoading(false)
         return
       }
 
       setLoading(true)
       setEquipmentLoading(true)
+      setRequestsLoading(true)
 
       try {
         const res = await getFieldtripAttendees(FState.fieldtripID)
@@ -351,85 +366,217 @@ const Fieldtrip = () => {
         .finally(() => {
           setEquipmentLoading(false)
         })
+
+      if (jwt.custom_data.role === 'inventory_manager') {
+        getFieldtripEquipmentRequests(FState.fieldtripID)
+          .then((res) => {
+            if (res) {
+              setEquipmentRequests(res)
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+            throw new Error(error.response?.data?.detail || error.message)
+          })
+          .finally(() => {
+            setRequestsLoading(false)
+          })
+      } else {
+        setRequestsLoading(false)
+      }
     })()
   }, [FState])
 
+  useEffect(() => {
+    if (isInventoryManager) {
+      setShowRequests(true)
+      setShowStudentList(false)
+      setShowMetrics(false)
+      setShowEquipment(false)
+    }
+  }, [isInventoryManager])
+
+  const refreshRequests = async () => {
+    if (!FState.fieldtripID || !isInventoryManager) {
+      return
+    }
+
+    setRequestsLoading(true)
+    try {
+      const res = await getFieldtripEquipmentRequests(FState.fieldtripID)
+      setEquipmentRequests(res)
+    } finally {
+      setRequestsLoading(false)
+    }
+  }
+
+  const handleDecision = async (requestId: number, status: 'approved' | 'rejected') => {
+    if (!FState.fieldtripID) {
+      return
+    }
+
+    try {
+      await updateFieldtripEquipmentRequest(FState.fieldtripID, requestId, { status })
+      await refreshRequests()
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'No se pudo actualizar la solicitud.')
+    }
+  }
+
   return (
     <Page style={styles.page} showTabs={true}>
-      <ScrollView
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-        style={styles.scrollView}
-        contentContainerStyle={{ maxHeight: 40 }}
-      >
-        <View style={styles.btns}>
-          <ContainedButton
-            style={[
-              styles.btnMarginRight,
-              styles.btnMarginBottom,
-              {
-                backgroundColor: showStudentList ? MD3Colors.primary50 : COLORS.gray_100,
-              },
-            ]}
-            onPress={() => {
-              setShowStudentList(true)
-              setShowMetrics(false)
-              setShowEquipment(false)
-            }}
-          >
-            Asistentes
-          </ContainedButton>
-          <ContainedButton
-            style={[
-              styles.btnMarginRight,
-              styles.btnMarginBottom,
-              {
-                backgroundColor: showMetrics ? MD3Colors.primary50 : COLORS.gray_100,
-              },
-            ]}
-            onPress={() => {
-              setShowStudentList(false)
-              setShowMetrics(true)
-              setShowEquipment(false)
-            }}
-          >
-            Métricas
-          </ContainedButton>
-          <ContainedButton
-            style={[
-              styles.btnMarginRight,
-              styles.btnMarginBottom,
-              {
-                backgroundColor: showEquipment ? MD3Colors.primary50 : COLORS.gray_100,
-              },
-            ]}
-            onPress={() => {
-              setShowMetrics(false)
-              setShowStudentList(false)
-              setShowEquipment(true)
-            }}
-          >
-            Equipamiento
-          </ContainedButton>
-        </View>
-      </ScrollView>
-      {loading ? (
-        <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyStateText}>Cargando asistentes...</Text>
-        </View>
-      ) : (
+      {isInventoryManager ? (
         <>
-          {showStudentList && students.length > 0 && (
-            <StudentList data={students} setState={setState} />
-          )}
-          {showStudentList && students.length <= 0 && (
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={styles.scrollView}
+            contentContainerStyle={{ maxHeight: 40 }}
+          >
+            <View style={styles.btns}>
+              <ContainedButton
+                style={[
+                  styles.btnMarginRight,
+                  styles.btnMarginBottom,
+                  {
+                    backgroundColor: showRequests ? MD3Colors.primary50 : COLORS.gray_100,
+                  },
+                ]}
+                onPress={() => {
+                  setShowRequests(true)
+                  setShowStudentList(false)
+                  setShowMetrics(false)
+                  setShowEquipment(false)
+                }}
+              >
+                Solicitudes
+              </ContainedButton>
+            </View>
+          </ScrollView>
+          {requestsLoading ? (
             <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>No se ha registrado ningún estudiante.</Text>
+              <Text style={styles.emptyStateText}>Cargando solicitudes...</Text>
+            </View>
+          ) : equipmentRequests.length > 0 ? (
+            <View style={styles.requestsWrapper}>
+              {equipmentRequests.map((request) => (
+                <View key={request.id} style={styles.requestCard}>
+                  <View style={styles.requestInfo}>
+                    <Text style={styles.requestTitle}>{request.name}</Text>
+                    <Text style={styles.requestSubtitle}>
+                      Cantidad solicitada: {request.quantity}
+                    </Text>
+                    <Chip style={styles.statusChip}>{request.status}</Chip>
+                  </View>
+                  <View style={styles.requestActions}>
+                    {request.status === 'pending' ? (
+                      <>
+                        <ContainedButton
+                          style={[styles.requestActionBtn, styles.approveBtn]}
+                          onPress={() => handleDecision(request.id, 'approved')}
+                        >
+                          Aprobar
+                        </ContainedButton>
+                        <ContainedButton
+                          style={[styles.requestActionBtn, styles.rejectBtn]}
+                          onPress={() => handleDecision(request.id, 'rejected')}
+                        >
+                          Rechazar
+                        </ContainedButton>
+                      </>
+                    ) : (
+                      <Text style={styles.resolvedStatusText}>
+                        Solicitud {request.status === 'approved' ? 'aprobada' : 'rechazada'}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>No hay solicitudes de equipamiento.</Text>
             </View>
           )}
         </>
+      ) : (
+        <>
+          <ScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={styles.scrollView}
+            contentContainerStyle={{ maxHeight: 40 }}
+          >
+            <View style={styles.btns}>
+              <ContainedButton
+                style={[
+                  styles.btnMarginRight,
+                  styles.btnMarginBottom,
+                  {
+                    backgroundColor: showStudentList ? MD3Colors.primary50 : COLORS.gray_100,
+                  },
+                ]}
+                onPress={() => {
+                  setShowStudentList(true)
+                  setShowMetrics(false)
+                  setShowEquipment(false)
+                }}
+              >
+                Asistentes
+              </ContainedButton>
+              <ContainedButton
+                style={[
+                  styles.btnMarginRight,
+                  styles.btnMarginBottom,
+                  {
+                    backgroundColor: showMetrics ? MD3Colors.primary50 : COLORS.gray_100,
+                  },
+                ]}
+                onPress={() => {
+                  setShowStudentList(false)
+                  setShowMetrics(true)
+                  setShowEquipment(false)
+                }}
+              >
+                Métricas
+              </ContainedButton>
+              <ContainedButton
+                style={[
+                  styles.btnMarginRight,
+                  styles.btnMarginBottom,
+                  {
+                    backgroundColor: showEquipment ? MD3Colors.primary50 : COLORS.gray_100,
+                  },
+                ]}
+                onPress={() => {
+                  setShowMetrics(false)
+                  setShowStudentList(false)
+                  setShowEquipment(true)
+                }}
+              >
+                Equipamiento
+              </ContainedButton>
+            </View>
+          </ScrollView>
+          {loading ? (
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>Cargando asistentes...</Text>
+            </View>
+          ) : (
+            <>
+              {showStudentList && students.length > 0 && (
+                <StudentList data={students} setState={setState} />
+              )}
+              {showStudentList && students.length <= 0 && (
+                <View style={styles.emptyStateContainer}>
+                  <Text style={styles.emptyStateText}>No se ha registrado ningún estudiante.</Text>
+                </View>
+              )}
+            </>
+          )}
+        </>
       )}
-      {showMetrics && (
+      {!isInventoryManager && showMetrics && (
         <>
           <View style={styles.exportMenuAnchor}>
             <Menu
@@ -513,7 +660,8 @@ const Fieldtrip = () => {
           )}
         </>
       )}
-      {showEquipment &&
+      {!isInventoryManager &&
+        showEquipment &&
         (equipmentLoading ? (
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateText}>Cargando equipamiento...</Text>
@@ -572,6 +720,51 @@ const styles = StyleSheet.create({
   exportMenuAnchor: {
     width: '100%',
     alignItems: 'center',
+  },
+  requestsWrapper: {
+    width: '100%',
+    gap: 12,
+  },
+  requestCard: {
+    width: '100%',
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: COLORS.gray_100,
+  },
+  requestInfo: {
+    gap: 6,
+  },
+  requestTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  requestSubtitle: {
+    color: '#4b5563',
+  },
+  statusChip: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  requestActions: {
+    marginTop: 14,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  requestActionBtn: {
+    minWidth: 110,
+  },
+  approveBtn: {
+    backgroundColor: '#d1fae5',
+  },
+  rejectBtn: {
+    backgroundColor: '#fee2e2',
+  },
+  resolvedStatusText: {
+    fontWeight: '600',
+    color: '#4b5563',
   },
 })
 

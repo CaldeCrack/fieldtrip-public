@@ -5,8 +5,8 @@ from rest_framework import status
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
-from .models import EquipmentInUse, EducationalInstitutionEquipment
-from apps.utils.custom_permissions import IsTeacher, IsAuxiliar
+from .models import EquipmentInUse, EducationalInstitutionEquipment, EquipmentRequest
+from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
 from apps.main.models import Course
 
 
@@ -110,3 +110,97 @@ class EquipmentListAPIView(APIView):
 			except Course.DoesNotExist:
 				from rest_framework.response import Response
 				return Response({"equipment": []}, status=200)
+
+
+class FieldtripEquipmentRequestAPIView(APIView):
+	permission_classes = (IsAuthenticated, IsInventoryManager)
+
+	@swagger_auto_schema(
+		operation_description="Recuperar las solicitudes pendientes de equipamiento para una salida a campo.",
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"requests": openapi.Schema(
+						type=openapi.TYPE_ARRAY,
+						items=openapi.Schema(
+							type=openapi.TYPE_OBJECT,
+							properties={
+								"id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID de la solicitud"),
+								"name": openapi.Schema(type=openapi.TYPE_STRING, description="Nombre del equipamiento"),
+								"quantity": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad solicitada"),
+								"status": openapi.Schema(type=openapi.TYPE_STRING, description="Estado actual"),
+							},
+						),
+						description="Lista de solicitudes de equipamiento",
+					)
+				},
+			)
+		}
+	)
+	def get(self, request, id, format=None):
+		requests = (
+			EquipmentRequest.objects.select_related("type")
+			.filter(fieldtrip_id=id)
+			.order_by("status", "type__type")
+		)
+
+		payload = [
+			{
+				"id": item.id,
+				"name": item.type.type,
+				"quantity": item.quantity,
+				"status": item.status,
+			}
+			for item in requests
+		]
+
+		return Response({"requests": payload}, status=status.HTTP_200_OK)
+
+	@swagger_auto_schema(
+		operation_description="Aprobar o rechazar una solicitud de equipamiento.",
+		request_body=openapi.Schema(
+			type=openapi.TYPE_OBJECT,
+			properties={
+				"status": openapi.Schema(
+					type=openapi.TYPE_STRING,
+					description="Estado objetivo: approved o rejected",
+				),
+			},
+			required=["status"],
+		),
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"id": openapi.Schema(type=openapi.TYPE_INTEGER),
+					"status": openapi.Schema(type=openapi.TYPE_STRING),
+				},
+			)
+		}
+	)
+	def patch(self, request, id, request_id, format=None):
+		status_value = request.data.get("status")
+		if status_value not in {"approved", "rejected"}:
+			return Response(
+				{"detail": "El estado debe ser 'approved' o 'rejected'."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		equipment_request = EquipmentRequest.objects.filter(fieldtrip_id=id, id=request_id).first()
+		if not equipment_request:
+			return Response({"detail": "La solicitud no existe."}, status=status.HTTP_404_NOT_FOUND)
+
+		if equipment_request.status != 'pending':
+			return Response(
+				{"detail": "La solicitud ya fue resuelta."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		equipment_request.status = status_value
+		equipment_request.save(update_fields=["status"])
+
+		return Response(
+			{"id": equipment_request.id, "status": equipment_request.status},
+			status=status.HTTP_200_OK,
+		)

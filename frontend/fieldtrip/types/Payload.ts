@@ -6,6 +6,7 @@ interface Payload extends JwtPayload {
   custom_data: {
     is_student: boolean
     is_teacher: boolean
+    role?: string
   }
 }
 
