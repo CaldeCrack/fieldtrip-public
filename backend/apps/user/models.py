@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
+from .managers import UserManager
+
 
 DIET_CHOICES = [
     (1, 'Lacto-vegetariana'),
@@ -138,6 +140,8 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["names", "surnames", "RUT"]
+
+    objects = UserManager()
 
     def __str__(self):
         return self.email
