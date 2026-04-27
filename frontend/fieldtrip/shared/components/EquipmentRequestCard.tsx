@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   actions: {
-    marginTop: 14,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 10,
