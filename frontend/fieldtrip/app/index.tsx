@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 import { Text } from 'react-native-paper'
 
 import { FieldtripList, Page } from '@components'
-import { getUsersFieldtrips } from '@services'
+import { getUsersFieldtrips, getInventoryFieldtrips } from '@services'
 import { FieldtriptContext } from '../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
 import { Payload, FieldtripItem } from '@types'
@@ -29,7 +29,10 @@ const Home = () => {
         return
       }
       const jwt = jwtDecode<Payload>(token)
-      getUsersFieldtrips(jwt.user_id)
+      const isInventoryManager = jwt.custom_data.role === 'inventory_manager'
+      const request = isInventoryManager ? getInventoryFieldtrips() : getUsersFieldtrips(jwt.user_id)
+
+      request
         .then(async (res) => {
           if (res) {
             setFieldtripsData(res)

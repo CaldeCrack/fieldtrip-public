@@ -6,6 +6,11 @@ app_name = "main"
 
 urlpatterns = [
     path(
+        "fieldtrip/inventory/",
+        InventoryFieldtripListAPIView.as_view(),
+        name="fieldtrip-inventory-list",
+    ),
+    path(
         "fieldtrip/<int:id>/attendees/",
         FieldtripAttendeesAPIView.as_view(),
         name="fieldtrip-attendees",

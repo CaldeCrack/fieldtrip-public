@@ -145,6 +145,30 @@ class FieldtripAttendeeSerializer(serializers.ModelSerializer):
         return data
 
 
+class FieldtripInventorySerializer(serializers.ModelSerializer):
+    professor = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Fieldtrip
+        fields = ["id", "name", "professor", "start_date", "end_date", "invitation_code"]
+
+    def get_professor(self, obj):
+        if not obj.teacher:
+            return None
+        return f"{obj.teacher.names} {obj.teacher.surnames}"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return {
+            "id": data["id"],
+            "title": data["name"],
+            "professor": data["professor"],
+            "startDate": format_date(instance.start_date),
+            "endDate": format_date(instance.end_date),
+            "invitationCode": data["invitation_code"],
+        }
+
+
 class ChecklistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Checklist

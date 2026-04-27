@@ -37,6 +37,7 @@ const FieldtripList = ({ data, setState }: Props) => {
   const [userID, setUserID] = useState<number | undefined>(undefined)
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)
+  const [isInventoryManager, setIsInventoryManager] = useState<boolean>(false)
   const [fieldtripStatuses, setFieldtripStatuses] = useState<Record<number, FieldtripStatus>>({})
 
   useEffect(() => {
@@ -50,6 +51,7 @@ const FieldtripList = ({ data, setState }: Props) => {
       setUserID(jwt.user_id)
       setIsStudent(jwt.custom_data.is_student)
       setIsTeacher(jwt.custom_data.is_teacher)
+      setIsInventoryManager(jwt.custom_data.role === 'inventory_manager')
     })()
   }, [router])
 
@@ -112,7 +114,7 @@ const FieldtripList = ({ data, setState }: Props) => {
                 if (isStudent) {
                   router.push(isAuxiliar ? '/fieldtrip' : '/fieldtrip/join/form')
                 }
-                if (isTeacher) router.push('/fieldtrip')
+                if (isTeacher || isInventoryManager) router.push('/fieldtrip')
               }}
             >
               <Surface elevation={0} style={styles.container}>

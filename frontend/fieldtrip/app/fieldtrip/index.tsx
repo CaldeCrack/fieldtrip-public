@@ -3,7 +3,6 @@ import { useState, useEffect, useContext } from 'react'
 import { MD3Colors, Text, Menu, Chip } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { jwtDecode } from 'jwt-decode'
 
 import { ContainedButton, Page, StudentList, BulletList, EquipmentList } from '@components'
 import {
@@ -15,7 +14,7 @@ import {
 } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { StudentAttendee, EquipmentItem, EquipmentRequestItem, Payload } from '@types'
+import { StudentAttendee, EquipmentItem, EquipmentRequestItem } from '@types'
 import { router } from 'expo-router'
 
 interface Allergy {
@@ -69,7 +68,6 @@ const Fieldtrip = () => {
   const [loading, setLoading] = useState(true) // Estado de carga
   const [equipmentLoading, setEquipmentLoading] = useState(true)
   const [requestsLoading, setRequestsLoading] = useState(true)
-  const [isInventoryManager, setIsInventoryManager] = useState(false)
   const [chartData, setChartData] = useState<chartData>({
     diseases: {
       labels: [
@@ -300,18 +298,18 @@ const Fieldtrip = () => {
         router.replace('/login')
         return
       }
-      const jwt = jwtDecode<Payload>(token)
-      setIsInventoryManager(jwt.custom_data.role === 'inventory_manager')
       if (!FState.fieldtripID) {
         setLoading(false)
         setEquipmentLoading(false)
         setRequestsLoading(false)
+        setShowRequests(false)
         return
       }
 
       setLoading(true)
       setEquipmentLoading(true)
       setRequestsLoading(true)
+      setShowRequests(false)
 
       try {
         const res = await getFieldtripAttendees(FState.fieldtripID)
@@ -367,37 +365,26 @@ const Fieldtrip = () => {
           setEquipmentLoading(false)
         })
 
-      if (jwt.custom_data.role === 'inventory_manager') {
-        getFieldtripEquipmentRequests(FState.fieldtripID)
-          .then((res) => {
-            if (res) {
-              setEquipmentRequests(res)
-            }
-          })
-          .catch((error) => {
-            console.log(error)
-            throw new Error(error.response?.data?.detail || error.message)
-          })
-          .finally(() => {
-            setRequestsLoading(false)
-          })
-      } else {
-        setRequestsLoading(false)
-      }
+      getFieldtripEquipmentRequests(FState.fieldtripID)
+        .then((res) => {
+          if (res) {
+            setEquipmentRequests(res)
+            setShowRequests(true)
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+          setEquipmentRequests([])
+          setShowRequests(false)
+        })
+        .finally(() => {
+          setRequestsLoading(false)
+        })
     })()
   }, [FState])
 
-  useEffect(() => {
-    if (isInventoryManager) {
-      setShowRequests(true)
-      setShowStudentList(false)
-      setShowMetrics(false)
-      setShowEquipment(false)
-    }
-  }, [isInventoryManager])
-
   const refreshRequests = async () => {
-    if (!FState.fieldtripID || !isInventoryManager) {
+    if (!FState.fieldtripID) {
       return
     }
 
@@ -425,7 +412,7 @@ const Fieldtrip = () => {
 
   return (
     <Page style={styles.page} showTabs={true}>
-      {isInventoryManager ? (
+      {showRequests ? (
         <>
           <ScrollView
             horizontal={true}
@@ -576,7 +563,7 @@ const Fieldtrip = () => {
           )}
         </>
       )}
-      {!isInventoryManager && showMetrics && (
+      {!showRequests && showMetrics && (
         <>
           <View style={styles.exportMenuAnchor}>
             <Menu
@@ -660,7 +647,7 @@ const Fieldtrip = () => {
           )}
         </>
       )}
-      {!isInventoryManager &&
+      {!showRequests &&
         showEquipment &&
         (equipmentLoading ? (
           <View style={styles.emptyStateContainer}>

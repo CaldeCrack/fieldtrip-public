@@ -12,7 +12,7 @@ from django.db import IntegrityError
 
 from .models import *
 from .serializers import *
-from apps.utils.custom_permissions import IsStudent, IsTeacher, IsAuxiliar
+from apps.utils.custom_permissions import IsStudent, IsTeacher, IsAuxiliar, IsInventoryManager
 
 
 class ChecklistViewSet(viewsets.ModelViewSet):
@@ -100,6 +100,19 @@ class FieldtripAttendeeViewSet(viewsets.ModelViewSet):
             serializer.save()
         except IntegrityError:
             raise UserAlreadyRegisteredException()
+
+
+class InventoryFieldtripListAPIView(APIView):
+    permission_classes = (IsAuthenticated, IsInventoryManager)
+
+    @swagger_auto_schema(
+        operation_description="Obtener la lista completa de salidas a campo para inventario.",
+        responses={200: FieldtripInventorySerializer(many=True)}
+    )
+    def get(self, request, format=None):
+        fieldtrips = Fieldtrip.objects.select_related('teacher').order_by('-start_date', '-id')
+        serializer = FieldtripInventorySerializer(fieldtrips, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class FieldtripAttendeesAPIView(APIView):
