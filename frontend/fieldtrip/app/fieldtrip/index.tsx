@@ -54,7 +54,7 @@ interface ExportRow {
 type ExportFormat = 'txt' | 'csv' | 'tsv' | 'json'
 
 const Fieldtrip = () => {
-  const { FState } = useContext(FieldtriptContext)
+  const { FState, FDispatch } = useContext(FieldtriptContext)
   const { HCState, HCDispatch } = useContext(HealthChartContext)
   const setState = (fieldtripID: number, fieldtripName: string, healthChartOwner: number) => {
     HCDispatch({
@@ -306,6 +306,25 @@ const Fieldtrip = () => {
         return
       }
       if (!FState.fieldtripID) {
+        try {
+          const storedFieldtrip = await AsyncStorage.getItem('fieldtrip_current')
+          if (storedFieldtrip) {
+            const parsed = JSON.parse(storedFieldtrip) as {
+              fieldtripID?: number
+              fieldtripName?: string
+            }
+            if (parsed.fieldtripID) {
+              FDispatch({
+                fieldtripID: parsed.fieldtripID,
+                fieldtripName: parsed.fieldtripName || null,
+              })
+              return
+            }
+          }
+        } catch (error) {
+          console.warn('No se pudo restaurar la salida a campo:', error)
+        }
+
         setLoading(false)
         setEquipmentLoading(false)
         setRequestsLoading(false)
@@ -388,7 +407,7 @@ const Fieldtrip = () => {
           setRequestsLoading(false)
         })
     })()
-  }, [FState])
+  }, [FState, FDispatch])
 
   const refreshRequests = async () => {
     if (!FState.fieldtripID) {

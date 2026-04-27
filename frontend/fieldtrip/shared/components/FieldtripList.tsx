@@ -106,8 +106,16 @@ const FieldtripList = ({ data, setState }: Props) => {
             <TouchableRipple
               style={styles.ripple}
               key={String(item.id)}
-              onPress={() => {
+              onPress={async () => {
                 setState(item.id, item.title)
+                try {
+                  await AsyncStorage.setItem(
+                    'fieldtrip_current',
+                    JSON.stringify({ fieldtripID: item.id, fieldtripName: item.title }),
+                  )
+                } catch (error) {
+                  console.warn('No se pudo guardar la salida a campo actual:', error)
+                }
                 const [day, month, year] = item.startDate.split('/').map(Number)
                 const twoWeeksLater = new Date(year, month - 1, day)
                 twoWeeksLater.setDate(twoWeeksLater.getDate() + 14)

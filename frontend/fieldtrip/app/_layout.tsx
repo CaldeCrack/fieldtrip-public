@@ -82,6 +82,7 @@ const StackLayout = () => {
     await AsyncStorage.removeItem('email')
     await AsyncStorage.removeItem('names')
     await AsyncStorage.removeItem('surnames')
+    await AsyncStorage.removeItem('fieldtrip_current')
     router.replace('/login')
   }
 
