@@ -3,8 +3,10 @@ import { StyleSheet } from 'react-native'
 import type { ButtonProps } from 'react-native-paper'
 
 const ContainedButton = (props: ButtonProps) => {
-  const { ...rest } = props
-  return <Button mode="contained" labelStyle={styles.label} style={styles.btn} {...rest} />
+  const { labelStyle, ...rest } = props
+  return (
+    <Button mode="contained" labelStyle={[styles.label, labelStyle]} style={styles.btn} {...rest} />
+  )
 }
 
 const styles = StyleSheet.create({

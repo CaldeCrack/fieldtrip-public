@@ -67,12 +67,14 @@ const EquipmentRequestCard = ({ request, onApprove, onReject }: Props) => {
           <>
             <ContainedButton
               style={[styles.actionBtn, styles.approveBtn]}
+              labelStyle={styles.approveLabel}
               onPress={() => onApprove(request.id)}
             >
               Aprobar
             </ContainedButton>
             <ContainedButton
               style={[styles.actionBtn, styles.rejectBtn]}
+              labelStyle={styles.rejectLabel}
               onPress={() => onReject(request.id)}
             >
               Rechazar
@@ -130,8 +132,16 @@ const styles = StyleSheet.create({
   approveBtn: {
     backgroundColor: '#d1fae5',
   },
+  approveLabel: {
+    color: '#065f46',
+    fontWeight: 600,
+  },
   rejectBtn: {
     backgroundColor: '#fee2e2',
+  },
+  rejectLabel: {
+    color: '#991b1b',
+    fontWeight: 600,
   },
 })
 
