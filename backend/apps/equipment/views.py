@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from django.db import transaction
 
 from .models import EquipmentInUse, EducationalInstitutionEquipment, EquipmentRequest
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
@@ -197,8 +198,37 @@ class FieldtripEquipmentRequestAPIView(APIView):
 				status=status.HTTP_400_BAD_REQUEST,
 			)
 
-		equipment_request.status = status_value
-		equipment_request.save(update_fields=["status"])
+		with transaction.atomic():
+			if status_value == "approved":
+				fieldtrip = equipment_request.fieldtrip
+				course = fieldtrip.course
+				institution = course.institution if course else None
+
+				if not institution:
+					return Response(
+						{"detail": "La salida no tiene una institución asociada."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
+
+				stock_item = EducationalInstitutionEquipment.objects.filter(
+					institution=institution,
+					type=equipment_request.type,
+				).first()
+
+				if not stock_item:
+					return Response(
+						{"detail": "No existe equipamiento registrado para esta institución."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
+
+				EquipmentInUse.objects.update_or_create(
+					fieldtrip=fieldtrip,
+					item_in_stock=stock_item,
+					defaults={"quantity": equipment_request.quantity},
+				)
+
+			equipment_request.status = status_value
+			equipment_request.save(update_fields=["status"])
 
 		return Response(
 			{"id": equipment_request.id, "status": equipment_request.status},
