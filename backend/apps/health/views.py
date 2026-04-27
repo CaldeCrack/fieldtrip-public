@@ -121,7 +121,6 @@ class FieldtripViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             teacher_id = self.request.data.get('teacher_id')
-            equipment_data = self.request.data.get('equipment', [])
             
             if not teacher_id:
                 teacher = self.request.user
@@ -134,20 +133,6 @@ class FieldtripViewSet(viewsets.ModelViewSet):
                 user=teacher,
                 fieldtrip=fieldtrip
             )
-            
-            # Create pending equipment requests if provided
-            if equipment_data:
-                for equipment_item in equipment_data:
-                    equipment_id = equipment_item.get('id')
-                    quantity = equipment_item.get('quantity', 0)
-                    
-                    if equipment_id and quantity > 0:
-                        EquipmentRequest.objects.create(
-                            fieldtrip=fieldtrip,
-                            type_id=equipment_id,
-                            quantity=quantity,
-                            status='pending',
-                        )
             
             return fieldtrip
         except Exception as e:

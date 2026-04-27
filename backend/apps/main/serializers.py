@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
+
 from .models import *
 from apps.utils.functions import *
 from apps.user.serializers import *
+from apps.equipment.models import EquipmentRequest
 
 
 class FieldtripSerializer(serializers.ModelSerializer):
@@ -24,6 +26,24 @@ class FieldtripSerializer(serializers.ModelSerializer):
                     {"equipment": "Debe seleccionar al menos un equipamiento."}
                 )
         return attrs
+
+    def create(self, validated_data):
+        equipment_data = validated_data.pop("equipment", [])
+        fieldtrip = super().create(validated_data)
+
+        if equipment_data:
+            for equipment_item in equipment_data:
+                equipment_id = equipment_item.get("id")
+                quantity = equipment_item.get("quantity", 0)
+                if equipment_id and quantity > 0:
+                    EquipmentRequest.objects.create(
+                        fieldtrip=fieldtrip,
+                        type_id=equipment_id,
+                        quantity=quantity,
+                        status="pending",
+                    )
+
+        return fieldtrip
 
     class Meta:
         model = Fieldtrip
