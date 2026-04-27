@@ -1,10 +1,17 @@
 import { StyleSheet, View, ScrollView, Dimensions, Platform, Alert, Share } from 'react-native'
 import { useState, useEffect, useContext } from 'react'
-import { MD3Colors, Text, Menu, Chip } from 'react-native-paper'
+import { MD3Colors, Text, Menu } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import { ContainedButton, Page, StudentList, BulletList, EquipmentList } from '@components'
+import {
+  ContainedButton,
+  Page,
+  StudentList,
+  BulletList,
+  EquipmentList,
+  EquipmentRequestCard,
+} from '@components'
 import {
   getFieldtripAttendees,
   getFieldtripMetrics,
@@ -447,37 +454,12 @@ const Fieldtrip = () => {
           ) : equipmentRequests.length > 0 ? (
             <View style={styles.requestsWrapper}>
               {equipmentRequests.map((request) => (
-                <View key={request.id} style={styles.requestCard}>
-                  <View style={styles.requestInfo}>
-                    <Text style={styles.requestTitle}>{request.name}</Text>
-                    <Text style={styles.requestSubtitle}>
-                      Cantidad solicitada: {request.quantity}
-                    </Text>
-                    <Chip style={styles.statusChip}>{request.status}</Chip>
-                  </View>
-                  <View style={styles.requestActions}>
-                    {request.status === 'pending' ? (
-                      <>
-                        <ContainedButton
-                          style={[styles.requestActionBtn, styles.approveBtn]}
-                          onPress={() => handleDecision(request.id, 'approved')}
-                        >
-                          Aprobar
-                        </ContainedButton>
-                        <ContainedButton
-                          style={[styles.requestActionBtn, styles.rejectBtn]}
-                          onPress={() => handleDecision(request.id, 'rejected')}
-                        >
-                          Rechazar
-                        </ContainedButton>
-                      </>
-                    ) : (
-                      <Text style={styles.resolvedStatusText}>
-                        Solicitud {request.status === 'approved' ? 'aprobada' : 'rechazada'}
-                      </Text>
-                    )}
-                  </View>
-                </View>
+                <EquipmentRequestCard
+                  key={request.id}
+                  request={request}
+                  onApprove={(requestId: number) => handleDecision(requestId, 'approved')}
+                  onReject={(requestId: number) => handleDecision(requestId, 'rejected')}
+                />
               ))}
             </View>
           ) : (
@@ -711,47 +693,6 @@ const styles = StyleSheet.create({
   requestsWrapper: {
     width: '100%',
     gap: 12,
-  },
-  requestCard: {
-    width: '100%',
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#fafafa',
-    borderWidth: 1,
-    borderColor: COLORS.gray_100,
-  },
-  requestInfo: {
-    gap: 6,
-  },
-  requestTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  requestSubtitle: {
-    color: '#4b5563',
-  },
-  statusChip: {
-    alignSelf: 'flex-start',
-    marginTop: 4,
-  },
-  requestActions: {
-    marginTop: 14,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 10,
-  },
-  requestActionBtn: {
-    minWidth: 110,
-  },
-  approveBtn: {
-    backgroundColor: '#d1fae5',
-  },
-  rejectBtn: {
-    backgroundColor: '#fee2e2',
-  },
-  resolvedStatusText: {
-    fontWeight: '600',
-    color: '#4b5563',
   },
 })
 

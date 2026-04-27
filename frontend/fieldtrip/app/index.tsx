@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet } from 'react-native'
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, SetStateAction } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { jwtDecode } from 'jwt-decode'
@@ -30,10 +30,12 @@ const Home = () => {
       }
       const jwt = jwtDecode<Payload>(token)
       const isInventoryManager = jwt.custom_data.role === 'inventory_manager'
-      const request = isInventoryManager ? getInventoryFieldtrips() : getUsersFieldtrips(jwt.user_id)
+      const request = isInventoryManager
+        ? getInventoryFieldtrips()
+        : getUsersFieldtrips(jwt.user_id)
 
       request
-        .then(async (res) => {
+        .then(async (res: SetStateAction<FieldtripItem[]>) => {
           if (res) {
             setFieldtripsData(res)
           }
