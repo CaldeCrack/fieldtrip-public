@@ -428,34 +428,41 @@ const JoinFieldtrip = () => {
                       Checklist
                     </Text>
                     <Divider style={styles.divider} />
-                    {checklistData.map((item, i) => {
-                      if (isRadioChecklistItem(item)) {
-                        return (
-                          <RadioButton.Item
-                            key={i}
-                            value={String(item.id)}
-                            label={item.item}
-                            status={
-                              selectedRadioChecklistItemId === item.id ? 'checked' : 'unchecked'
-                            }
-                            onPress={() => handleToggleCheck('checklist', item.id)}
-                            labelStyle={styles.label}
-                            style={styles.checkbox}
-                            color={COLORS.primary_50}
-                            uncheckedColor={COLORS.gray_100}
-                          />
-                        )
-                      }
-
-                      return (
+                    {checklistData
+                      .filter((item) => !isRadioChecklistItem(item))
+                      .map((item) => (
                         <CheckboxItem
-                          key={i}
+                          key={item.id}
                           label={item.item}
                           status={item.checked ? 'checked' : 'unchecked'}
                           onPress={() => handleToggleCheck('checklist', item.id)}
                         />
-                      )
-                    })}
+                      ))}
+
+                    {checklistData.some((item) => isRadioChecklistItem(item)) && (
+                      <View style={styles.radioSection}>
+                        <Text variant="titleMedium" style={styles.radioSectionTitle}>
+                          Seguro Escolar
+                        </Text>
+                        {checklistData
+                          .filter((item) => isRadioChecklistItem(item))
+                          .map((item) => (
+                            <RadioButton.Item
+                              key={item.id}
+                              value={String(item.id)}
+                              label={item.item}
+                              status={
+                                selectedRadioChecklistItemId === item.id ? 'checked' : 'unchecked'
+                              }
+                              onPress={() => handleToggleCheck('checklist', item.id)}
+                              labelStyle={styles.label}
+                              style={styles.checkbox}
+                              color={COLORS.primary_50}
+                              uncheckedColor={COLORS.gray_100}
+                            />
+                          ))}
+                      </View>
+                    )}
                   </View>
                 </Surface>
                 <View style={{ justifyContent: 'flex-start', marginBottom: 24 }}>
@@ -649,6 +656,13 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 0,
     paddingVertical: 2,
+  },
+  radioSection: {
+    marginTop: 12,
+  },
+  radioSectionTitle: {
+    marginBottom: 8,
+    fontWeight: 600,
   },
   container: {
     minWidth: 320,
