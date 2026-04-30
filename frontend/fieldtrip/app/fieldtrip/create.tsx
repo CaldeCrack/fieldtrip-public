@@ -434,6 +434,7 @@ const CreateFieldtrip = () => {
         onClose={() => setShowEquipmentModal(false)}
         onConfirm={handleEquipmentConfirm}
         equipmentList={equipmentList}
+        initialSelectedEquipment={selectedEquipment}
         loading={equipmentLoading}
       />
 

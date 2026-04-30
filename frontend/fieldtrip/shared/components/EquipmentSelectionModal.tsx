@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View, ScrollView, ActivityIndicator, Pressable } from 'react-native'
 import { TextInput, MD3Colors, Text, Dialog, Portal } from 'react-native-paper'
 import { EquipmentItem } from '@types'
@@ -13,6 +13,7 @@ interface EquipmentSelectionModalProps {
   onClose: () => void
   onConfirm: (_equipment: { id: number; quantity: number }[]) => void
   equipmentList: EquipmentItem[]
+  initialSelectedEquipment?: { id: number; quantity: number }[]
   loading?: boolean
 }
 
@@ -25,21 +26,38 @@ const EquipmentSelectionModal = ({
   onClose,
   onConfirm,
   equipmentList,
+  initialSelectedEquipment = [],
   loading = false,
 }: EquipmentSelectionModalProps) => {
-  const [selectedEquipment, setSelectedEquipment] = useState<SelectedEquipment>({})
+  const [selectedEquipmentMap, setSelectedEquipmentMap] = useState<SelectedEquipment>({})
   const [isCancelHovered, setIsCancelHovered] = useState(false)
   const [isConfirmHovered, setIsConfirmHovered] = useState(false)
+
+  useEffect(() => {
+    if (!visible) {
+      return
+    }
+
+    const initialSelection = initialSelectedEquipment.reduce<SelectedEquipment>(
+      (accumulator, item) => {
+        accumulator[item.id] = item.quantity
+        return accumulator
+      },
+      {},
+    )
+
+    setSelectedEquipmentMap(initialSelection)
+  }, [visible, initialSelectedEquipment])
 
   const handleQuantityChange = (equipmentId: number, quantity: string) => {
     const numQuantity = parseInt(quantity) || 0
     if (numQuantity > 0) {
-      setSelectedEquipment((prev) => ({
+      setSelectedEquipmentMap((prev) => ({
         ...prev,
         [equipmentId]: numQuantity,
       }))
     } else {
-      setSelectedEquipment((prev) => {
+      setSelectedEquipmentMap((prev) => {
         const updated = { ...prev }
         delete updated[equipmentId]
         return updated
@@ -48,7 +66,7 @@ const EquipmentSelectionModal = ({
   }
 
   const handleConfirm = () => {
-    const equipmentArray = Object.entries(selectedEquipment).map(([id, quantity]) => ({
+    const equipmentArray = Object.entries(selectedEquipmentMap).map(([id, quantity]) => ({
       id: parseInt(id),
       quantity,
     }))
@@ -57,7 +75,6 @@ const EquipmentSelectionModal = ({
   }
 
   const handleClose = () => {
-    setSelectedEquipment({})
     onClose()
   }
 
@@ -90,13 +107,13 @@ const EquipmentSelectionModal = ({
                 <View key={item.id} style={styles.equipmentItem}>
                   <View style={styles.itemInfo}>
                     <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemAvailable}>Disponible: {item.quantity}</Text>
+                    <Text style={styles.itemAvailable}>Total: {item.quantity}</Text>
                   </View>
                   <TextInput
                     style={styles.quantityInput}
                     label="Cantidad"
                     keyboardType="number-pad"
-                    value={String(selectedEquipment[item.id] || '')}
+                    value={String(selectedEquipmentMap[item.id] || '')}
                     onChangeText={(text) => handleQuantityChange(item.id, text)}
                     mode="outlined"
                     outlineColor={COLORS.gray_100}
