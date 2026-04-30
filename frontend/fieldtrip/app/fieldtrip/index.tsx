@@ -517,22 +517,6 @@ const Fieldtrip = () => {
                   styles.btnMarginRight,
                   styles.btnMarginBottom,
                   {
-                    backgroundColor: showMetrics ? MD3Colors.primary50 : COLORS.gray_100,
-                  },
-                ]}
-                onPress={() => {
-                  setShowStudentList(false)
-                  setShowMetrics(true)
-                  setShowEquipment(false)
-                }}
-              >
-                Métricas
-              </ContainedButton>
-              <ContainedButton
-                style={[
-                  styles.btnMarginRight,
-                  styles.btnMarginBottom,
-                  {
                     backgroundColor: showEquipment ? MD3Colors.primary50 : COLORS.gray_100,
                   },
                 ]}
@@ -543,6 +527,22 @@ const Fieldtrip = () => {
                 }}
               >
                 Equipamiento
+              </ContainedButton>
+              <ContainedButton
+                style={[
+                  styles.btnMarginRight,
+                  styles.btnMarginBottom,
+                  {
+                    backgroundColor: showMetrics ? MD3Colors.primary50 : COLORS.gray_100,
+                  },
+                ]}
+                onPress={() => {
+                  setShowStudentList(false)
+                  setShowMetrics(true)
+                  setShowEquipment(false)
+                }}
+              >
+                Métricas
               </ContainedButton>
             </View>
           </ScrollView>
