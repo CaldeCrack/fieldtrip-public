@@ -7,7 +7,13 @@ import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 import { Payload } from '@types'
-import { promoteToAuxiliar, demoteFromAuxiliar, getSignupStatus } from '../services'
+import {
+  promoteToAuxiliar,
+  demoteFromAuxiliar,
+  promoteToGroupLeader,
+  demoteFromGroupLeader,
+  getSignupStatus,
+} from '../services'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
 type StudentItem = {
@@ -16,6 +22,7 @@ type StudentItem = {
   signupComplete?: boolean
   fieldtripID?: number
   isAuxiliar?: boolean
+  isGroupLeader?: boolean
 }
 
 type Props = {
@@ -29,6 +36,7 @@ const StudentList = ({ data, setState }: Props) => {
 
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const [auxiliarUpdates, setAuxiliarUpdates] = useState<Record<number, boolean>>({})
+  const [groupLeaderUpdates, setGroupLeaderUpdates] = useState<Record<number, boolean>>({})
   const [isTeacher, setIsTeacher] = useState(false)
 
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
@@ -40,6 +48,9 @@ const StudentList = ({ data, setState }: Props) => {
     isAuxiliar: auxiliarUpdates.hasOwnProperty(item.id)
       ? auxiliarUpdates[item.id]
       : item.isAuxiliar,
+    isGroupLeader: groupLeaderUpdates.hasOwnProperty(item.id)
+      ? groupLeaderUpdates[item.id]
+      : item.isGroupLeader,
   }))
 
   useEffect(() => {
@@ -77,9 +88,10 @@ const StudentList = ({ data, setState }: Props) => {
       <List.Section style={styles.section}>
         {mergedData
           .sort((a, b) => {
-            // Sort auxiliars first
-            if (a.isAuxiliar && !b.isAuxiliar) return -1
-            if (!a.isAuxiliar && b.isAuxiliar) return 1
+            const aScore = a.isAuxiliar ? 2 : a.isGroupLeader ? 1 : 0
+            const bScore = b.isAuxiliar ? 2 : b.isGroupLeader ? 1 : 0
+            if (aScore > bScore) return -1
+            if (aScore < bScore) return 1
             return 0
           })
           .map((item) => (
@@ -93,6 +105,13 @@ const StudentList = ({ data, setState }: Props) => {
                       <List.Icon
                         color={MD3Colors.tertiary50}
                         icon="account-star"
+                        style={{ marginRight: 8 }}
+                      />
+                    )}
+                    {item.isGroupLeader && (
+                      <List.Icon
+                        color={MD3Colors.primary50}
+                        icon="account-group"
                         style={{ marginRight: 8 }}
                       />
                     )}
@@ -128,6 +147,20 @@ const StudentList = ({ data, setState }: Props) => {
                       <List.Icon
                         {...props}
                         icon={item.isAuxiliar ? 'account-star-outline' : 'account-star'}
+                      />
+                    )}
+                  />
+                )}
+                {isTeacher && (
+                  <List.Item
+                    onPress={_toggleModal(`group-leader-${item.id}`)}
+                    title={
+                      item.isGroupLeader ? 'Quitar líder de grupo' : 'Marcar como líder de grupo'
+                    }
+                    left={(props) => (
+                      <List.Icon
+                        {...props}
+                        icon={item.isGroupLeader ? 'account-group-outline' : 'account-group'}
                       />
                     )}
                   />
@@ -187,6 +220,51 @@ const StudentList = ({ data, setState }: Props) => {
                     item.isAuxiliar
                       ? `${item.name} ya no será auxiliar para esta salida a campo.`
                       : `${item.name} será marcado como auxiliar para esta salida a campo.`
+                  }
+                />
+                <ConfirmationModal
+                  visible={_getVisible(`group-leader-${item.id}`)}
+                  close={_toggleModal(`group-leader-${item.id}`)}
+                  open={async () => {
+                    try {
+                      const result = item.isGroupLeader
+                        ? await demoteFromGroupLeader(item.id, item.fieldtripID!)
+                        : await promoteToGroupLeader(item.id, item.fieldtripID!)
+                      if (result) {
+                        console.log(result.message)
+                        setGroupLeaderUpdates((prev) => ({
+                          ...prev,
+                          [item.id]: !item.isGroupLeader,
+                        }))
+                        showSnackbar(
+                          item.isGroupLeader
+                            ? `${item.name} ya no es líder de grupo.`
+                            : `${item.name} ahora es líder de grupo.`,
+                        )
+                      }
+                    } catch (error) {
+                      console.error(
+                        `Error ${item.isGroupLeader ? 'demoting from' : 'promoting to'} group leader:`,
+                        error,
+                      )
+                      showSnackbar(
+                        item.isGroupLeader
+                          ? `No se pudo quitar a ${item.name} como líder de grupo.`
+                          : `No se pudo marcar a ${item.name} como líder de grupo.`,
+                        { isError: true },
+                      )
+                    }
+                    setVisible({ ...visible, [`group-leader-${item.id}`]: false })
+                  }}
+                  title={
+                    item.isGroupLeader
+                      ? `¿Está seguro/a que desea quitar a ${item.name} como líder de grupo?`
+                      : `¿Está seguro/a que desea marcar a ${item.name} como líder de grupo?`
+                  }
+                  description={
+                    item.isGroupLeader
+                      ? `${item.name} ya no tendrá este tag en la salida a campo.`
+                      : `${item.name} será marcado como líder de grupo en esta salida a campo.`
                   }
                 />
               </List.Accordion>

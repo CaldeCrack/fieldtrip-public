@@ -93,7 +93,15 @@ class FieldtripAttendeeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FieldtripAttendee
-        fields = ["id", "fieldtrip", "user_id", "user", "signup_complete", "is_auxiliar"]
+        fields = [
+            "id",
+            "fieldtrip",
+            "user_id",
+            "user",
+            "signup_complete",
+            "is_auxiliar",
+            "is_group_leader",
+        ]
 
     def get_user(self, obj):
         try:
@@ -111,6 +119,7 @@ class FieldtripAttendeeListSerializer(serializers.ModelSerializer):
         data["fieldtripID"] = data.pop("fieldtrip")
         data["signupComplete"] = data.pop("signup_complete")
         data["isAuxiliar"] = data.pop("is_auxiliar")
+        data["isGroupLeader"] = data.pop("is_group_leader")
         return data
 
 

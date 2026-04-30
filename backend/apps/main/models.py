@@ -101,6 +101,10 @@ class FieldtripAttendee(models.Model):
         default=False,
         verbose_name="Es auxiliar en esta salida a campo"
     )
+    is_group_leader = models.BooleanField(
+        default=False,
+        verbose_name="Es líder de grupo en esta salida a campo"
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

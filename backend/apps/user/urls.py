@@ -15,4 +15,6 @@ urlpatterns = [
     path("logout/", UserLogoutAPIView.as_view(), name="logout-user"),
     path("promote-auxiliar/<int:pk>/", PromoteToAuxiliarView.as_view(), name="promote-auxiliar"),
     path("demote-auxiliar/<int:pk>/", DemoteFromAuxiliarView.as_view(), name="demote-auxiliar"),
+    path("promote-group-leader/<int:pk>/", PromoteToGroupLeaderView.as_view(), name="promote-group-leader"),
+    path("demote-group-leader/<int:pk>/", DemoteFromGroupLeaderView.as_view(), name="demote-group-leader"),
 ]
