@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { TouchableOpacity } from 'react-native'
+import { Platform, TouchableOpacity } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -58,6 +58,7 @@ const FReducer = (_state: FStateType, action: FStateType) => {
 const StackLayout = () => {
   const router = useRouter()
   const pathname = usePathname()
+  const rootPaths = new Set(['/', '/login', '/signup'])
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
@@ -72,6 +73,20 @@ const StackLayout = () => {
       setIsLoggedIn(!!token)
     })()
   }, [pathname])
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back()
+      return
+    }
+
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back()
+      return
+    }
+
+    router.replace('/')
+  }
 
   const logout = async () => {
     setIsLoggedIn(false)
@@ -107,6 +122,21 @@ const StackLayout = () => {
                     fontWeight: '700',
                     letterSpacing: 1,
                     paddingVertical: 6,
+                  },
+                  headerLeft: () => {
+                    if (rootPaths.has(pathname)) {
+                      return null
+                    }
+
+                    return (
+                      <TouchableOpacity onPress={handleBack}>
+                        <Icon
+                          name="chevron-left"
+                          size={32}
+                          style={{ marginLeft: 8, color: '#00796b' }}
+                        />
+                      </TouchableOpacity>
+                    )
                   },
                   headerRight: () => {
                     return (
