@@ -240,6 +240,70 @@ class FieldtripUserEquipmentAPIView(APIView):
 	permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
 
 	@swagger_auto_schema(
+		operation_description="Recuperar el equipamiento asignado a un usuario en una salida a campo.",
+		manual_parameters=[
+			openapi.Parameter(
+				"user_id",
+				openapi.IN_QUERY,
+				description="ID del usuario",
+				type=openapi.TYPE_INTEGER,
+				required=True,
+			),
+		],
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"equipment": openapi.Schema(
+						type=openapi.TYPE_ARRAY,
+						items=openapi.Schema(
+							type=openapi.TYPE_OBJECT,
+							properties={
+								"id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID del equipamiento"),
+								"name": openapi.Schema(type=openapi.TYPE_STRING, description="Nombre del equipamiento"),
+								"quantity": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad"),
+							},
+						),
+					),
+				},
+			),
+		},
+	)
+	def get(self, request, id, format=None):
+		user_id = request.query_params.get("user_id")
+		if not user_id:
+			return Response(
+				{"detail": "Debe proporcionar un user_id."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		user_equipment = (
+			UserEquipment.objects.select_related("type")
+			.filter(fieldtrip_id=id, user_id=user_id)
+			.order_by("type__type")
+		)
+
+		equipment_in_use = (
+			EquipmentInUse.objects.select_related("item_in_stock__type")
+			.filter(fieldtrip_id=id)
+		)
+		in_use_by_type = {
+			item.item_in_stock.type_id: item.id
+			for item in equipment_in_use
+		}
+
+		payload = [
+			{
+				"id": in_use_by_type.get(item.type_id, item.type.id),
+				"name": item.type.type,
+				"quantity": item.quantity,
+			}
+			for item in user_equipment
+		]
+
+		return Response({"equipment": payload}, status=status.HTTP_200_OK)
+
+	@swagger_auto_schema(
 		operation_description="Asignar equipamiento de la salida a campo a un líder de grupo.",
 		request_body=openapi.Schema(
 			type=openapi.TYPE_OBJECT,

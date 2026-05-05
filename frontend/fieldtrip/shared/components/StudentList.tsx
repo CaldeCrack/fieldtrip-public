@@ -15,6 +15,7 @@ import {
   demoteFromGroupLeader,
   getSignupStatus,
   getFieldtripEquipment,
+  getFieldtripUserEquipment,
 } from '../services'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
@@ -43,6 +44,9 @@ const StudentList = ({ data, setState }: Props) => {
   const [equipmentModalFor, setEquipmentModalFor] = useState<number | null>(null)
   const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([])
   const [equipmentLoading, setEquipmentLoading] = useState(false)
+  const [equipmentSelections, setEquipmentSelections] = useState<
+    Record<number, { id: number; quantity: number }[]>
+  >({})
 
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
@@ -177,8 +181,15 @@ const StudentList = ({ data, setState }: Props) => {
                       setEquipmentModalFor(item.id)
                       try {
                         setEquipmentLoading(true)
-                        const res = await getFieldtripEquipment(fieldtripID)
-                        setEquipmentList(res)
+                        const [equipmentRes, userEquipmentRes] = await Promise.all([
+                          getFieldtripEquipment(fieldtripID),
+                          getFieldtripUserEquipment(fieldtripID, item.id),
+                        ])
+                        setEquipmentList(equipmentRes)
+                        setEquipmentSelections((prev) => ({
+                          ...prev,
+                          [item.id]: userEquipmentRes,
+                        }))
                       } catch (err) {
                         console.error('Error loading fieldtrip equipment', err)
                         showSnackbar('No se pudo cargar el equipamiento.', { isError: true })
@@ -299,7 +310,13 @@ const StudentList = ({ data, setState }: Props) => {
                   onConfirm={async (equipment) => {
                     try {
                       setEquipmentLoading(true)
-                      const { default: assignUserEquipment } = await import('../services/assignUserEquipment')
+                      const nextSelections = {
+                        ...equipmentSelections,
+                        [item.id]: equipment,
+                      }
+                      setEquipmentSelections(nextSelections)
+                      const { default: assignUserEquipment } =
+                        await import('../services/assignUserEquipment')
                       await assignUserEquipment(item.fieldtripID!, item.id, equipment)
                       showSnackbar(`Equipamiento asignado a ${item.name}.`)
                     } catch (error) {
@@ -311,7 +328,7 @@ const StudentList = ({ data, setState }: Props) => {
                     }
                   }}
                   equipmentList={equipmentList}
-                  initialSelectedEquipment={[]}
+                  initialSelectedEquipment={equipmentSelections[item.id] || []}
                   loading={equipmentLoading}
                 />
               </List.Accordion>
