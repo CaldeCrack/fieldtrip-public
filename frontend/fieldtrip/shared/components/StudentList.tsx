@@ -6,13 +6,15 @@ import { jwtDecode } from 'jwt-decode'
 import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
-import { Payload } from '@types'
+import EquipmentSelectionModal from './EquipmentSelectionModal'
+import { Payload, EquipmentItem } from '@types'
 import {
   promoteToAuxiliar,
   demoteFromAuxiliar,
   promoteToGroupLeader,
   demoteFromGroupLeader,
   getSignupStatus,
+  getFieldtripEquipment,
 } from '../services'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
@@ -38,6 +40,9 @@ const StudentList = ({ data, setState }: Props) => {
   const [auxiliarUpdates, setAuxiliarUpdates] = useState<Record<number, boolean>>({})
   const [groupLeaderUpdates, setGroupLeaderUpdates] = useState<Record<number, boolean>>({})
   const [isTeacher, setIsTeacher] = useState(false)
+  const [equipmentModalFor, setEquipmentModalFor] = useState<number | null>(null)
+  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([])
+  const [equipmentLoading, setEquipmentLoading] = useState(false)
 
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
@@ -165,6 +170,27 @@ const StudentList = ({ data, setState }: Props) => {
                     )}
                   />
                 )}
+                {isTeacher && item.isGroupLeader && (
+                  <List.Item
+                    onPress={async () => {
+                      const fieldtripID = item.fieldtripID || null
+                      setEquipmentModalFor(item.id)
+                      try {
+                        setEquipmentLoading(true)
+                        const res = await getFieldtripEquipment(fieldtripID)
+                        setEquipmentList(res)
+                      } catch (err) {
+                        console.error('Error loading fieldtrip equipment', err)
+                        showSnackbar('No se pudo cargar el equipamiento.', { isError: true })
+                        setEquipmentList([])
+                      } finally {
+                        setEquipmentLoading(false)
+                      }
+                    }}
+                    title="Asignar equipamiento"
+                    left={(props) => <List.Icon {...props} icon="package-variant" />}
+                  />
+                )}
                 <ConfirmationModal
                   visible={_getVisible(`modal-${item.id}`)}
                   close={_toggleModal(`modal-${item.id}`)}
@@ -266,6 +292,27 @@ const StudentList = ({ data, setState }: Props) => {
                       ? `${item.name} ya no tendrá este tag en la salida a campo.`
                       : `${item.name} será marcado como líder de grupo en esta salida a campo.`
                   }
+                />
+                <EquipmentSelectionModal
+                  visible={equipmentModalFor === item.id}
+                  onClose={() => setEquipmentModalFor(null)}
+                  onConfirm={async (equipment) => {
+                    try {
+                      setEquipmentLoading(true)
+                      const { default: assignUserEquipment } = await import('../services/assignUserEquipment')
+                      await assignUserEquipment(item.fieldtripID!, item.id, equipment)
+                      showSnackbar(`Equipamiento asignado a ${item.name}.`)
+                    } catch (error) {
+                      console.error('Error assigning equipment to user:', error)
+                      showSnackbar('No se pudo asignar el equipamiento.', { isError: true })
+                    } finally {
+                      setEquipmentLoading(false)
+                      setEquipmentModalFor(null)
+                    }
+                  }}
+                  equipmentList={equipmentList}
+                  initialSelectedEquipment={[]}
+                  loading={equipmentLoading}
                 />
               </List.Accordion>
               <Divider style={styles.divider} />

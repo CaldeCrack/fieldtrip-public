@@ -1,6 +1,11 @@
 from django.urls import path
 
-from .views import FieldtripEquipmentAPIView, EquipmentListAPIView, FieldtripEquipmentRequestAPIView
+from .views import (
+    FieldtripEquipmentAPIView,
+    EquipmentListAPIView,
+    FieldtripEquipmentRequestAPIView,
+    FieldtripUserEquipmentAPIView,
+)
 
 app_name = "equipment"
 
@@ -24,5 +29,10 @@ urlpatterns = [
         "fieldtrip/<int:id>/equipment-requests/<int:request_id>/",
         FieldtripEquipmentRequestAPIView.as_view(),
         name="fieldtrip-equipment-request-update",
+    ),
+    path(
+        "fieldtrip/<int:id>/user-equipment/",
+        FieldtripUserEquipmentAPIView.as_view(),
+        name="fieldtrip-user-equipment",
     ),
 ]

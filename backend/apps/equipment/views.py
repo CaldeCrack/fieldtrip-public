@@ -6,7 +6,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.db import transaction
 
-from .models import EquipmentInUse, EducationalInstitutionEquipment, EquipmentRequest
+from .models import EquipmentInUse, EducationalInstitutionEquipment, EquipmentRequest, UserEquipment, Equipment
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
 from apps.main.models import Course
 
@@ -234,3 +234,85 @@ class FieldtripEquipmentRequestAPIView(APIView):
 			{"id": equipment_request.id, "status": equipment_request.status},
 			status=status.HTTP_200_OK,
 		)
+
+
+class FieldtripUserEquipmentAPIView(APIView):
+	permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
+
+	@swagger_auto_schema(
+		operation_description="Asignar equipamiento de la salida a campo a un líder de grupo.",
+		request_body=openapi.Schema(
+			type=openapi.TYPE_OBJECT,
+			properties={
+				"user_id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID del usuario"),
+				"equipment": openapi.Schema(
+					type=openapi.TYPE_ARRAY,
+					items=openapi.Schema(
+						type=openapi.TYPE_OBJECT,
+						properties={
+							"id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID del equipamiento"),
+							"quantity": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad"),
+						},
+					),
+				),
+			},
+			required=["user_id", "equipment"],
+		),
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"assigned": openapi.Schema(
+						type=openapi.TYPE_INTEGER,
+						description="Cantidad de registros asignados",
+					),
+				},
+			)
+		},
+	)
+	def post(self, request, id, format=None):
+		user_id = request.data.get("user_id")
+		equipment = request.data.get("equipment", [])
+
+		if not user_id:
+			return Response(
+				{"detail": "Debe proporcionar un user_id."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		if not isinstance(equipment, list) or len(equipment) == 0:
+			return Response(
+				{"detail": "Debe proporcionar una lista de equipamiento."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		assigned_count = 0
+		with transaction.atomic():
+			for item in equipment:
+				item_id = item.get("id")
+				quantity = int(item.get("quantity") or 0)
+				if not item_id or quantity <= 0:
+					continue
+
+				equipment_type = None
+				fieldtrip_equipment = EquipmentInUse.objects.filter(
+					id=item_id,
+					fieldtrip_id=id,
+				).select_related("item_in_stock__type").first()
+				if fieldtrip_equipment:
+					equipment_type = fieldtrip_equipment.item_in_stock.type
+				else:
+					equipment_type = Equipment.objects.filter(id=item_id).first()
+
+				if not equipment_type:
+					continue
+
+				UserEquipment.objects.update_or_create(
+					user_id=user_id,
+					fieldtrip_id=id,
+					type=equipment_type,
+					defaults={"quantity": quantity},
+				)
+				assigned_count += 1
+
+		return Response({"assigned": assigned_count}, status=status.HTTP_200_OK)
