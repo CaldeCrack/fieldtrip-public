@@ -14,6 +14,7 @@ interface EquipmentSelectionModalProps {
   onConfirm: (_equipment: { id: number; quantity: number }[]) => void
   equipmentList: EquipmentItem[]
   initialSelectedEquipment?: { id: number; quantity: number }[]
+  availableById?: Record<number, number>
   loading?: boolean
 }
 
@@ -27,6 +28,7 @@ const EquipmentSelectionModal = ({
   onConfirm,
   equipmentList,
   initialSelectedEquipment = [],
+  availableById,
   loading = false,
 }: EquipmentSelectionModalProps) => {
   const [selectedEquipmentMap, setSelectedEquipmentMap] = useState<SelectedEquipment>({})
@@ -51,10 +53,13 @@ const EquipmentSelectionModal = ({
 
   const handleQuantityChange = (equipmentId: number, quantity: string) => {
     const numQuantity = parseInt(quantity) || 0
-    if (numQuantity > 0) {
+    const maxAvailable = availableById ? availableById[equipmentId] : undefined
+    const cappedQuantity =
+      typeof maxAvailable === 'number' ? Math.min(numQuantity, maxAvailable) : numQuantity
+    if (cappedQuantity > 0) {
       setSelectedEquipmentMap((prev) => ({
         ...prev,
-        [equipmentId]: numQuantity,
+        [equipmentId]: cappedQuantity,
       }))
     } else {
       setSelectedEquipmentMap((prev) => {
@@ -107,7 +112,9 @@ const EquipmentSelectionModal = ({
                 <View key={item.id} style={styles.equipmentItem}>
                   <View style={styles.itemInfo}>
                     <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemAvailable}>Total: {item.quantity}</Text>
+                    <Text style={styles.itemAvailable}>
+                      Disponible: {availableById ? (availableById[item.id] ?? 0) : item.quantity}
+                    </Text>
                   </View>
                   <TextInput
                     style={styles.quantityInput}

@@ -48,6 +48,7 @@ const StudentList = ({ data, setState }: Props) => {
   const [equipmentSelections, setEquipmentSelections] = useState<
     Record<number, { id: number; quantity: number }[]>
   >({})
+  const [equipmentAvailable, setEquipmentAvailable] = useState<Record<number, number>>({})
 
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
   const _getVisible = (name: string) => !!visible[name]
@@ -182,15 +183,49 @@ const StudentList = ({ data, setState }: Props) => {
                       setEquipmentModalFor(item.id)
                       try {
                         setEquipmentLoading(true)
-                        const [equipmentRes, userEquipmentRes] = await Promise.all([
+                        const leaders = data.filter((leader) => leader.isGroupLeader)
+                        const [equipmentRes, leaderAssignments] = await Promise.all([
                           getFieldtripEquipment(fieldtripID),
-                          getFieldtripUserEquipment(fieldtripID, item.id),
+                          Promise.all(
+                            leaders.map(async (leader) => ({
+                              leaderId: leader.id,
+                              equipment: await getFieldtripUserEquipment(fieldtripID, leader.id),
+                            })),
+                          ),
                         ])
+
+                        const totalAssigned: Record<number, number> = {}
+                        leaderAssignments.forEach((leader) => {
+                          leader.equipment.forEach((assignment) => {
+                            totalAssigned[assignment.id] =
+                              (totalAssigned[assignment.id] || 0) + assignment.quantity
+                          })
+                        })
+
+                        const currentAssignments =
+                          leaderAssignments.find((leader) => leader.leaderId === item.id)
+                            ?.equipment || []
+                        const currentAssignedById = currentAssignments.reduce(
+                          (accumulator: Record<number, number>, assignment) => {
+                            accumulator[assignment.id] = assignment.quantity
+                            return accumulator
+                          },
+                          {},
+                        )
+                        const available: Record<number, number> = {}
+                        equipmentRes.forEach((equipmentItem) => {
+                          const assignedTotal = totalAssigned[equipmentItem.id] || 0
+                          const currentAssigned = currentAssignedById[equipmentItem.id] || 0
+                          const remaining = equipmentItem.quantity - (assignedTotal - currentAssigned)
+                          available[equipmentItem.id] = Math.max(remaining, 0)
+                        })
+
                         setEquipmentList(equipmentRes)
                         setEquipmentSelections((prev) => ({
                           ...prev,
-                          [item.id]: userEquipmentRes,
+                          [item.id]: currentAssignments,
                         }))
+                        setEquipmentAvailable(available)
                       } catch (err) {
                         console.error('Error loading fieldtrip equipment', err)
                         showSnackbar('No se pudo cargar el equipamiento.', { isError: true })
@@ -328,6 +363,7 @@ const StudentList = ({ data, setState }: Props) => {
                   }}
                   equipmentList={equipmentList}
                   initialSelectedEquipment={equipmentSelections[item.id] || []}
+                  availableById={equipmentAvailable}
                   loading={equipmentLoading}
                 />
               </List.Accordion>

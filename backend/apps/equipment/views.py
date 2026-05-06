@@ -5,6 +5,7 @@ from rest_framework import status
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.db import transaction
+from django.db.models import Sum
 
 from .models import EquipmentInUse, EducationalInstitutionEquipment, EquipmentRequest, UserEquipment, Equipment
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
@@ -370,6 +371,36 @@ class FieldtripUserEquipmentAPIView(APIView):
 
 				if not equipment_type:
 					continue
+
+				if not fieldtrip_equipment:
+					return Response(
+						{"detail": "El equipamiento no pertenece a esta salida a campo."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
+
+				assigned_other = (
+					UserEquipment.objects.filter(fieldtrip_id=id, type=equipment_type)
+					.exclude(user_id=user_id)
+					.aggregate(total=Sum("quantity"))
+					.get("total")
+					or 0
+				)
+				current_assigned = (
+					UserEquipment.objects.filter(
+						fieldtrip_id=id,
+						type=equipment_type,
+						user_id=user_id,
+					)
+					.aggregate(total=Sum("quantity"))
+					.get("total")
+					or 0
+				)
+				max_allowed = fieldtrip_equipment.quantity - assigned_other + current_assigned
+				if quantity > max_allowed:
+					return Response(
+						{"detail": "Cantidad solicitada excede el disponible."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
 
 				UserEquipment.objects.update_or_create(
 					user_id=user_id,
