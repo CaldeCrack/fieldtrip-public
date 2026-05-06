@@ -551,16 +551,15 @@ const Fieldtrip = () => {
               <Text style={styles.emptyStateText}>Cargando asistentes...</Text>
             </View>
           ) : (
-            <>
-              {showStudentList && students.length > 0 && (
+            <View style={[styles.studentListWrapper, !showStudentList && styles.hiddenSection]}>
+              {students.length > 0 ? (
                 <StudentList data={students} setState={setState} />
-              )}
-              {showStudentList && students.length <= 0 && (
+              ) : (
                 <View style={styles.emptyStateContainer}>
                   <Text style={styles.emptyStateText}>No se ha registrado ningún estudiante.</Text>
                 </View>
               )}
-            </>
+            </View>
           )}
         </>
       )}
@@ -716,6 +715,12 @@ const styles = StyleSheet.create({
   requestsWrapper: {
     width: '100%',
     gap: 12,
+  },
+  studentListWrapper: {
+    width: '100%',
+  },
+  hiddenSection: {
+    display: 'none',
   },
 })
 
