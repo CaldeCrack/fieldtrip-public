@@ -18,6 +18,7 @@ import {
   getFieldtripUserEquipment,
 } from '../services'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
+import assignUserEquipment from '../services/assignUserEquipment'
 
 type StudentItem = {
   id: number
@@ -315,8 +316,6 @@ const StudentList = ({ data, setState }: Props) => {
                         [item.id]: equipment,
                       }
                       setEquipmentSelections(nextSelections)
-                      const { default: assignUserEquipment } =
-                        await import('../services/assignUserEquipment')
                       await assignUserEquipment(item.fieldtripID!, item.id, equipment)
                       showSnackbar(`Equipamiento asignado a ${item.name}.`)
                     } catch (error) {

@@ -655,7 +655,11 @@ const Fieldtrip = () => {
             <Text style={styles.emptyStateText}>Cargando equipamiento...</Text>
           </View>
         ) : (
-          <EquipmentList data={equipment} />
+          <EquipmentList
+            data={equipment}
+            fieldtripId={FState.fieldtripID}
+            groupLeaders={students}
+          />
         ))}
     </Page>
   )
