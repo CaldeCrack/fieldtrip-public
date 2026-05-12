@@ -327,6 +327,7 @@ class PromoteToAuxiliarView(APIView):
                 fieldtrip=fieldtrip
             ) #* maybe just a get
             attendee.is_auxiliar = True
+            attendee.is_group_leader = False
             attendee.save()
             return Response(
                 {"message": f"{user.names} {user.surnames} ha sido promovido a auxiliar en {fieldtrip.name}."},
@@ -452,6 +453,7 @@ class PromoteToGroupLeaderView(APIView):
                 fieldtrip=fieldtrip,
             )
             attendee.is_group_leader = True
+            attendee.is_auxiliar = False
             attendee.save()
             return Response(
                 {"message": f"{user.names} {user.surnames} ha sido marcado como líder de grupo en {fieldtrip.name}."},

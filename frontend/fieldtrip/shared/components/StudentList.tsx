@@ -264,6 +264,12 @@ const StudentList = ({ data, setState }: Props) => {
                           ...prev,
                           [item.id]: !item.isAuxiliar,
                         }))
+                        if (!item.isAuxiliar) {
+                          setGroupLeaderUpdates((prev) => ({
+                            ...prev,
+                            [item.id]: false,
+                          }))
+                        }
                         showSnackbar(
                           item.isAuxiliar
                             ? `${item.name} ya no es auxiliar.`
@@ -309,6 +315,12 @@ const StudentList = ({ data, setState }: Props) => {
                           ...prev,
                           [item.id]: !item.isGroupLeader,
                         }))
+                        if (!item.isGroupLeader) {
+                          setAuxiliarUpdates((prev) => ({
+                            ...prev,
+                            [item.id]: false,
+                          }))
+                        }
                         showSnackbar(
                           item.isGroupLeader
                             ? `${item.name} ya no es líder de grupo.`
