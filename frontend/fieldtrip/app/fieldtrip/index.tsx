@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react'
 import { MD3Colors, Text, Menu } from 'react-native-paper'
 import { BarChart } from 'react-native-chart-kit'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { jwtDecode } from 'jwt-decode'
 
 import {
   ContainedButton,
@@ -21,7 +22,7 @@ import {
 } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { StudentAttendee, EquipmentItem, EquipmentRequestItem } from '@types'
+import { StudentAttendee, EquipmentItem, EquipmentRequestItem, Payload } from '@types'
 import { router } from 'expo-router'
 
 interface Allergy {
@@ -305,6 +306,14 @@ const Fieldtrip = () => {
         router.replace('/login')
         return
       }
+      let isInventoryManagerUser = false
+      try {
+        const jwt = jwtDecode<Payload>(token)
+        isInventoryManagerUser = jwt.custom_data.role === 'inventory_manager'
+      } catch (error) {
+        console.warn('No se pudo leer el token para la salida a campo:', error)
+      }
+
       if (!FState.fieldtripID) {
         try {
           const storedFieldtrip = await AsyncStorage.getItem('fieldtrip_current')
@@ -335,61 +344,66 @@ const Fieldtrip = () => {
       setLoading(true)
       setEquipmentLoading(true)
       setRequestsLoading(true)
-      setShowRequests(false)
+      setShowRequests(isInventoryManagerUser)
 
-      try {
-        const res = await getFieldtripAttendees(FState.fieldtripID)
-        if (res) {
-          setStudents(res)
+      if (!isInventoryManagerUser) {
+        try {
+          const res = await getFieldtripAttendees(FState.fieldtripID)
+          if (res) {
+            setStudents(res)
+          }
+        } catch (error) {
+          // @ts-ignore
+          throw new Error(error.response?.data?.detail || error.message)
+        } finally {
+          setLoading(false)
         }
-      } catch (error) {
-        // @ts-ignore
-        throw new Error(error.response?.data?.detail || error.message)
-      } finally {
+
+        getFieldtripMetrics(FState.fieldtripID)
+          .then((res) => {
+            if (res) {
+              const diseases = res.diseases?.map((d: Disease) => d.name) || []
+              const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
+              const allergies = res.allergies?.map((a: Allergy) => a.name) || []
+              const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
+
+              const filteredDiseases = filterMetricData(diseases, diseaseCounts)
+              const filteredAllergies = filterMetricData(allergies, allergyCounts)
+
+              setChartData({
+                diseases: {
+                  labels: filteredDiseases.labels,
+                  datasets: [{ data: filteredDiseases.counts }],
+                },
+                allergies: {
+                  labels: filteredAllergies.labels,
+                  datasets: [{ data: filteredAllergies.counts }],
+                },
+              })
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+            throw new Error(error.response?.data?.detail || error.message)
+          })
+
+        getFieldtripEquipment(FState.fieldtripID)
+          .then((res) => {
+            if (res) {
+              setEquipment(res)
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+            throw new Error(error.response?.data?.detail || error.message)
+          })
+          .finally(() => {
+            setEquipmentLoading(false)
+          })
+      } else {
         setLoading(false)
+        setEquipmentLoading(false)
       }
-
-      getFieldtripMetrics(FState.fieldtripID)
-        .then((res) => {
-          if (res) {
-            const diseases = res.diseases?.map((d: Disease) => d.name) || []
-            const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
-            const allergies = res.allergies?.map((a: Allergy) => a.name) || []
-            const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
-
-            const filteredDiseases = filterMetricData(diseases, diseaseCounts)
-            const filteredAllergies = filterMetricData(allergies, allergyCounts)
-
-            setChartData({
-              diseases: {
-                labels: filteredDiseases.labels,
-                datasets: [{ data: filteredDiseases.counts }],
-              },
-              allergies: {
-                labels: filteredAllergies.labels,
-                datasets: [{ data: filteredAllergies.counts }],
-              },
-            })
-          }
-        })
-        .catch((error) => {
-          console.log(error)
-          throw new Error(error.response?.data?.detail || error.message)
-        })
-
-      getFieldtripEquipment(FState.fieldtripID)
-        .then((res) => {
-          if (res) {
-            setEquipment(res)
-          }
-        })
-        .catch((error) => {
-          console.log(error)
-          throw new Error(error.response?.data?.detail || error.message)
-        })
-        .finally(() => {
-          setEquipmentLoading(false)
-        })
 
       getFieldtripEquipmentRequests(FState.fieldtripID)
         .then((res) => {
@@ -401,7 +415,7 @@ const Fieldtrip = () => {
         .catch((error) => {
           console.log(error)
           setEquipmentRequests([])
-          setShowRequests(false)
+          setShowRequests(isInventoryManagerUser)
         })
         .finally(() => {
           setRequestsLoading(false)
