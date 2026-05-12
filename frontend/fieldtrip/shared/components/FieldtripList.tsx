@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router'
 import { View, StyleSheet } from 'react-native'
-import { Surface, Text, TouchableRipple, IconButton } from 'react-native-paper'
+import { Surface, Text, TouchableRipple, IconButton, MD3Colors } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Clipboard from 'expo-clipboard'
@@ -15,6 +15,7 @@ import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 type FieldtripStatus = {
   signupComplete: boolean
   isAuxiliar: boolean
+  isGroupLeader: boolean
 }
 
 type FieldtripItem = {
@@ -66,12 +67,14 @@ const FieldtripList = ({ data, setState }: Props) => {
             statuses[fieldtrip.id] = {
               signupComplete: res.signup_complete,
               isAuxiliar: res.is_auxiliar,
+              isGroupLeader: !!res.is_group_leader,
             }
           } catch {
             // If 404 or error, assume not signed up
             statuses[fieldtrip.id] = {
               signupComplete: false,
               isAuxiliar: false,
+              isGroupLeader: false,
             }
           }
         }
@@ -101,6 +104,7 @@ const FieldtripList = ({ data, setState }: Props) => {
         .map((item) => {
           const fieldtripStatus = fieldtripStatuses[item.id]
           const isAuxiliar = !!fieldtripStatus?.isAuxiliar
+          const isGroupLeader = !!fieldtripStatus?.isGroupLeader
           const notSignedUp = fieldtripStatus?.signupComplete === false
           return (
             <TouchableRipple
@@ -151,6 +155,14 @@ const FieldtripList = ({ data, setState }: Props) => {
                     icon="account-star"
                     size={20}
                     style={styles.auxiliarIcon}
+                    iconColor={MD3Colors.tertiary50}
+                  />
+                )}
+                {isStudent && isGroupLeader && (
+                  <IconButton
+                    icon="account-group"
+                    size={20}
+                    style={styles.groupLeaderIcon}
                     iconColor={COLORS.primary_50}
                   />
                 )}
@@ -251,6 +263,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   auxiliarIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 44,
+    zIndex: 1,
+  },
+  groupLeaderIcon: {
     position: 'absolute',
     top: 10,
     right: 44,

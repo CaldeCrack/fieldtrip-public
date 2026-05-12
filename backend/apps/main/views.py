@@ -191,6 +191,7 @@ class FieldtripSignupStatusAPIView(APIView):
             {
                 "signup_complete": attendee.signup_complete,
                 "is_auxiliar": attendee.is_auxiliar,
+                "is_group_leader": attendee.is_group_leader,
                 "selected_checklist_item_id": ChecklistStatus.objects.filter(
                     user=attendee.user,
                     fieldtrip=attendee.fieldtrip,

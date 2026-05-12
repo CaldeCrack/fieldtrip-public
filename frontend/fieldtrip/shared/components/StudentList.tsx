@@ -216,7 +216,8 @@ const StudentList = ({ data, setState }: Props) => {
                         equipmentRes.forEach((equipmentItem) => {
                           const assignedTotal = totalAssigned[equipmentItem.id] || 0
                           const currentAssigned = currentAssignedById[equipmentItem.id] || 0
-                          const remaining = equipmentItem.quantity - (assignedTotal - currentAssigned)
+                          const remaining =
+                            equipmentItem.quantity - (assignedTotal - currentAssigned)
                           available[equipmentItem.id] = Math.max(remaining, 0)
                         })
 

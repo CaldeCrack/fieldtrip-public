@@ -4,6 +4,7 @@ import { Api } from '../api/ApiConfig'
 interface SignupStatus {
   signup_complete: boolean
   is_auxiliar: boolean
+  is_group_leader?: boolean
 }
 
 const getSignupStatus = async (userId: number, fieldtripId: number): Promise<SignupStatus> => {
