@@ -9,7 +9,7 @@ interface EquipmentItem {
 interface NewFieldtripRequest {
   name: string
   sector: string
-  teacher_id: string | undefined
+  teacher_id: number | undefined
   course_id: string | undefined
   start_date: string
   end_date: string

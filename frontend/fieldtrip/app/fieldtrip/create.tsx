@@ -25,7 +25,7 @@ import {
   Modal,
   EquipmentSelectionModal,
 } from '@components'
-import { getTeachers, getCourses, newFieldtrip, getEquipmentList } from '@services'
+import { getCourses, newFieldtrip, getEquipmentList } from '@services'
 import { COLORS } from '@colors'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 import { Payload, SelectState, EquipmentItem } from '@types'
@@ -36,11 +36,7 @@ const CreateFieldtrip = () => {
   const { showSnackbar } = useGlobalSnackbar()
 
   const [name, setName] = useState<string>('')
-  const [professor, setProfessor] = useState<SelectState>({
-    value: '',
-    list: [],
-    selectedList: [],
-  })
+  const [teacherId, setTeacherId] = useState<number | null>(null)
   const [course, setCourse] = useState<SelectState>({
     value: '',
     list: [],
@@ -155,7 +151,9 @@ const CreateFieldtrip = () => {
       const jwt = jwtDecode<Payload>(token)
       if (!jwt.custom_data.is_teacher) {
         router.replace('/')
+        return
       }
+      setTeacherId(jwt.user_id)
     })()
   }, [router])
 
@@ -163,33 +161,20 @@ const CreateFieldtrip = () => {
     if (
       sector.length > 0 &&
       course.value.length > 0 &&
-      professor.value.length > 0 &&
       name.length > 0 &&
-      selectedEquipment.length > 0
+      selectedEquipment.length > 0 &&
+      teacherId !== null
     ) {
       setFormDone(true)
     } else {
       setFormDone(false)
     }
-  }, [sector, course, professor, name, selectedEquipment])
+  }, [sector, course, name, selectedEquipment, teacherId])
 
   useEffect(() => {
     ;(async () => {
       setLoading(true)
       try {
-        const teachers = await getTeachers()
-        if (teachers.length > 0) {
-          const professors = teachers.map(
-            (item: { id: number; names: string; surnames: string }) => {
-              return { _id: String(item.id), value: `${item.names} ${item.surnames}` }
-            },
-          )
-          setProfessor({
-            ...professor,
-            list: professors,
-          })
-        }
-
         const courses = await getCourses()
         if (courses.length > 0) {
           const courseList = courses.map((item) => {
@@ -221,7 +206,7 @@ const CreateFieldtrip = () => {
       newFieldtrip({
         name,
         sector,
-        teacher_id: professor.list.find((obj) => obj.value === professor.value)?._id,
+        teacher_id: teacherId ?? undefined,
         course_id: course.list.find((obj) => obj.value === course.value)?._id,
         start_date: formatDateToYYYYMMDD(new Date()),
         end_date: formatDateToYYYYMMDD(new Date()),
@@ -265,57 +250,6 @@ const CreateFieldtrip = () => {
             value={name}
           />
           <View style={[styles.bottomMargin, styles.maxWidth]}>
-            <PaperSelect
-              dialogStyle={styles.select}
-              label="Profesor a cargo *"
-              value={professor.value}
-              onSelection={(value: { text: string; selectedList: ListItem[] }) => {
-                setProfessor({
-                  ...professor,
-                  value: value.text,
-                  selectedList: value.selectedList,
-                })
-              }}
-              arrayList={[...professor.list]}
-              selectedArrayList={professor.selectedList}
-              hideSearchBox={true}
-              dialogTitleStyle={{ textAlign: 'center' }}
-              dialogTitle="Seleccione el profesor a cargo"
-              dialogCloseButtonText="Cerrar"
-              dialogDoneButtonText="Terminar"
-              textInputMode="outlined"
-              textInputProps={{
-                outlineColor: COLORS.gray_100,
-                activeOutlineColor: MD3Colors.primary50,
-                left: (
-                  <TextInput.Icon
-                    icon={() => (
-                      <Icon
-                        name={'delete'}
-                        size={24}
-                        color={MD3Colors.primary0}
-                        style={styles.icon}
-                        onPress={() =>
-                          setProfessor({
-                            ...professor,
-                            value: '',
-                            selectedList: [],
-                          })
-                        }
-                      />
-                    )}
-                  />
-                ),
-              }}
-              checkboxProps={{
-                checkboxColor: '#00796b',
-                checkboxUncheckedColor: COLORS.gray_100,
-              }}
-              containerStyle={{
-                marginBottom: 14,
-              }}
-              multiEnable={false}
-            />
             <PaperSelect
               dialogStyle={styles.select}
               label="Curso *"
