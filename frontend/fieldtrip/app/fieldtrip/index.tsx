@@ -12,16 +12,19 @@ import {
   BulletList,
   EquipmentList,
   EquipmentRequestCard,
+  EquipmentSelectionModal,
 } from '@components'
 import {
   getFieldtripAttendees,
   getFieldtripMetrics,
   getFieldtripEquipmentRequests,
+  getFieldtripEquipmentOptions,
+  createFieldtripEquipmentRequests,
   updateFieldtripEquipmentRequest,
 } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { StudentAttendee, EquipmentRequestItem, Payload } from '@types'
+import { StudentAttendee, EquipmentItem, EquipmentRequestItem, Payload } from '@types'
 import { router } from 'expo-router'
 
 interface Allergy {
@@ -71,6 +74,10 @@ const Fieldtrip = () => {
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
   const [equipmentRequests, setEquipmentRequests] = useState<EquipmentRequestItem[]>([])
+  const [requestModalVisible, setRequestModalVisible] = useState(false)
+  const [requestOptions, setRequestOptions] = useState<EquipmentItem[]>([])
+  const [requestOptionsLoading, setRequestOptionsLoading] = useState(false)
+  const [requestSelections, setRequestSelections] = useState<{ id: number; quantity: number }[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
   const [requestsLoading, setRequestsLoading] = useState(true)
   const [chartData, setChartData] = useState<chartData>({
@@ -417,6 +424,37 @@ const Fieldtrip = () => {
     }
   }
 
+  const openRequestModal = async () => {
+    if (!FState.fieldtripID) {
+      return
+    }
+
+    setRequestModalVisible(true)
+    setRequestOptionsLoading(true)
+    try {
+      const options = await getFieldtripEquipmentOptions(FState.fieldtripID)
+      const approvedTypeIds = new Set(
+        equipmentRequests
+          .filter((request) => request.status === 'approved')
+          .map((request) => request.typeId),
+      )
+      const pendingTypeIds = new Set(
+        equipmentRequests
+          .filter((request) => request.status === 'pending')
+          .map((request) => request.typeId),
+      )
+      const filteredOptions = options.filter(
+        (item) => !approvedTypeIds.has(item.id) && !pendingTypeIds.has(item.id),
+      )
+      setRequestOptions(filteredOptions)
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'No se pudo cargar el equipamiento.')
+      setRequestOptions([])
+    } finally {
+      setRequestOptionsLoading(false)
+    }
+  }
+
   const handleDecision = async (requestId: number, status: 'approved' | 'rejected') => {
     if (!FState.fieldtripID) {
       return
@@ -648,12 +686,42 @@ const Fieldtrip = () => {
             <Text style={styles.emptyStateText}>Cargando solicitudes...</Text>
           </View>
         ) : (
-          <EquipmentList
-            equipmentRequests={equipmentRequests}
-            fieldtripId={FState.fieldtripID}
-            groupLeaders={students}
-          />
+          <>
+            <View style={styles.requestActionRow}>
+              <ContainedButton onPress={openRequestModal}>Solicitar equipamiento</ContainedButton>
+            </View>
+            <EquipmentList
+              equipmentRequests={equipmentRequests}
+              fieldtripId={FState.fieldtripID}
+              groupLeaders={students}
+            />
+          </>
         ))}
+      <EquipmentSelectionModal
+        visible={requestModalVisible}
+        onClose={() => setRequestModalVisible(false)}
+        onConfirm={async (equipment) => {
+          if (!FState.fieldtripID) {
+            return
+          }
+
+          try {
+            setRequestOptionsLoading(true)
+            setRequestSelections(equipment)
+            await createFieldtripEquipmentRequests(FState.fieldtripID, equipment)
+            await refreshRequests()
+            Alert.alert('Solicitud enviada', 'Se han enviado las solicitudes de equipamiento.')
+          } catch (error: any) {
+            Alert.alert('Error', error.message || 'No se pudo enviar la solicitud.')
+          } finally {
+            setRequestOptionsLoading(false)
+            setRequestModalVisible(false)
+          }
+        }}
+        equipmentList={requestOptions}
+        initialSelectedEquipment={requestSelections}
+        loading={requestOptionsLoading}
+      />
     </Page>
   )
 }
@@ -715,6 +783,10 @@ const styles = StyleSheet.create({
   },
   hiddenSection: {
     display: 'none',
+  },
+  requestActionRow: {
+    width: '100%',
+    alignItems: 'center',
   },
 })
 

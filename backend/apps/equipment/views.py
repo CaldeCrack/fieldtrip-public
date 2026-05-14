@@ -9,7 +9,7 @@ from django.db.models import Sum
 
 from .models import EducationalInstitutionEquipment, EquipmentRequest, UserEquipment
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
-from apps.main.models import Course
+from apps.main.models import Course, Fieldtrip
 
 
 class FieldtripEquipmentAPIView(APIView):
@@ -114,6 +114,54 @@ class EquipmentListAPIView(APIView):
 				return Response({"equipment": []}, status=200)
 
 
+class FieldtripEquipmentOptionsAPIView(APIView):
+	permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar | IsInventoryManager)
+
+	@swagger_auto_schema(
+		operation_description="Recuperar el equipamiento disponible para la institución de una salida a campo.",
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"equipment": openapi.Schema(
+						type=openapi.TYPE_ARRAY,
+						items=openapi.Schema(
+							type=openapi.TYPE_OBJECT,
+							properties={
+								"id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID del equipamiento"),
+								"name": openapi.Schema(type=openapi.TYPE_STRING, description="Nombre del equipamiento"),
+								"quantity": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad disponible"),
+							},
+						),
+						description="Lista de equipamiento disponible",
+					)
+				},
+			)
+		},
+	)
+	def get(self, request, id, format=None):
+		fieldtrip = Fieldtrip.objects.select_related("course__institution").filter(id=id).first()
+		if not fieldtrip or not fieldtrip.course or not fieldtrip.course.institution:
+			return Response({"equipment": []}, status=status.HTTP_200_OK)
+
+		equipment_list = (
+			EducationalInstitutionEquipment.objects.select_related("type")
+			.filter(institution=fieldtrip.course.institution)
+			.order_by("type__type")
+		)
+
+		equipment = [
+			{
+				"id": item.type.id,
+				"name": item.type.type,
+				"quantity": item.quantity,
+			}
+			for item in equipment_list
+		]
+
+		return Response({"equipment": equipment}, status=status.HTTP_200_OK)
+
+
 class FieldtripEquipmentRequestAPIView(APIView):
 	permission_classes = (IsAuthenticated, IsInventoryManager | IsTeacher | IsAuxiliar)
 
@@ -150,6 +198,7 @@ class FieldtripEquipmentRequestAPIView(APIView):
 		payload = [
 			{
 				"id": item.id,
+				"type_id": item.type_id,
 				"name": item.type.type,
 				"quantity": item.quantity,
 				"status": item.status,
@@ -158,6 +207,100 @@ class FieldtripEquipmentRequestAPIView(APIView):
 		]
 
 		return Response({"requests": payload}, status=status.HTTP_200_OK)
+
+	@swagger_auto_schema(
+		operation_description="Crear o actualizar solicitudes de equipamiento.",
+		request_body=openapi.Schema(
+			type=openapi.TYPE_OBJECT,
+			properties={
+				"equipment": openapi.Schema(
+					type=openapi.TYPE_ARRAY,
+					items=openapi.Schema(
+						type=openapi.TYPE_OBJECT,
+						properties={
+							"id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID del equipamiento"),
+							"quantity": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad solicitada"),
+						},
+					),
+				),
+			},
+			required=["equipment"],
+		),
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"updated": openapi.Schema(type=openapi.TYPE_INTEGER),
+				},
+			),
+		},
+	)
+	def post(self, request, id, format=None):
+		equipment = request.data.get("equipment", [])
+		if not isinstance(equipment, list) or len(equipment) == 0:
+			return Response(
+				{"detail": "Debe proporcionar una lista de equipamiento."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		fieldtrip = Fieldtrip.objects.select_related("course__institution").filter(id=id).first()
+		if not fieldtrip or not fieldtrip.course or not fieldtrip.course.institution:
+			return Response(
+				{"detail": "La salida no tiene una institución asociada."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		updated_count = 0
+		with transaction.atomic():
+			for item in equipment:
+				item_id = item.get("id")
+				quantity = int(item.get("quantity") or 0)
+				if not item_id or quantity <= 0:
+					continue
+
+				stock_item = EducationalInstitutionEquipment.objects.filter(
+					institution=fieldtrip.course.institution,
+					type_id=item_id,
+				).first()
+
+				if not stock_item:
+					return Response(
+						{"detail": "No existe equipamiento registrado para esta institución."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
+
+				if quantity > stock_item.quantity:
+					return Response(
+						{"detail": "No hay suficiente equipamiento."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
+
+				equipment_request = EquipmentRequest.objects.filter(
+					fieldtrip_id=id,
+					type_id=item_id,
+				).first()
+
+				if equipment_request and equipment_request.status == "approved":
+					return Response(
+						{"detail": "El equipamiento ya fue aprobado."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
+
+				if equipment_request:
+					equipment_request.quantity = quantity
+					equipment_request.status = "pending"
+					equipment_request.save(update_fields=["quantity", "status"])
+				else:
+					EquipmentRequest.objects.create(
+						fieldtrip_id=id,
+						type_id=item_id,
+						quantity=quantity,
+						status="pending",
+					)
+
+				updated_count += 1
+
+		return Response({"updated": updated_count}, status=status.HTTP_200_OK)
 
 	@swagger_auto_schema(
 		operation_description="Aprobar o rechazar una solicitud de equipamiento.",

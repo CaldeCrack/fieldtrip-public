@@ -4,7 +4,7 @@ import { Api } from '../api/ApiConfig'
 import { EquipmentRequestItem } from '@types'
 
 interface FieldtripEquipmentRequestsResponse {
-  requests?: EquipmentRequestItem[]
+  requests?: (EquipmentRequestItem & { type_id?: number })[]
 }
 
 const getFieldtripEquipmentRequests = async (id: number | null): Promise<EquipmentRequestItem[]> => {
@@ -16,7 +16,10 @@ const getFieldtripEquipmentRequests = async (id: number | null): Promise<Equipme
       },
     })
 
-    return response.data.requests || []
+    return (response.data.requests || []).map((item) => ({
+      ...item,
+      typeId: item.type_id ?? item.typeId,
+    }))
   } catch (error) {
     throw new Error((error as any).response?.data?.detail || (error as any).message)
   }
