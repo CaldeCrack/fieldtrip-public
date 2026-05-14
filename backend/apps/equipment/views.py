@@ -7,7 +7,7 @@ from drf_yasg.utils import swagger_auto_schema
 from django.db import transaction
 from django.db.models import Sum
 
-from .models import EquipmentInUse, EducationalInstitutionEquipment, EquipmentRequest, UserEquipment, Equipment
+from .models import EducationalInstitutionEquipment, EquipmentRequest, UserEquipment
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
 from apps.main.models import Course
 
@@ -38,19 +38,19 @@ class FieldtripEquipmentAPIView(APIView):
 		},
 	)
 	def get(self, request, id, format=None):
-		equipment_in_use = (
-			EquipmentInUse.objects.select_related("item_in_stock__type")
-			.filter(fieldtrip_id=id, quantity__gt=0)
-			.order_by("item_in_stock__type__type")
+		equipment_requests = (
+			EquipmentRequest.objects.select_related("type")
+			.filter(fieldtrip_id=id, status="approved", quantity__gt=0)
+			.order_by("type__type")
 		)
 
 		equipment = [
 			{
 				"id": item.id,
-				"name": item.item_in_stock.type.type,
+				"name": item.type.type,
 				"quantity": item.quantity,
 			}
-			for item in equipment_in_use
+			for item in equipment_requests
 		]
 
 		return Response({"equipment": equipment}, status=status.HTTP_200_OK)
@@ -222,11 +222,11 @@ class FieldtripEquipmentRequestAPIView(APIView):
 						status=status.HTTP_400_BAD_REQUEST,
 					)
 
-				EquipmentInUse.objects.update_or_create(
-					fieldtrip=fieldtrip,
-					item_in_stock=stock_item,
-					defaults={"quantity": equipment_request.quantity},
-				)
+				if equipment_request.quantity > stock_item.quantity:
+					return Response(
+						{"detail": "No hay suficiente equipamiento."},
+						status=status.HTTP_400_BAD_REQUEST,
+					)
 
 			equipment_request.status = status_value
 			equipment_request.save(update_fields=["status"])
@@ -283,23 +283,20 @@ class FieldtripUserEquipmentAPIView(APIView):
 			.filter(fieldtrip_id=id, user_id=user_id)
 			.order_by("type__type")
 		)
-
-		equipment_in_use = (
-			EquipmentInUse.objects.select_related("item_in_stock__type")
-			.filter(fieldtrip_id=id)
+		approved_requests = (
+			EquipmentRequest.objects.filter(fieldtrip_id=id, status="approved")
+			.select_related("type")
 		)
-		in_use_by_type = {
-			item.item_in_stock.type_id: item.id
-			for item in equipment_in_use
-		}
+		request_id_by_type = {item.type_id: item.id for item in approved_requests}
 
 		payload = [
 			{
-				"id": in_use_by_type.get(item.type_id, item.type.id),
+				"id": request_id_by_type.get(item.type_id),
 				"name": item.type.type,
 				"quantity": item.quantity,
 			}
 			for item in user_equipment
+			if request_id_by_type.get(item.type_id)
 		]
 
 		return Response({"equipment": payload}, status=status.HTTP_200_OK)
@@ -358,25 +355,22 @@ class FieldtripUserEquipmentAPIView(APIView):
 				quantity = int(item.get("quantity") or 0)
 				if not item_id or quantity <= 0:
 					continue
-
-				equipment_type = None
-				fieldtrip_equipment = EquipmentInUse.objects.filter(
-					id=item_id,
-					fieldtrip_id=id,
-				).select_related("item_in_stock__type").first()
-				if fieldtrip_equipment:
-					equipment_type = fieldtrip_equipment.item_in_stock.type
-				else:
-					equipment_type = Equipment.objects.filter(id=item_id).first()
-
-				if not equipment_type:
-					continue
-
-				if not fieldtrip_equipment:
+				equipment_request = (
+					EquipmentRequest.objects.filter(
+						id=item_id,
+						fieldtrip_id=id,
+						status="approved",
+					)
+					.select_related("type")
+					.first()
+				)
+				if not equipment_request:
 					return Response(
 						{"detail": "El equipamiento no pertenece a esta salida a campo."},
 						status=status.HTTP_400_BAD_REQUEST,
 					)
+
+				equipment_type = equipment_request.type
 
 				assigned_other = (
 					UserEquipment.objects.filter(fieldtrip_id=id, type=equipment_type)
@@ -395,7 +389,7 @@ class FieldtripUserEquipmentAPIView(APIView):
 					.get("total")
 					or 0
 				)
-				max_allowed = fieldtrip_equipment.quantity - assigned_other + current_assigned
+				max_allowed = equipment_request.quantity - assigned_other + current_assigned
 				if quantity > max_allowed:
 					return Response(
 						{"detail": "Cantidad solicitada excede el disponible."},

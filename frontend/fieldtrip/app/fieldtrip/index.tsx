@@ -670,6 +670,7 @@ const Fieldtrip = () => {
         ) : (
           <EquipmentList
             data={equipment}
+            equipmentRequests={equipmentRequests}
             fieldtripId={FState.fieldtripID}
             groupLeaders={students}
           />
