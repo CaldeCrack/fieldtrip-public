@@ -22,6 +22,7 @@ interface FieldtripSignupFormRequest {
   checklist_status: ChecklistStatus[]
   health_general: HealthItem[]
   health_specific: HealthSpecificItem[]
+  medical_institution?: string | null
 }
 
 interface FieldtripSignupFormResponse {

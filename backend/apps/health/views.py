@@ -15,8 +15,13 @@ from .models import *
 from .serializers import *
 from .helpers import *
 from apps.main.models import MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS
+from apps.user.models import MedicalInstitution
 from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
 from apps.equipment.models import EquipmentRequest
+
+RENUNCIA_CHECKLIST_ITEM = (
+    'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada en caso de sufrir un accidente.'
+)
 
 
 class HealthDataLogViewSet(viewsets.ModelViewSet):
@@ -299,6 +304,10 @@ class FieldtripSignupViewSet(viewsets.ModelViewSet):
                         },
                     ),
                 ),
+                "medical_institution": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Institución médica preferida si renuncia al Seguro Escolar",
+                ),
             },
         ),
         responses={200: openapi.Response("Signup completed successfully.")}
@@ -377,6 +386,30 @@ class FieldtripSignupViewSet(viewsets.ModelViewSet):
                     exclusive_qs.exclude(item_id=selected_exclusive_item_id).delete()
                 else:
                     exclusive_qs.delete()
+
+                renuncia_selected = False
+                if selected_exclusive_item_id:
+                    selected_checklist = Checklist.objects.filter(
+                        pk=selected_exclusive_item_id,
+                    ).values_list("item", flat=True).first()
+                    renuncia_selected = selected_checklist == RENUNCIA_CHECKLIST_ITEM
+
+                medical_institution_name = data.get("medical_institution", "")
+                if isinstance(medical_institution_name, str):
+                    medical_institution_name = medical_institution_name.strip()
+
+                if renuncia_selected and not medical_institution_name:
+                    return Response(
+                        {"error": "Debe indicar la institución médica si renuncia al Seguro Escolar."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                if renuncia_selected and medical_institution_name:
+                    medical_institution, _ = MedicalInstitution.objects.get_or_create(
+                        name=medical_institution_name,
+                    )
+                    user.preferred_medical_institution = medical_institution
+                    user.save(update_fields=["preferred_medical_institution"])
 
                 for checklist_item in checklist_items:
                     checklist = get_object_or_404(Checklist, pk=checklist_item["item"])
@@ -536,6 +569,10 @@ class FieldtripSignUpStatusAPIView(APIView):
             item__item__in=MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS,
         ).values_list('item_id', flat=True).first()
 
+        medical_institution = None
+        if user.preferred_medical_institution:
+            medical_institution = user.preferred_medical_institution.name
+
         # Verifica si el usuario está inscrito y ha completado el registro
         try:
             attendee = FieldtripAttendee.objects.get(user=user, fieldtrip=fieldtrip)
@@ -544,6 +581,7 @@ class FieldtripSignUpStatusAPIView(APIView):
                 {
                     "signup_complete": False,
                     "selected_checklist_item_id": selected_checklist_item_id,
+                    "medical_institution": medical_institution,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -553,6 +591,7 @@ class FieldtripSignUpStatusAPIView(APIView):
                 {
                     "signup_complete": False,
                     "selected_checklist_item_id": selected_checklist_item_id,
+                    "medical_institution": medical_institution,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -561,6 +600,7 @@ class FieldtripSignUpStatusAPIView(APIView):
             {
                 "signup_complete": True,
                 "selected_checklist_item_id": selected_checklist_item_id,
+                "medical_institution": medical_institution,
             },
             status=status.HTTP_200_OK,
         )

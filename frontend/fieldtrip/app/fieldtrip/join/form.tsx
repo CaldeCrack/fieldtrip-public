@@ -49,6 +49,9 @@ const RADIO_CHECKLIST_ITEMS = [
   'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada en caso de sufrir un accidente.',
 ]
 
+const RENUNCIA_CHECKLIST_ITEM =
+  'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada en caso de sufrir un accidente.'
+
 const isRadioChecklistItem = (item: ChecklistItem) => RADIO_CHECKLIST_ITEMS.includes(item.item)
 
 const JoinFieldtrip = () => {
@@ -108,6 +111,11 @@ const JoinFieldtrip = () => {
   const [newDisease, setNewDisease] = useState<string>('')
   const [creatingDisease, setCreatingDisease] = useState<boolean>(false)
   const [showAddDiseaseInput, setShowAddDiseaseInput] = useState<boolean>(false)
+  const [medicalInstitution, setMedicalInstitution] = useState<string>('')
+
+  const renunciaSelected = checklistData.some(
+    (item) => item.id === selectedRadioChecklistItemId && item.item === RENUNCIA_CHECKLIST_ITEM,
+  )
 
   const addDiseaseToState = (prev: SelectState, newOption: SelectOption): SelectState => {
     const existsInList = prev.list.some(
@@ -200,6 +208,10 @@ const JoinFieldtrip = () => {
           if (isRadioChecklistItem(targetItem)) {
             setSelectedRadioChecklistItemId(targetItem.id)
 
+            if (targetItem.item !== RENUNCIA_CHECKLIST_ITEM) {
+              setMedicalInstitution('')
+            }
+
             return prevData.map((item) =>
               isRadioChecklistItem(item) ? { ...item, checked: item.id === targetItem.id } : item,
             )
@@ -214,6 +226,11 @@ const JoinFieldtrip = () => {
   }
 
   const sendJoinFieldtripRequest = async () => {
+    if (renunciaSelected && !medicalInstitution.trim()) {
+      showSnackbar('Debe indicar la institución médica.', { isError: true })
+      return
+    }
+
     if (formDone) {
       setSigningUp(true)
       setVisible({ ...visible, ['modal']: !visible['modal'] })
@@ -242,6 +259,7 @@ const JoinFieldtrip = () => {
         checklist_status: checklistStatusList,
         health_general: healthGeneralList,
         health_specific: healthSpecificList,
+        medical_institution: renunciaSelected ? medicalInstitution.trim() : null,
       })
         .then(async (res) => {
           if (res) {
@@ -270,13 +288,20 @@ const JoinFieldtrip = () => {
         .filter((obj) => isRadioChecklistItem(obj))
         .some((obj) => obj.checked === true)
       const specificDataStatus = inputList.every((obj) => obj.value.length > 0)
-      if (regularChecklistStatus && radioChecklistStatus && specificDataStatus) {
+      const medicalInstitutionStatus = !renunciaSelected || medicalInstitution.trim().length > 0
+
+      if (
+        regularChecklistStatus &&
+        radioChecklistStatus &&
+        specificDataStatus &&
+        medicalInstitutionStatus
+      ) {
         setFormDone(true)
       } else {
         setFormDone(false)
       }
     }
-  }, [checklistData, inputList])
+  }, [checklistData, inputList, medicalInstitution, renunciaSelected])
 
   useEffect(() => {
     const fetchChecklistAndData = async () => {
@@ -312,6 +337,9 @@ const JoinFieldtrip = () => {
         }
 
         setSelectedRadioChecklistItemId(signupStatus.selected_checklist_item_id)
+        if (signupStatus.medical_institution) {
+          setMedicalInstitution(signupStatus.medical_institution)
+        }
 
         const pastList: SelectOption[] =
           pastDiseasesRes?.map((item: ChecklistItem) => ({
@@ -461,6 +489,14 @@ const JoinFieldtrip = () => {
                               uncheckedColor={COLORS.gray_100}
                             />
                           ))}
+                        {renunciaSelected && (
+                          <SimpleInput
+                            label="Institución médica *"
+                            value={medicalInstitution}
+                            onChangeText={(text: string) => setMedicalInstitution(text)}
+                            style={styles.medicalInstitutionInput}
+                          />
+                        )}
                       </View>
                     )}
                   </View>
@@ -734,6 +770,11 @@ const styles = StyleSheet.create({
   newDiseaseInput: {
     fontSize: 16,
     marginBottom: 12,
+    backgroundColor: MD3Colors.primary100,
+  },
+  medicalInstitutionInput: {
+    fontSize: 16,
+    marginTop: 10,
     backgroundColor: MD3Colors.primary100,
   },
   addDiseaseButtonsContainer: {

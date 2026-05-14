@@ -5,6 +5,7 @@ type FieldtripSignupStatusResponse = {
   signup_complete: boolean
   is_auxiliar: boolean
   selected_checklist_item_id: number | null
+  medical_institution?: string | null
 }
 
 const getFieldtripSignUpStatus = async (
