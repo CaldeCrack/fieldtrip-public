@@ -152,7 +152,6 @@ const EquipmentList = ({
                 description={`Cantidad solicitada: ${request.quantity}`}
                 expanded={!!expanded[request.id]}
                 onPress={() => void toggleAccordion(request.id)}
-                left={(props) => <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />}
                 right={() => (
                   <Chip
                     style={[styles.statusChip, { backgroundColor: statusStyle.backgroundColor }]}
