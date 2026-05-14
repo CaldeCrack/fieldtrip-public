@@ -46,7 +46,7 @@ interface Item extends ChecklistItem {
 
 const RADIO_CHECKLIST_ITEMS = [
   'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.',
-  'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.',
+  'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada en caso de sufrir un accidente.',
 ]
 
 const isRadioChecklistItem = (item: ChecklistItem) => RADIO_CHECKLIST_ITEMS.includes(item.item)

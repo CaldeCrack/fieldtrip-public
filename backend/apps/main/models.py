@@ -123,13 +123,13 @@ class FieldtripAttendee(models.Model):
 CHECKLIST_CHOICES = [
     (1, 'Declaro conocer las bases del Seguro Escolar que me protege en caso de accidente.'),
     (2, 'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.'),
-    (3, 'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.'),
+    (3, 'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada en caso de sufrir un accidente.'),
     (4, 'Declaro que estoy en condiciones de salud aptas para asistir a la salida de terreno.'),
 ]
 
 MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS = (
     'Declaro querer usar el Seguro Escolar en caso de accidente durante la práctica de terreno.',
-    'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada anteriormente en caso de sufrir un accidente.',
+    'Renuncio al Seguro Escolar, y solicito que me trasladen a la institución médica especificada en caso de sufrir un accidente.',
 )
 
 
