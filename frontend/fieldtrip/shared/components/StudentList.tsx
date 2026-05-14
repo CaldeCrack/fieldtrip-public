@@ -7,14 +7,14 @@ import { StyleSheet, View } from 'react-native'
 import { useEffect, useState } from 'react'
 import ConfirmationModal from './ConfirmationModal'
 import EquipmentSelectionModal from './EquipmentSelectionModal'
-import { Payload, EquipmentItem } from '@types'
+import { Payload, EquipmentItem, EquipmentRequestItem } from '@types'
 import {
   promoteToAuxiliar,
   demoteFromAuxiliar,
   promoteToGroupLeader,
   demoteFromGroupLeader,
   getSignupStatus,
-  getFieldtripEquipment,
+  getFieldtripEquipmentRequests,
   getFieldtripUserEquipment,
 } from '../services'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
@@ -184,8 +184,8 @@ const StudentList = ({ data, setState }: Props) => {
                       try {
                         setEquipmentLoading(true)
                         const leaders = data.filter((leader) => leader.isGroupLeader)
-                        const [equipmentRes, leaderAssignments] = await Promise.all([
-                          getFieldtripEquipment(fieldtripID),
+                        const [requestsRes, leaderAssignments] = await Promise.all([
+                          getFieldtripEquipmentRequests(fieldtripID),
                           Promise.all(
                             leaders.map(async (leader) => ({
                               leaderId: leader.id,
@@ -193,6 +193,14 @@ const StudentList = ({ data, setState }: Props) => {
                             })),
                           ),
                         ])
+
+                        const equipmentRes = requestsRes
+                          .filter((request: EquipmentRequestItem) => request.status === 'approved')
+                          .map((request: EquipmentRequestItem) => ({
+                            id: request.id,
+                            name: request.name,
+                            quantity: request.quantity,
+                          }))
 
                         const totalAssigned: Record<number, number> = {}
                         leaderAssignments.forEach((leader) => {
@@ -228,8 +236,8 @@ const StudentList = ({ data, setState }: Props) => {
                         }))
                         setEquipmentAvailable(available)
                       } catch (err) {
-                        console.error('Error loading fieldtrip equipment', err)
-                        showSnackbar('No se pudo cargar el equipamiento.', { isError: true })
+                        console.error('Error loading equipment requests', err)
+                        showSnackbar('No se pudo cargar las solicitudes.', { isError: true })
                         setEquipmentList([])
                       } finally {
                         setEquipmentLoading(false)
