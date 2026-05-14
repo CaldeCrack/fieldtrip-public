@@ -19,6 +19,7 @@ const Page = ({ children, style, showTabs = false }: Props) => {
   const router = useRouter()
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)
+  const [isInventoryManager, setIsInventoryManager] = useState<boolean>(false)
 
   useEffect(() => {
     ;(async () => {
@@ -28,6 +29,7 @@ const Page = ({ children, style, showTabs = false }: Props) => {
           const jwt = jwtDecode<Payload>(token)
           setIsStudent(!!jwt.custom_data.is_student)
           setIsTeacher(!!jwt.custom_data.is_teacher)
+          setIsInventoryManager(jwt.custom_data.role === 'inventory_manager')
         } catch (err) {
           // eslint-disable-next-line no-console
           console.error(err)
@@ -73,6 +75,21 @@ const Page = ({ children, style, showTabs = false }: Props) => {
                     color={'#fafafa'}
                     size={24}
                     onPress={() => router.push('/fieldtrip/join')}
+                  />
+                )}
+              />
+            </View>
+          )}
+          {isInventoryManager && (
+            <View style={styles.tab}>
+              <TextInput.Icon
+                style={styles.circleTab}
+                icon={() => (
+                  <Icon
+                    name={'clipboard-list-outline'}
+                    color={'#fafafa'}
+                    size={24}
+                    onPress={() => router.push('/equipment')}
                   />
                 )}
               />
