@@ -649,7 +649,6 @@ const Fieldtrip = () => {
           </View>
         ) : (
           <EquipmentList
-            data={[]}
             equipmentRequests={equipmentRequests}
             fieldtripId={FState.fieldtripID}
             groupLeaders={students}

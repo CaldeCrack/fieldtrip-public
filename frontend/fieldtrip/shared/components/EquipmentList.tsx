@@ -2,11 +2,10 @@ import { StyleSheet, View } from 'react-native'
 import { Chip, Divider, List, MD3Colors, Text } from 'react-native-paper'
 import { useMemo, useState } from 'react'
 
-import { EquipmentItem, EquipmentRequestItem, StudentAttendee } from '@types'
+import { EquipmentRequestItem, StudentAttendee } from '@types'
 import { getFieldtripUserEquipment } from '@services'
 
 type Props = {
-  data: EquipmentItem[]
   equipmentRequests?: EquipmentRequestItem[]
   fieldtripId?: number | null
   groupLeaders?: StudentAttendee[]
@@ -47,12 +46,10 @@ const getStatusStyle = (status: string) =>
   }
 
 const EquipmentList = ({
-  data = [],
   equipmentRequests = [],
   fieldtripId = null,
   groupLeaders = [],
 }: Props) => {
-  const filteredEquipment = data.filter((item) => item.quantity > 0)
   const approvedRequests = equipmentRequests.filter(
     (request) => request.status === 'approved' && request.quantity > 0,
   )
@@ -113,10 +110,10 @@ const EquipmentList = ({
     }
   }
 
-  if (filteredEquipment.length === 0 && equipmentRequests.length === 0) {
+  if (equipmentRequests.length === 0) {
     return (
       <View style={styles.emptyStateContainer}>
-        <Text style={styles.emptyStateText}>No se ha registrado equipamiento en uso.</Text>
+        <Text style={styles.emptyStateText}>No hay solicitudes de equipamiento.</Text>
       </View>
     )
   }
@@ -125,45 +122,15 @@ const EquipmentList = ({
     <View style={styles.wrapper}>
       <List.Section style={styles.section}>
         <Text style={styles.sectionTitle}>Solicitudes de equipamiento</Text>
-        {equipmentRequests.length === 0 ? (
-          <List.Item title="No hay solicitudes de equipamiento." />
-        ) : (
-          equipmentRequests.map((request) => {
-            const isApproved = request.status === 'approved'
-            const statusStyle = getStatusStyle(request.status)
-            if (!isApproved) {
-              return (
-                <View key={String(request.id)}>
-                  <List.Item
-                    title={request.name}
-                    description={`Cantidad solicitada: ${request.quantity}`}
-                    right={() => (
-                      <Chip
-                        style={[
-                          styles.statusChip,
-                          { backgroundColor: statusStyle.backgroundColor },
-                        ]}
-                        textStyle={[styles.statusText, { color: statusStyle.textColor }]}
-                      >
-                        {getStatusLabel(request.status)}
-                      </Chip>
-                    )}
-                  />
-                  <Divider style={styles.divider} />
-                </View>
-              )
-            }
-
+        {equipmentRequests.map((request) => {
+          const isApproved = request.status === 'approved'
+          const statusStyle = getStatusStyle(request.status)
+          if (!isApproved) {
             return (
               <View key={String(request.id)}>
-                <List.Accordion
+                <List.Item
                   title={request.name}
                   description={`Cantidad solicitada: ${request.quantity}`}
-                  expanded={!!expanded[request.id]}
-                  onPress={() => void toggleAccordion(request.id)}
-                  left={(props) => (
-                    <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />
-                  )}
                   right={() => (
                     <Chip
                       style={[styles.statusChip, { backgroundColor: statusStyle.backgroundColor }]}
@@ -172,72 +139,53 @@ const EquipmentList = ({
                       {getStatusLabel(request.status)}
                     </Chip>
                   )}
-                >
-                  {assignmentLoading[request.id] ? (
-                    <List.Item title="Cargando asignaciones..." />
-                  ) : assignmentError[request.id] ? (
-                    <List.Item title="No se pudieron cargar las asignaciones." />
-                  ) : (assignments[request.id] || []).length === 0 ? (
-                    <List.Item title="Sin asignaciones para líderes de grupo." />
-                  ) : (
-                    (assignments[request.id] || []).map((leader) => (
-                      <List.Item
-                        key={String(leader.id)}
-                        title={leader.name}
-                        right={() => <Text style={styles.quantity}>x{leader.quantity}</Text>}
-                      />
-                    ))
-                  )}
-                </List.Accordion>
+                />
                 <Divider style={styles.divider} />
               </View>
             )
-          })
-        )}
+          }
+
+          return (
+            <View key={String(request.id)}>
+              <List.Accordion
+                title={request.name}
+                description={`Cantidad solicitada: ${request.quantity}`}
+                expanded={!!expanded[request.id]}
+                onPress={() => void toggleAccordion(request.id)}
+                left={(props) => <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />}
+                right={() => (
+                  <Chip
+                    style={[styles.statusChip, { backgroundColor: statusStyle.backgroundColor }]}
+                    textStyle={[styles.statusText, { color: statusStyle.textColor }]}
+                  >
+                    {getStatusLabel(request.status)}
+                  </Chip>
+                )}
+              >
+                {assignmentLoading[request.id] ? (
+                  <List.Item title="Cargando asignaciones..." />
+                ) : assignmentError[request.id] ? (
+                  <List.Item title="No se pudieron cargar las asignaciones." />
+                ) : (assignments[request.id] || []).length === 0 ? (
+                  <List.Item title="Sin asignaciones para líderes de grupo." />
+                ) : (
+                  (assignments[request.id] || []).map((leader) => (
+                    <List.Item
+                      key={String(leader.id)}
+                      title={leader.name}
+                      right={() => <Text style={styles.quantity}>x{leader.quantity}</Text>}
+                    />
+                  ))
+                )}
+              </List.Accordion>
+              <Divider style={styles.divider} />
+            </View>
+          )
+        })}
         {equipmentRequests.length > 0 && approvedRequests.length === 0 ? (
           <List.Item title="No hay solicitudes aprobadas." />
         ) : null}
       </List.Section>
-      {equipmentRequests.length === 0 ? (
-        <List.Section style={styles.section}>
-          <Text style={styles.sectionTitle}>Equipamiento en uso</Text>
-          {filteredEquipment.length === 0 ? (
-            <List.Item title="No se ha registrado equipamiento en uso." />
-          ) : (
-            filteredEquipment.map((item) => (
-              <View key={String(item.id)}>
-                <List.Accordion
-                  title={item.name}
-                  description="Equipamiento en uso"
-                  expanded={!!expanded[item.id]}
-                  onPress={() => void toggleAccordion(item.id)}
-                  left={(props) => (
-                    <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />
-                  )}
-                  right={() => <Text style={styles.quantity}>x{item.quantity}</Text>}
-                >
-                  {assignmentLoading[item.id] ? (
-                    <List.Item title="Cargando asignaciones..." />
-                  ) : assignmentError[item.id] ? (
-                    <List.Item title="No se pudieron cargar las asignaciones." />
-                  ) : (assignments[item.id] || []).length === 0 ? (
-                    <List.Item title="Sin asignaciones para líderes de grupo." />
-                  ) : (
-                    (assignments[item.id] || []).map((leader) => (
-                      <List.Item
-                        key={String(leader.id)}
-                        title={leader.name}
-                        right={() => <Text style={styles.quantity}>x{leader.quantity}</Text>}
-                      />
-                    ))
-                  )}
-                </List.Accordion>
-                <Divider style={styles.divider} />
-              </View>
-            ))
-          )}
-        </List.Section>
-      ) : null}
     </View>
   )
 }
