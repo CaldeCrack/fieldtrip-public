@@ -468,6 +468,21 @@ const Fieldtrip = () => {
     }
   }
 
+  const requestStatusOrder: Record<EquipmentRequestItem['status'], number> = {
+    pending: 0,
+    approved: 1,
+    rejected: 2,
+  }
+
+  const sortedEquipmentRequests = [...equipmentRequests].sort((a, b) => {
+    const aOrder = requestStatusOrder[a.status] ?? 99
+    const bOrder = requestStatusOrder[b.status] ?? 99
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder
+    }
+    return a.id - b.id
+  })
+
   return (
     <Page style={styles.page} showTabs={true}>
       {showRequests ? (
@@ -502,9 +517,9 @@ const Fieldtrip = () => {
             <View style={styles.emptyStateContainer}>
               <Text style={styles.emptyStateText}>Cargando solicitudes...</Text>
             </View>
-          ) : equipmentRequests.length > 0 ? (
+          ) : sortedEquipmentRequests.length > 0 ? (
             <View style={styles.requestsWrapper}>
-              {equipmentRequests.map((request) => (
+              {sortedEquipmentRequests.map((request) => (
                 <EquipmentRequestCard
                   key={request.id}
                   request={request}
