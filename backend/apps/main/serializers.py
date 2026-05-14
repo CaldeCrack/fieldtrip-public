@@ -1,10 +1,11 @@
 from rest_framework import serializers
+from collections import defaultdict
 
 
 from .models import *
 from apps.utils.functions import *
 from apps.user.serializers import *
-from apps.equipment.models import EquipmentRequest
+from apps.equipment.models import Equipment, EquipmentRequest, EducationalInstitutionEquipment
 
 
 class FieldtripSerializer(serializers.ModelSerializer):
@@ -25,6 +26,67 @@ class FieldtripSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"equipment": "Debe seleccionar al menos un equipamiento."}
                 )
+
+            course_id = attrs.get("course_id")
+            if not course_id:
+                raise serializers.ValidationError(
+                    {"course_id": "Debe seleccionar un curso para validar el equipamiento."}
+                )
+
+            course = Course.objects.select_related("institution").filter(pk=course_id).first()
+            institution = course.institution if course else None
+            if not institution:
+                raise serializers.ValidationError(
+                    {
+                        "equipment": (
+                            "El curso seleccionado no tiene una institución asociada para validar "
+                            "el equipamiento."
+                        )
+                    }
+                )
+
+            available_by_equipment_id = dict(
+                EducationalInstitutionEquipment.objects.filter(institution=institution)
+                .values_list("type_id", "quantity")
+            )
+
+            requested_quantities = defaultdict(int)
+            for index, equipment_item in enumerate(equipment):
+                equipment_id = equipment_item.get("id")
+                quantity = equipment_item.get("quantity", 0)
+
+                if not equipment_id:
+                    raise serializers.ValidationError(
+                        {"equipment": f"El equipamiento en la posición {index + 1} no es válido."}
+                    )
+
+                if quantity <= 0:
+                    raise serializers.ValidationError(
+                        {
+                            "equipment": (
+                                f"La cantidad solicitada para el equipamiento {equipment_id} "
+                                "debe ser mayor a 0."
+                            )
+                        }
+                    )
+
+                requested_quantities[equipment_id] += quantity
+
+            for equipment_id, requested_quantity in requested_quantities.items():
+                available_quantity = available_by_equipment_id.get(equipment_id, 0)
+                if requested_quantity > available_quantity:
+                    equipment_name = (
+                        Equipment.objects.filter(pk=equipment_id).values_list("type", flat=True).first()
+                        or str(equipment_id)
+                    )
+                    raise serializers.ValidationError(
+                        {
+                            "equipment": (
+                                f"La cantidad solicitada para '{equipment_name}' no puede superar "
+                                f"la disponibilidad de {available_quantity}."
+                            )
+                        }
+                    )
         return attrs
 
     def create(self, validated_data):

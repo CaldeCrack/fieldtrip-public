@@ -52,8 +52,10 @@ const EquipmentSelectionModal = ({
   }, [visible, initialSelectedEquipment])
 
   const handleQuantityChange = (equipmentId: number, quantity: string) => {
-    const numQuantity = parseInt(quantity) || 0
-    const maxAvailable = availableById ? availableById[equipmentId] : undefined
+    const numQuantity = parseInt(quantity, 10) || 0
+    const listAvailable = equipmentList.find((item) => item.id === equipmentId)?.quantity
+    const maxAvailable =
+      typeof availableById?.[equipmentId] === 'number' ? availableById[equipmentId] : listAvailable
     const cappedQuantity =
       typeof maxAvailable === 'number' ? Math.min(numQuantity, maxAvailable) : numQuantity
     if (cappedQuantity > 0) {
