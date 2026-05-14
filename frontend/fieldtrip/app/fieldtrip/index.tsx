@@ -16,13 +16,12 @@ import {
 import {
   getFieldtripAttendees,
   getFieldtripMetrics,
-  getFieldtripEquipment,
   getFieldtripEquipmentRequests,
   updateFieldtripEquipmentRequest,
 } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
-import { StudentAttendee, EquipmentItem, EquipmentRequestItem, Payload } from '@types'
+import { StudentAttendee, EquipmentRequestItem, Payload } from '@types'
 import { router } from 'expo-router'
 
 interface Allergy {
@@ -71,10 +70,8 @@ const Fieldtrip = () => {
   const [showRequests, setShowRequests] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
-  const [equipment, setEquipment] = useState<EquipmentItem[]>([])
   const [equipmentRequests, setEquipmentRequests] = useState<EquipmentRequestItem[]>([])
   const [loading, setLoading] = useState(true) // Estado de carga
-  const [equipmentLoading, setEquipmentLoading] = useState(true)
   const [requestsLoading, setRequestsLoading] = useState(true)
   const [chartData, setChartData] = useState<chartData>({
     diseases: {
@@ -335,14 +332,12 @@ const Fieldtrip = () => {
         }
 
         setLoading(false)
-        setEquipmentLoading(false)
         setRequestsLoading(false)
         setShowRequests(false)
         return
       }
 
       setLoading(true)
-      setEquipmentLoading(true)
       setRequestsLoading(true)
       setShowRequests(isInventoryManagerUser)
 
@@ -386,30 +381,15 @@ const Fieldtrip = () => {
             console.log(error)
             throw new Error(error.response?.data?.detail || error.message)
           })
-
-        getFieldtripEquipment(FState.fieldtripID)
-          .then((res) => {
-            if (res) {
-              setEquipment(res)
-            }
-          })
-          .catch((error) => {
-            console.log(error)
-            throw new Error(error.response?.data?.detail || error.message)
-          })
-          .finally(() => {
-            setEquipmentLoading(false)
-          })
       } else {
         setLoading(false)
-        setEquipmentLoading(false)
       }
 
       getFieldtripEquipmentRequests(FState.fieldtripID)
         .then((res) => {
           if (res) {
             setEquipmentRequests(res)
-            setShowRequests(true)
+            setShowRequests(isInventoryManagerUser)
           }
         })
         .catch((error) => {
@@ -663,13 +643,13 @@ const Fieldtrip = () => {
       )}
       {!showRequests &&
         showEquipment &&
-        (equipmentLoading ? (
+        (requestsLoading ? (
           <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>Cargando equipamiento...</Text>
+            <Text style={styles.emptyStateText}>Cargando solicitudes...</Text>
           </View>
         ) : (
           <EquipmentList
-            data={equipment}
+            data={[]}
             equipmentRequests={equipmentRequests}
             fieldtripId={FState.fieldtripID}
             groupLeaders={students}

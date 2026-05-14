@@ -123,10 +123,12 @@ const EquipmentList = ({
 
   return (
     <View style={styles.wrapper}>
-      {equipmentRequests.length > 0 ? (
-        <List.Section style={styles.section}>
-          <Text style={styles.sectionTitle}>Solicitudes de equipamiento</Text>
-          {equipmentRequests.map((request) => {
+      <List.Section style={styles.section}>
+        <Text style={styles.sectionTitle}>Solicitudes de equipamiento</Text>
+        {equipmentRequests.length === 0 ? (
+          <List.Item title="No hay solicitudes de equipamiento." />
+        ) : (
+          equipmentRequests.map((request) => {
             const isApproved = request.status === 'approved'
             const statusStyle = getStatusStyle(request.status)
             if (!isApproved) {
@@ -137,7 +139,10 @@ const EquipmentList = ({
                     description={`Cantidad solicitada: ${request.quantity}`}
                     right={() => (
                       <Chip
-                        style={[styles.statusChip, { backgroundColor: statusStyle.backgroundColor }]}
+                        style={[
+                          styles.statusChip,
+                          { backgroundColor: statusStyle.backgroundColor },
+                        ]}
                         textStyle={[styles.statusText, { color: statusStyle.textColor }]}
                       >
                         {getStatusLabel(request.status)}
@@ -156,7 +161,9 @@ const EquipmentList = ({
                   description={`Cantidad solicitada: ${request.quantity}`}
                   expanded={!!expanded[request.id]}
                   onPress={() => void toggleAccordion(request.id)}
-                  left={(props) => <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />}
+                  left={(props) => (
+                    <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />
+                  )}
                   right={() => (
                     <Chip
                       style={[styles.statusChip, { backgroundColor: statusStyle.backgroundColor }]}
@@ -185,12 +192,12 @@ const EquipmentList = ({
                 <Divider style={styles.divider} />
               </View>
             )
-          })}
-          {equipmentRequests.length > 0 && approvedRequests.length === 0 ? (
-            <List.Item title="No hay solicitudes aprobadas." />
-          ) : null}
-        </List.Section>
-      ) : null}
+          })
+        )}
+        {equipmentRequests.length > 0 && approvedRequests.length === 0 ? (
+          <List.Item title="No hay solicitudes aprobadas." />
+        ) : null}
+      </List.Section>
       {equipmentRequests.length === 0 ? (
         <List.Section style={styles.section}>
           <Text style={styles.sectionTitle}>Equipamiento en uso</Text>
@@ -204,7 +211,9 @@ const EquipmentList = ({
                   description="Equipamiento en uso"
                   expanded={!!expanded[item.id]}
                   onPress={() => void toggleAccordion(item.id)}
-                  left={(props) => <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />}
+                  left={(props) => (
+                    <List.Icon {...props} icon="tools" color={MD3Colors.primary50} />
+                  )}
                   right={() => <Text style={styles.quantity}>x{item.quantity}</Text>}
                 >
                   {assignmentLoading[item.id] ? (

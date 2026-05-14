@@ -115,7 +115,7 @@ class EquipmentListAPIView(APIView):
 
 
 class FieldtripEquipmentRequestAPIView(APIView):
-	permission_classes = (IsAuthenticated, IsInventoryManager)
+	permission_classes = (IsAuthenticated, IsInventoryManager | IsTeacher | IsAuxiliar)
 
 	@swagger_auto_schema(
 		operation_description="Recuperar las solicitudes pendientes de equipamiento para una salida a campo.",
