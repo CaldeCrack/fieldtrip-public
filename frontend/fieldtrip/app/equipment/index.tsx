@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
+import { StyleSheet, View, ScrollView, ActivityIndicator, Pressable } from 'react-native'
 import { useEffect, useState } from 'react'
 import { MD3Colors, Text, TextInput } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
@@ -7,7 +7,11 @@ import { useRouter } from 'expo-router'
 
 import { ContainedButton, EducationalInstitutionList, Page } from '@components'
 import { COLORS } from '@colors'
-import { createEducationalInstitutionEquipment, getEducationalInstitutions } from '@services'
+import {
+  createEducationalInstitutionEquipment,
+  getEducationalInstitutions,
+  getEquipmentTypes,
+} from '@services'
 import { EducationalInstitutionItem } from '@types'
 import { useGlobalSnackbar } from '../../shared/context/useGlobalSnackbar'
 
@@ -173,6 +177,8 @@ const AddEquipmentForm = ({
   const [itemName, setItemName] = useState('')
   const [amount, setAmount] = useState('')
   const [formError, setFormError] = useState('')
+  const [equipmentOptions, setEquipmentOptions] = useState<{ id: number; name: string }[]>([])
+  const [equipmentLoading, setEquipmentLoading] = useState(true)
 
   useEffect(() => {
     const list = institutions.map((item) => ({
@@ -185,6 +191,32 @@ const AddEquipmentForm = ({
       list,
     }))
   }, [institutions])
+
+  useEffect(() => {
+    let isMounted = true
+    setEquipmentLoading(true)
+
+    getEquipmentTypes()
+      .then((data) => {
+        if (isMounted) {
+          setEquipmentOptions(data)
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setEquipmentOptions([])
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setEquipmentLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const handleInstitutionSelection = (value: { text: string; selectedList: ListItem[] }) => {
     setInstitution((prev) => ({
@@ -200,6 +232,15 @@ const AddEquipmentForm = ({
     ''
 
   const amountValue = Number(amount)
+  const normalizedName = itemName.trim().toLowerCase()
+  const filteredSuggestions = normalizedName
+    ? equipmentOptions
+        .filter((item) => item.name.toLowerCase().includes(normalizedName))
+        .slice(0, 5)
+    : []
+  const shouldShowSuggestions =
+    filteredSuggestions.length > 0 &&
+    !filteredSuggestions.some((item) => item.name.toLowerCase() === normalizedName)
   const canSubmit =
     institution.value.trim().length > 0 &&
     itemName.trim().length > 0 &&
@@ -276,6 +317,21 @@ const AddEquipmentForm = ({
         activeOutlineColor={MD3Colors.primary50}
         style={styles.formField}
       />
+      {equipmentLoading ? (
+        <Text style={styles.suggestionHint}>Cargando sugerencias...</Text>
+      ) : shouldShowSuggestions ? (
+        <View style={styles.suggestions}>
+          {filteredSuggestions.map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={() => setItemName(item.name)}
+              style={styles.suggestionItem}
+            >
+              <Text style={styles.suggestionText}>{item.name}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
       <TextInput
         mode="outlined"
         label="Cantidad *"
@@ -330,6 +386,25 @@ const styles = StyleSheet.create({
   },
   formError: {
     color: MD3Colors.error50,
+    marginBottom: 12,
+  },
+  suggestions: {
+    backgroundColor: COLORS.gray_50,
+    borderRadius: 12,
+    paddingVertical: 6,
+    marginTop: -6,
+    marginBottom: 12,
+  },
+  suggestionItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  suggestionText: {
+    color: MD3Colors.primary0,
+  },
+  suggestionHint: {
+    color: COLORS.gray_500,
+    marginTop: -6,
     marginBottom: 12,
   },
   select: {

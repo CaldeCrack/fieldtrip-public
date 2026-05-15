@@ -246,6 +246,54 @@ class EducationalInstitutionEquipmentAPIView(APIView):
 			status=status.HTTP_201_CREATED,
 		)
 
+
+class EquipmentTypesAPIView(APIView):
+	permission_classes = (IsAuthenticated, IsInventoryManager)
+
+	@swagger_auto_schema(
+		operation_description="Recuperar el listado de tipos de equipamiento.",
+		manual_parameters=[
+			openapi.Parameter(
+				"q",
+				openapi.IN_QUERY,
+				description="Filtro por nombre",
+				type=openapi.TYPE_STRING,
+			),
+		],
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"equipment": openapi.Schema(
+						type=openapi.TYPE_ARRAY,
+						items=openapi.Schema(
+							type=openapi.TYPE_OBJECT,
+							properties={
+								"id": openapi.Schema(type=openapi.TYPE_INTEGER),
+								"name": openapi.Schema(type=openapi.TYPE_STRING),
+							},
+						),
+					),
+				},
+			),
+		},
+	)
+	def get(self, request, format=None):
+		query = (request.query_params.get("q") or "").strip()
+		qs = Equipment.objects.all().order_by("type")
+		if query:
+			qs = qs.filter(type__icontains=query)
+
+		equipment = [
+			{
+				"id": item.id,
+				"name": item.type,
+			}
+			for item in qs[:50]
+		]
+
+		return Response({"equipment": equipment}, status=status.HTTP_200_OK)
+
 	@swagger_auto_schema(
 		operation_description="Actualizar la cantidad disponible para un equipamiento de una institución.",
 		request_body=openapi.Schema(

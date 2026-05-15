@@ -7,6 +7,7 @@ export { default as getFieldtripEquipmentOptions } from './getFieldtripEquipment
 export { default as getFieldtripUserEquipment } from './getFieldtripUserEquipment'
 export { default as createFieldtripEquipmentRequests } from './createFieldtripEquipmentRequests'
 export { default as getEquipmentList } from './getEquipmentList'
+export { default as getEquipmentTypes } from './getEquipmentTypes'
 export { default as getUsersFieldtrips } from './getUsersFieldtrips'
 export { default as getInventoryFieldtrips } from './getInventoryFieldtrips'
 export { default as getSubstanceAllergies } from './getSubstanceAllergies'

@@ -4,6 +4,7 @@ from .views import (
     FieldtripEquipmentAPIView,
     EquipmentListAPIView,
     EducationalInstitutionEquipmentAPIView,
+    EquipmentTypesAPIView,
     FieldtripEquipmentRequestAPIView,
     FieldtripEquipmentOptionsAPIView,
     FieldtripUserEquipmentAPIView,
@@ -26,6 +27,11 @@ urlpatterns = [
         "equipment/institution/<int:institution_id>/",
         EducationalInstitutionEquipmentAPIView.as_view(),
         name="equipment-list-institution",
+    ),
+    path(
+        "equipment/types/",
+        EquipmentTypesAPIView.as_view(),
+        name="equipment-types",
     ),
     path(
         "fieldtrip/<int:id>/equipment-requests/",
