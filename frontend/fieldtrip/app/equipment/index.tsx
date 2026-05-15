@@ -2,12 +2,23 @@ import { StyleSheet, View, ScrollView } from 'react-native'
 import { useState } from 'react'
 import { MD3Colors } from 'react-native-paper'
 
-import { ContainedButton, Page } from '@components'
+import { ContainedButton, EducationalInstitutionList, Page } from '@components'
 import { COLORS } from '@colors'
 
+type EducationalInstitution = {
+  id: number
+  name: string
+}
+
 const Equipment = () => {
-  const [showItems, setShowItems] = useState(true)
+  const [showInventory, setShowInventory] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
+
+  const institutions: EducationalInstitution[] = [
+    { id: 1, name: 'Institucion Central' },
+    { id: 2, name: 'Institucion Tecnica Norte' },
+    { id: 3, name: 'Institucion Agricola Sur' },
+  ]
 
   return (
     <Page style={styles.page} showTabs={true}>
@@ -23,15 +34,15 @@ const Equipment = () => {
               styles.btnMarginRight,
               styles.btnMarginBottom,
               {
-                backgroundColor: showItems ? MD3Colors.primary50 : COLORS.gray_100,
+                backgroundColor: showInventory ? MD3Colors.primary50 : COLORS.gray_100,
               },
             ]}
             onPress={() => {
-              setShowItems(true)
+              setShowInventory(true)
               setShowAdd(false)
             }}
           >
-            Items
+            Inventario
           </ContainedButton>
           <ContainedButton
             style={[
@@ -42,7 +53,7 @@ const Equipment = () => {
               },
             ]}
             onPress={() => {
-              setShowItems(false)
+              setShowInventory(false)
               setShowAdd(true)
             }}
           >
@@ -50,6 +61,7 @@ const Equipment = () => {
           </ContainedButton>
         </View>
       </ScrollView>
+      {showInventory && <EducationalInstitutionList data={institutions} />}
     </Page>
   )
 }
