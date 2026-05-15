@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native'
 import { Chip, Text } from 'react-native-paper'
 
-import { ContainedButton } from '@components'
+import ContainedButton from './ContainedButton'
 import { EquipmentRequestItem } from '@types'
 
 type Props = {
