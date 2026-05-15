@@ -1,20 +1,25 @@
 import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
 import { useEffect, useState } from 'react'
-import { MD3Colors, Text } from 'react-native-paper'
+import { MD3Colors, Text, TextInput } from 'react-native-paper'
+import { PaperSelect } from 'react-native-paper-select'
+import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 import { useRouter } from 'expo-router'
 
 import { ContainedButton, EducationalInstitutionList, Page } from '@components'
 import { COLORS } from '@colors'
-import { getEducationalInstitutions } from '@services'
+import { createEducationalInstitutionEquipment, getEducationalInstitutions } from '@services'
 import { EducationalInstitutionItem } from '@types'
+import { useGlobalSnackbar } from '../../shared/context/useGlobalSnackbar'
 
 const Equipment = () => {
   const router = useRouter()
+  const { showSnackbar } = useGlobalSnackbar()
   const [showInventory, setShowInventory] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [institutions, setInstitutions] = useState<EducationalInstitutionItem[]>([])
   const [loadingInstitutions, setLoadingInstitutions] = useState(true)
   const [institutionsError, setInstitutionsError] = useState(false)
+  const [addingEquipment, setAddingEquipment] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -42,6 +47,26 @@ const Equipment = () => {
       isMounted = false
     }
   }, [])
+
+  const handleAddEquipment = async (payload: AddEquipmentPayload) => {
+    if (addingEquipment) {
+      return
+    }
+
+    setAddingEquipment(true)
+    try {
+      await createEducationalInstitutionEquipment(payload.institutionId, {
+        name: payload.itemName,
+        quantity: payload.amount,
+      })
+      showSnackbar('Equipamiento agregado correctamente.', { isError: false })
+    } catch (error) {
+      const message = (error as Error).message || 'No se pudo agregar el equipamiento.'
+      showSnackbar(message, { isError: true })
+    } finally {
+      setAddingEquipment(false)
+    }
+  }
 
   return (
     <Page style={styles.page} showTabs={true}>
@@ -105,7 +130,167 @@ const Equipment = () => {
             }
           />
         ))}
+      {showAdd && (
+        <AddEquipmentForm
+          institutions={institutions}
+          loadingInstitutions={loadingInstitutions}
+          institutionsError={institutionsError}
+          submitting={addingEquipment}
+          onSubmit={handleAddEquipment}
+        />
+      )}
     </Page>
+  )
+}
+
+type AddEquipmentPayload = {
+  institutionId: number
+  institutionName: string
+  itemName: string
+  amount: number
+}
+
+type AddEquipmentFormProps = {
+  institutions: EducationalInstitutionItem[]
+  loadingInstitutions: boolean
+  institutionsError: boolean
+  submitting?: boolean
+  onSubmit?: (_payload: AddEquipmentPayload) => void
+}
+
+const AddEquipmentForm = ({
+  institutions,
+  loadingInstitutions,
+  institutionsError,
+  submitting = false,
+  onSubmit,
+}: AddEquipmentFormProps) => {
+  const [institution, setInstitution] = useState({
+    value: '',
+    list: [] as ListItem[],
+    selectedList: [] as ListItem[],
+  })
+  const [itemName, setItemName] = useState('')
+  const [amount, setAmount] = useState('')
+  const [formError, setFormError] = useState('')
+
+  useEffect(() => {
+    const list = institutions.map((item) => ({
+      _id: String(item.id),
+      value: item.name,
+    }))
+
+    setInstitution((prev) => ({
+      ...prev,
+      list,
+    }))
+  }, [institutions])
+
+  const handleInstitutionSelection = (value: { text: string; selectedList: ListItem[] }) => {
+    setInstitution((prev) => ({
+      ...prev,
+      value: value.text,
+      selectedList: value.selectedList,
+    }))
+  }
+
+  const selectedInstitutionId =
+    institution.selectedList[0]?._id ||
+    institution.list.find((item) => item.value === institution.value)?._id ||
+    ''
+
+  const amountValue = Number(amount)
+  const canSubmit =
+    institution.value.trim().length > 0 &&
+    itemName.trim().length > 0 &&
+    Number.isFinite(amountValue) &&
+    amountValue > 0
+
+  const handleSubmit = () => {
+    if (!canSubmit || !selectedInstitutionId) {
+      setFormError('Debe completar todos los campos con valores validos.')
+      return
+    }
+
+    setFormError('')
+    onSubmit?.({
+      institutionId: Number(selectedInstitutionId),
+      institutionName: institution.value,
+      itemName: itemName.trim(),
+      amount: amountValue,
+    })
+
+    setItemName('')
+    setAmount('')
+    setInstitution((prev) => ({
+      ...prev,
+      value: '',
+      selectedList: [],
+    }))
+  }
+
+  if (loadingInstitutions) {
+    return <ActivityIndicator size="large" color={COLORS.primary_50} style={styles.loading} />
+  }
+
+  if (institutionsError) {
+    return (
+      <View style={styles.emptyState}>
+        <Text>No se pudieron cargar las instituciones educativas.</Text>
+      </View>
+    )
+  }
+
+  return (
+    <View style={styles.form}>
+      <PaperSelect
+        dialogStyle={styles.select}
+        label="Institucion educativa *"
+        value={institution.value}
+        onSelection={handleInstitutionSelection}
+        arrayList={[...institution.list]}
+        selectedArrayList={institution.selectedList}
+        hideSearchBox={true}
+        dialogTitleStyle={{ textAlign: 'center' }}
+        dialogTitle="Seleccione la institucion"
+        dialogCloseButtonText="Cerrar"
+        dialogDoneButtonText="Terminar"
+        textInputMode="outlined"
+        textInputProps={{
+          outlineColor: COLORS.gray_100,
+          activeOutlineColor: MD3Colors.primary50,
+        }}
+        checkboxProps={{
+          checkboxColor: MD3Colors.primary50,
+          checkboxUncheckedColor: COLORS.gray_100,
+        }}
+        containerStyle={styles.formField}
+        multiEnable={false}
+      />
+      <TextInput
+        mode="outlined"
+        label="Nombre del item *"
+        value={itemName}
+        onChangeText={setItemName}
+        outlineColor={COLORS.gray_100}
+        activeOutlineColor={MD3Colors.primary50}
+        style={styles.formField}
+      />
+      <TextInput
+        mode="outlined"
+        label="Cantidad *"
+        value={amount}
+        onChangeText={setAmount}
+        outlineColor={COLORS.gray_100}
+        activeOutlineColor={MD3Colors.primary50}
+        keyboardType="numeric"
+        style={styles.formField}
+      />
+      {formError.length > 0 && <Text style={styles.formError}>{formError}</Text>}
+      <ContainedButton onPress={handleSubmit} disabled={!canSubmit || submitting}>
+        {submitting ? <ActivityIndicator color="white" size="small" /> : 'Enviar'}
+      </ContainedButton>
+    </View>
   )
 }
 
@@ -135,6 +320,23 @@ const styles = StyleSheet.create({
   emptyState: {
     width: 300,
     marginTop: 24,
+  },
+  form: {
+    width: '100%',
+    maxWidth: 420,
+  },
+  formField: {
+    marginBottom: 14,
+  },
+  formError: {
+    color: MD3Colors.error50,
+    marginBottom: 12,
+  },
+  select: {
+    borderRadius: 28,
+    backgroundColor: '#fafafa',
+    maxWidth: 420,
+    marginHorizontal: 'auto',
   },
 })
 

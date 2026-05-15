@@ -4,12 +4,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Sum
 
-from .models import EducationalInstitutionEquipment, EquipmentRequest, UserEquipment
+from .models import EducationalInstitutionEquipment, Equipment, EquipmentRequest, UserEquipment
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
-from apps.main.models import Course, Fieldtrip
+from apps.main.models import Course, Fieldtrip, EducationalInstitution
 
 
 class FieldtripEquipmentAPIView(APIView):
@@ -156,6 +156,95 @@ class EducationalInstitutionEquipmentAPIView(APIView):
 		]
 
 		return Response({"equipment": equipment}, status=status.HTTP_200_OK)
+
+	@swagger_auto_schema(
+		operation_description="Crear un nuevo equipamiento para una institución educacional.",
+		request_body=openapi.Schema(
+			type=openapi.TYPE_OBJECT,
+			properties={
+				"name": openapi.Schema(
+					type=openapi.TYPE_STRING,
+					description="Nombre del equipamiento",
+				),
+				"quantity": openapi.Schema(
+					type=openapi.TYPE_INTEGER,
+					description="Cantidad disponible",
+				),
+			},
+			required=["name", "quantity"],
+		),
+		responses={
+			201: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"id": openapi.Schema(type=openapi.TYPE_INTEGER),
+					"name": openapi.Schema(type=openapi.TYPE_STRING),
+					"quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
+				},
+			),
+		},
+	)
+	def post(self, request, institution_id, format=None):
+		name = request.data.get("name")
+		quantity = request.data.get("quantity")
+
+		if not name or not str(name).strip():
+			return Response(
+				{"detail": "Debe proporcionar un nombre de equipamiento."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		try:
+			quantity_value = int(quantity)
+		except (TypeError, ValueError):
+			return Response(
+				{"detail": "La cantidad debe ser un entero válido."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		if quantity_value <= 0:
+			return Response(
+				{"detail": "La cantidad debe ser mayor a 0."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		institution = EducationalInstitution.objects.filter(id=institution_id).first()
+		if not institution:
+			return Response(
+				{"detail": "La institución no existe."},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		equipment_type, _ = Equipment.objects.get_or_create(type=str(name).strip())
+		if EducationalInstitutionEquipment.objects.filter(
+			institution=institution,
+			type=equipment_type,
+		).exists():
+			return Response(
+				{"detail": "El equipamiento ya existe para esta institución."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		try:
+			stock_item = EducationalInstitutionEquipment.objects.create(
+				institution=institution,
+				type=equipment_type,
+				quantity=quantity_value,
+			)
+		except IntegrityError:
+			return Response(
+				{"detail": "El equipamiento ya existe para esta institución."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		return Response(
+			{
+				"id": stock_item.type.id,
+				"name": stock_item.type.type,
+				"quantity": stock_item.quantity,
+			},
+			status=status.HTTP_201_CREATED,
+		)
 
 	@swagger_auto_schema(
 		operation_description="Actualizar la cantidad disponible para un equipamiento de una institución.",
