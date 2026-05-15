@@ -61,6 +61,7 @@ router.register(r"health/log-data", HealthDataLogViewSet)
 router.register(r"checklist", ChecklistViewSet, basename='checklist')
 
 router.register(r"course", CourseViewSet)
+router.register(r"educational-institution", EducationalInstitutionViewSet, basename='educational-institution')
 
 router.register(r"fieldtrip", FieldtripViewSet, basename='fieldtrip')
 router.register(r"fieldtrip-attendee", FieldtripAttendeeViewSet)

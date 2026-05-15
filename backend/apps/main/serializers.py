@@ -261,3 +261,9 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ["id", "name"]
+
+
+class EducationalInstitutionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EducationalInstitution
+        fields = ["id", "name"]

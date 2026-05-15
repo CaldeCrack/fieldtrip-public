@@ -50,6 +50,12 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
 
 
+class EducationalInstitutionViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticated, IsInventoryManager)
+    queryset = EducationalInstitution.objects.order_by('name')
+    serializer_class = EducationalInstitutionSerializer
+
+
 class UserAlreadyRegisteredException(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = "El usuario ya está registrado en esta salida a campo."

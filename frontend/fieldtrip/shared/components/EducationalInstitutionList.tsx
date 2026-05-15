@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 import { Surface, Text, TouchableRipple } from 'react-native-paper'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { COLORS } from '@colors'
 
@@ -27,10 +28,17 @@ const EducationalInstitutionList = ({ data }: Props) => {
       {data.map((item) => (
         <TouchableRipple key={String(item.id)} style={styles.ripple} onPress={() => {}}>
           <Surface elevation={0} style={styles.card}>
-            <Text variant="titleMedium" style={styles.title}>
-              {item.name}
-            </Text>
-            {item.address ? <Text variant="bodyMedium">{item.address}</Text> : null}
+            <View style={styles.cardRow}>
+              <View style={styles.iconWrap}>
+                <Icon name="school-outline" size={22} color={COLORS.primary_50} />
+              </View>
+              <View style={styles.textWrap}>
+                <Text variant="titleMedium" style={styles.title}>
+                  {item.name}
+                </Text>
+                {item.address ? <Text variant="bodyMedium">{item.address}</Text> : null}
+              </View>
+            </View>
           </Surface>
         </TouchableRipple>
       ))}
@@ -56,6 +64,22 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     paddingVertical: 12,
     paddingHorizontal: 20,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.primary_25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textWrap: {
+    flex: 1,
   },
   title: {
     fontWeight: '600',

@@ -1,24 +1,45 @@
-import { StyleSheet, View, ScrollView } from 'react-native'
-import { useState } from 'react'
-import { MD3Colors } from 'react-native-paper'
+import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
+import { useEffect, useState } from 'react'
+import { MD3Colors, Text } from 'react-native-paper'
 
 import { ContainedButton, EducationalInstitutionList, Page } from '@components'
 import { COLORS } from '@colors'
-
-type EducationalInstitution = {
-  id: number
-  name: string
-}
+import { getEducationalInstitutions } from '@services'
+import { EducationalInstitutionItem } from '@types'
 
 const Equipment = () => {
   const [showInventory, setShowInventory] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
+  const [institutions, setInstitutions] = useState<EducationalInstitutionItem[]>([])
+  const [loadingInstitutions, setLoadingInstitutions] = useState(true)
+  const [institutionsError, setInstitutionsError] = useState(false)
 
-  const institutions: EducationalInstitution[] = [
-    { id: 1, name: 'Institucion Central' },
-    { id: 2, name: 'Institucion Tecnica Norte' },
-    { id: 3, name: 'Institucion Agricola Sur' },
-  ]
+  useEffect(() => {
+    let isMounted = true
+    setLoadingInstitutions(true)
+    setInstitutionsError(false)
+
+    getEducationalInstitutions()
+      .then((data) => {
+        if (isMounted) {
+          setInstitutions(data)
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setInstitutionsError(true)
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoadingInstitutions(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   return (
     <Page style={styles.page} showTabs={true}>
@@ -61,7 +82,16 @@ const Equipment = () => {
           </ContainedButton>
         </View>
       </ScrollView>
-      {showInventory && <EducationalInstitutionList data={institutions} />}
+      {showInventory &&
+        (loadingInstitutions ? (
+          <ActivityIndicator size="large" color={COLORS.primary_50} style={styles.loading} />
+        ) : institutionsError ? (
+          <View style={styles.emptyState}>
+            <Text>No se pudieron cargar las instituciones educativas.</Text>
+          </View>
+        ) : (
+          <EducationalInstitutionList data={institutions} />
+        ))}
     </Page>
   )
 }
@@ -85,6 +115,13 @@ const styles = StyleSheet.create({
   },
   btnMarginBottom: {
     marginBottom: 0,
+  },
+  loading: {
+    marginTop: 24,
+  },
+  emptyState: {
+    width: 300,
+    marginTop: 24,
   },
 })
 
