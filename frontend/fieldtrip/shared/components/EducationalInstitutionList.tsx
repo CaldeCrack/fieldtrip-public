@@ -12,9 +12,10 @@ type EducationalInstitution = {
 
 type Props = {
   data: EducationalInstitution[]
+  onPressItem?: (item: EducationalInstitution) => void
 }
 
-const EducationalInstitutionList = ({ data }: Props) => {
+const EducationalInstitutionList = ({ data, onPressItem }: Props) => {
   if (data.length === 0) {
     return (
       <View style={styles.emptyState}>
@@ -26,7 +27,11 @@ const EducationalInstitutionList = ({ data }: Props) => {
   return (
     <View style={styles.list}>
       {data.map((item) => (
-        <TouchableRipple key={String(item.id)} style={styles.ripple} onPress={() => {}}>
+        <TouchableRipple
+          key={String(item.id)}
+          style={styles.ripple}
+          onPress={() => onPressItem?.(item)}
+        >
           <Surface elevation={0} style={styles.card}>
             <View style={styles.cardRow}>
               <View style={styles.iconWrap}>

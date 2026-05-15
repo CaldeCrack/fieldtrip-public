@@ -114,6 +114,50 @@ class EquipmentListAPIView(APIView):
 				return Response({"equipment": []}, status=200)
 
 
+class EducationalInstitutionEquipmentAPIView(APIView):
+	permission_classes = (IsAuthenticated, IsInventoryManager)
+
+	@swagger_auto_schema(
+		operation_description="Recuperar el equipamiento disponible para una institución educacional.",
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"equipment": openapi.Schema(
+						type=openapi.TYPE_ARRAY,
+						items=openapi.Schema(
+							type=openapi.TYPE_OBJECT,
+							properties={
+								"id": openapi.Schema(type=openapi.TYPE_INTEGER, description="ID del equipamiento"),
+								"name": openapi.Schema(type=openapi.TYPE_STRING, description="Nombre del equipamiento"),
+								"quantity": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad disponible"),
+							},
+						),
+						description="Lista de equipamiento disponible",
+					)
+				},
+			)
+		},
+	)
+	def get(self, request, institution_id, format=None):
+		equipment_list = (
+			EducationalInstitutionEquipment.objects.select_related("type")
+			.filter(institution_id=institution_id)
+			.order_by("type__type")
+		)
+
+		equipment = [
+			{
+				"id": item.type.id,
+				"name": item.type.type,
+				"quantity": item.quantity,
+			}
+			for item in equipment_list
+		]
+
+		return Response({"equipment": equipment}, status=status.HTTP_200_OK)
+
+
 class FieldtripEquipmentOptionsAPIView(APIView):
 	permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar | IsInventoryManager)
 

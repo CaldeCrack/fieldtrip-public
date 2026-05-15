@@ -1,6 +1,7 @@
 import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native'
 import { useEffect, useState } from 'react'
 import { MD3Colors, Text } from 'react-native-paper'
+import { useRouter } from 'expo-router'
 
 import { ContainedButton, EducationalInstitutionList, Page } from '@components'
 import { COLORS } from '@colors'
@@ -8,6 +9,7 @@ import { getEducationalInstitutions } from '@services'
 import { EducationalInstitutionItem } from '@types'
 
 const Equipment = () => {
+  const router = useRouter()
   const [showInventory, setShowInventory] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [institutions, setInstitutions] = useState<EducationalInstitutionItem[]>([])
@@ -90,7 +92,18 @@ const Equipment = () => {
             <Text>No se pudieron cargar las instituciones educativas.</Text>
           </View>
         ) : (
-          <EducationalInstitutionList data={institutions} />
+          <EducationalInstitutionList
+            data={institutions}
+            onPressItem={(institution) =>
+              router.push({
+                pathname: '/equipment/educational-institution',
+                params: {
+                  institutionId: String(institution.id),
+                  institutionName: institution.name,
+                },
+              })
+            }
+          />
         ))}
     </Page>
   )

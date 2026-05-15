@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     FieldtripEquipmentAPIView,
     EquipmentListAPIView,
+    EducationalInstitutionEquipmentAPIView,
     FieldtripEquipmentRequestAPIView,
     FieldtripEquipmentOptionsAPIView,
     FieldtripUserEquipmentAPIView,
@@ -20,6 +21,11 @@ urlpatterns = [
         "equipment/list/<int:course_id>/",
         EquipmentListAPIView.as_view(),
         name="equipment-list-course",
+    ),
+    path(
+        "equipment/institution/<int:institution_id>/",
+        EducationalInstitutionEquipmentAPIView.as_view(),
+        name="equipment-list-institution",
     ),
     path(
         "fieldtrip/<int:id>/equipment-requests/",
