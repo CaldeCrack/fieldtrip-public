@@ -7,7 +7,7 @@ import { COLORS } from '@colors'
 
 const Equipment = () => {
   const [showItems, setShowItems] = useState(true)
-  const [showStock, setShowStock] = useState(false)
+  const [showAdd, setShowAdd] = useState(false)
 
   return (
     <Page style={styles.page} showTabs={true}>
@@ -28,7 +28,7 @@ const Equipment = () => {
             ]}
             onPress={() => {
               setShowItems(true)
-              setShowStock(false)
+              setShowAdd(false)
             }}
           >
             Items
@@ -38,15 +38,15 @@ const Equipment = () => {
               styles.btnMarginRight,
               styles.btnMarginBottom,
               {
-                backgroundColor: showStock ? MD3Colors.primary50 : COLORS.gray_100,
+                backgroundColor: showAdd ? MD3Colors.primary50 : COLORS.gray_100,
               },
             ]}
             onPress={() => {
               setShowItems(false)
-              setShowStock(true)
+              setShowAdd(true)
             }}
           >
-            Stock
+            Añadir
           </ContainedButton>
         </View>
       </ScrollView>
