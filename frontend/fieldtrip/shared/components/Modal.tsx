@@ -1,6 +1,6 @@
-import { Dimensions, StyleSheet } from 'react-native'
+import { Dimensions, Platform, StyleSheet } from 'react-native'
 import { Portal, Dialog, Text } from 'react-native-paper'
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 
 type ModalProps = {
   visible: boolean
@@ -12,6 +12,23 @@ type ModalProps = {
 
 const Modal = ({ visible, close, title = '', description = '', children }: ModalProps) => {
   const isSmallScreen = Dimensions.get('window').width <= 768
+
+  useEffect(() => {
+    if (!visible || Platform.OS !== 'web') {
+      return
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        close()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [visible, close])
 
   return (
     <Portal>
@@ -45,6 +62,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
+    paddingBottom: 0,
   },
   title: {
     textAlign: 'center',

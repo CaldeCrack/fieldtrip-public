@@ -157,6 +157,80 @@ class EducationalInstitutionEquipmentAPIView(APIView):
 
 		return Response({"equipment": equipment}, status=status.HTTP_200_OK)
 
+	@swagger_auto_schema(
+		operation_description="Actualizar la cantidad disponible para un equipamiento de una institución.",
+		request_body=openapi.Schema(
+			type=openapi.TYPE_OBJECT,
+			properties={
+				"equipment_id": openapi.Schema(
+					type=openapi.TYPE_INTEGER,
+					description="ID del equipamiento",
+				),
+				"quantity": openapi.Schema(
+					type=openapi.TYPE_INTEGER,
+					description="Cantidad disponible",
+				),
+			},
+			required=["equipment_id", "quantity"],
+		),
+		responses={
+			200: openapi.Schema(
+				type=openapi.TYPE_OBJECT,
+				properties={
+					"id": openapi.Schema(type=openapi.TYPE_INTEGER),
+					"name": openapi.Schema(type=openapi.TYPE_STRING),
+					"quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
+				},
+			),
+		},
+	)
+	def patch(self, request, institution_id, format=None):
+		equipment_id = request.data.get("equipment_id")
+		quantity = request.data.get("quantity")
+
+		try:
+			quantity_value = int(quantity)
+		except (TypeError, ValueError):
+			return Response(
+				{"detail": "La cantidad debe ser un entero válido."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		if equipment_id is None:
+			return Response(
+				{"detail": "Debe proporcionar un equipment_id."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		if quantity_value < 0:
+			return Response(
+				{"detail": "La cantidad debe ser mayor o igual a 0."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		stock_item = EducationalInstitutionEquipment.objects.select_related("type").filter(
+			institution_id=institution_id,
+			type_id=equipment_id,
+		).first()
+
+		if not stock_item:
+			return Response(
+				{"detail": "No existe equipamiento registrado para esta institución."},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		stock_item.quantity = quantity_value
+		stock_item.save(update_fields=["quantity"])
+
+		return Response(
+			{
+				"id": stock_item.type.id,
+				"name": stock_item.type.type,
+				"quantity": stock_item.quantity,
+			},
+			status=status.HTTP_200_OK,
+		)
+
 
 class FieldtripEquipmentOptionsAPIView(APIView):
 	permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar | IsInventoryManager)
