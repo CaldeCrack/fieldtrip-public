@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Surface, Text, TouchableRipple, IconButton, MD3Colors } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -9,7 +9,13 @@ import { jwtDecode } from 'jwt-decode'
 import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
 import { Payload } from '@types'
-import { getSignupStatus } from '@services'
+import {
+  getSignupStatus,
+  getFieldtripAttendees,
+  getFieldtripEquipmentRequests,
+  getFieldtripUserEquipment,
+} from '@services'
+import { initOfflineDb, saveFieldtripOfflineData } from '../storage/offlineFieldtripDb'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
 type FieldtripStatus = {
@@ -40,6 +46,14 @@ const FieldtripList = ({ data, setState }: Props) => {
   const [isStudent, setIsStudent] = useState<boolean>(false)
   const [isInventoryManager, setIsInventoryManager] = useState<boolean>(false)
   const [fieldtripStatuses, setFieldtripStatuses] = useState<Record<number, FieldtripStatus>>({})
+  const [downloading, setDownloading] = useState<Record<number, boolean>>({})
+  const isMobile = Platform.OS !== 'web'
+
+  useEffect(() => {
+    initOfflineDb().catch((error) => {
+      console.warn('No se pudo preparar la base de datos offline:', error)
+    })
+  }, [])
 
   useEffect(() => {
     ;(async () => {
@@ -91,6 +105,61 @@ const FieldtripList = ({ data, setState }: Props) => {
     showSnackbar('El código de invitación a la salida ha sido copiado al portapapeles.')
   }
 
+  const handleDownloadOfflineData = async (
+    fieldtrip: FieldtripItem,
+    event?: { stopPropagation?: () => void },
+  ) => {
+    event?.stopPropagation?.()
+    if (downloading[fieldtrip.id]) {
+      return
+    }
+
+    setDownloading((prev) => ({ ...prev, [fieldtrip.id]: true }))
+    try {
+      const [attendees, equipmentRequests] = await Promise.all([
+        getFieldtripAttendees(fieldtrip.id),
+        getFieldtripEquipmentRequests(fieldtrip.id),
+      ])
+
+      const equipmentByUserEntries = await Promise.all(
+        attendees.map(async (attendee) => {
+          try {
+            const equipment = await getFieldtripUserEquipment(fieldtrip.id, attendee.id)
+            return [attendee.id, equipment] as const
+          } catch (error) {
+            console.warn('No se pudo cargar el equipo del asistente:', error)
+            return [attendee.id, []] as const
+          }
+        }),
+      )
+
+      const equipmentByUser = equipmentByUserEntries.reduce(
+        (accumulator, [userId, equipment]) => {
+          accumulator[userId] = equipment
+          return accumulator
+        },
+        {} as Record<number, { id: number; quantity: number }[]>,
+      )
+
+      const offlineData = {
+        fieldtripId: fieldtrip.id,
+        fieldtripName: fieldtrip.title,
+        downloadedAt: new Date().toISOString(),
+        attendees,
+        equipmentRequests,
+        equipmentByUser,
+      }
+
+      await saveFieldtripOfflineData(offlineData)
+      showSnackbar('Datos de la salida descargados para uso sin conexión.')
+    } catch (error: any) {
+      console.error('Error downloading fieldtrip data:', error)
+      showSnackbar('No se pudieron descargar los datos de la salida.', { isError: true })
+    } finally {
+      setDownloading((prev) => ({ ...prev, [fieldtrip.id]: false }))
+    }
+  }
+
   return (
     <View style={styles.view}>
       {[...data]
@@ -137,6 +206,15 @@ const FieldtripList = ({ data, setState }: Props) => {
                     size={20}
                     style={styles.cornerIcon}
                     onPress={() => copyToClipboard(item.invitationCode)}
+                  />
+                )}
+                {isTeacher && isMobile && (
+                  <IconButton
+                    icon={downloading[item.id] ? 'progress-download' : 'cloud-download'}
+                    size={20}
+                    style={styles.downloadIcon}
+                    onPress={(event) => handleDownloadOfflineData(item, event)}
+                    disabled={downloading[item.id]}
                   />
                 )}
                 {/* Not Signed Up Warning */}
@@ -260,6 +338,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+    zIndex: 1,
+  },
+  downloadIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 44,
     zIndex: 1,
   },
   auxiliarIcon: {

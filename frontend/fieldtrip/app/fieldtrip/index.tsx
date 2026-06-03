@@ -26,6 +26,7 @@ import { FieldtriptContext, HealthChartContext } from '../../shared/context/Fiel
 import { COLORS } from '@colors'
 import { StudentAttendee, EquipmentItem, EquipmentRequestItem, Payload } from '@types'
 import { router } from 'expo-router'
+import { getFieldtripOfflineData, initOfflineDb } from '../../shared/storage/offlineFieldtripDb'
 
 interface Allergy {
   name: string
@@ -74,6 +75,10 @@ const Fieldtrip = () => {
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
   const [equipmentRequests, setEquipmentRequests] = useState<EquipmentRequestItem[]>([])
+  const [offlineEquipmentByUser, setOfflineEquipmentByUser] = useState<
+    Record<number, { id: number; quantity: number }[]>
+  >({})
+  const [usingOfflineData, setUsingOfflineData] = useState(false)
   const [requestModalVisible, setRequestModalVisible] = useState(false)
   const [requestOptions, setRequestOptions] = useState<EquipmentItem[]>([])
   const [requestOptionsLoading, setRequestOptionsLoading] = useState(false)
@@ -347,47 +352,66 @@ const Fieldtrip = () => {
       setLoading(true)
       setRequestsLoading(true)
       setShowRequests(isInventoryManagerUser)
+      setUsingOfflineData(false)
+      setOfflineEquipmentByUser({})
+
+      let offlineData = null as Awaited<ReturnType<typeof getFieldtripOfflineData>>
+      let usedOffline = false
+      try {
+        await initOfflineDb()
+        offlineData = await getFieldtripOfflineData(FState.fieldtripID)
+      } catch (error) {
+        console.warn('No se pudo leer la data offline de la salida:', error)
+      }
 
       if (!isInventoryManagerUser) {
         try {
           const res = await getFieldtripAttendees(FState.fieldtripID)
           if (res) {
             setStudents(res)
+            setOfflineEquipmentByUser({})
+            usedOffline = false
           }
         } catch (error) {
-          // @ts-ignore
-          throw new Error(error.response?.data?.detail || error.message)
+          if (offlineData?.attendees?.length) {
+            setStudents(offlineData.attendees)
+            setOfflineEquipmentByUser(offlineData.equipmentByUser || {})
+            usedOffline = true
+          } else {
+            console.warn('No se pudieron cargar los asistentes:', error)
+          }
         } finally {
           setLoading(false)
         }
 
-        getFieldtripMetrics(FState.fieldtripID)
-          .then((res) => {
-            if (res) {
-              const diseases = res.diseases?.map((d: Disease) => d.name) || []
-              const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
-              const allergies = res.allergies?.map((a: Allergy) => a.name) || []
-              const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
+        if (!usedOffline) {
+          getFieldtripMetrics(FState.fieldtripID)
+            .then((res) => {
+              if (res) {
+                const diseases = res.diseases?.map((d: Disease) => d.name) || []
+                const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
+                const allergies = res.allergies?.map((a: Allergy) => a.name) || []
+                const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
 
-              const filteredDiseases = filterMetricData(diseases, diseaseCounts)
-              const filteredAllergies = filterMetricData(allergies, allergyCounts)
+                const filteredDiseases = filterMetricData(diseases, diseaseCounts)
+                const filteredAllergies = filterMetricData(allergies, allergyCounts)
 
-              setChartData({
-                diseases: {
-                  labels: filteredDiseases.labels,
-                  datasets: [{ data: filteredDiseases.counts }],
-                },
-                allergies: {
-                  labels: filteredAllergies.labels,
-                  datasets: [{ data: filteredAllergies.counts }],
-                },
-              })
-            }
-          })
-          .catch((error) => {
-            console.log(error)
-            throw new Error(error.response?.data?.detail || error.message)
-          })
+                setChartData({
+                  diseases: {
+                    labels: filteredDiseases.labels,
+                    datasets: [{ data: filteredDiseases.counts }],
+                  },
+                  allergies: {
+                    labels: filteredAllergies.labels,
+                    datasets: [{ data: filteredAllergies.counts }],
+                  },
+                })
+              }
+            })
+            .catch((error) => {
+              console.log(error)
+            })
+        }
       } else {
         setLoading(false)
       }
@@ -401,11 +425,20 @@ const Fieldtrip = () => {
         })
         .catch((error) => {
           console.log(error)
-          setEquipmentRequests([])
+          if (offlineData?.equipmentRequests?.length) {
+            setEquipmentRequests(offlineData.equipmentRequests)
+            if (offlineData.equipmentByUser) {
+              setOfflineEquipmentByUser(offlineData.equipmentByUser)
+              usedOffline = true
+            }
+          } else {
+            setEquipmentRequests([])
+          }
           setShowRequests(isInventoryManagerUser)
         })
         .finally(() => {
           setRequestsLoading(false)
+          setUsingOfflineData(usedOffline)
         })
     })()
   }, [FState, FDispatch])
@@ -709,6 +742,7 @@ const Fieldtrip = () => {
               equipmentRequests={equipmentRequests}
               fieldtripId={FState.fieldtripID}
               groupLeaders={students}
+              offlineEquipmentByUser={usingOfflineData ? offlineEquipmentByUser : undefined}
             />
           </>
         ))}

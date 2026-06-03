@@ -9,6 +9,7 @@ type Props = {
   equipmentRequests?: EquipmentRequestItem[]
   fieldtripId?: number | null
   groupLeaders?: StudentAttendee[]
+  offlineEquipmentByUser?: Record<number, { id: number; quantity: number }[]>
 }
 
 const STATUS_STYLES: Record<string, { backgroundColor: string; textColor: string }> = {
@@ -49,6 +50,7 @@ const EquipmentList = ({
   equipmentRequests = [],
   fieldtripId = null,
   groupLeaders = [],
+  offlineEquipmentByUser,
 }: Props) => {
   const approvedRequests = equipmentRequests.filter(
     (request) => request.status === 'approved' && request.quantity > 0,
@@ -64,6 +66,9 @@ const EquipmentList = ({
   const [assignmentLoading, setAssignmentLoading] = useState<Record<number, boolean>>({})
   const [assignmentError, setAssignmentError] = useState<Record<number, boolean>>({})
 
+  const hasOfflineAssignments =
+    !!offlineEquipmentByUser && Object.keys(offlineEquipmentByUser).length > 0
+
   const toggleAccordion = async (equipmentId: number) => {
     const nextExpanded = !expanded[equipmentId]
     setExpanded((prev) => ({ ...prev, [equipmentId]: nextExpanded }))
@@ -73,6 +78,29 @@ const EquipmentList = ({
     }
 
     if (!fieldtripId || leaders.length === 0 || assignments[equipmentId]) {
+      return
+    }
+
+    if (hasOfflineAssignments) {
+      const leaderAssignments = leaders
+        .map((leader) => {
+          const equipment = offlineEquipmentByUser?.[leader.id] || []
+          const match = equipment.find((item) => item.id === equipmentId)
+          if (!match) {
+            return null
+          }
+          return {
+            id: leader.id,
+            name: leader.name,
+            quantity: match.quantity,
+          }
+        })
+        .filter(Boolean) as { id: number; name: string; quantity: number }[]
+
+      setAssignments((prev) => ({
+        ...prev,
+        [equipmentId]: leaderAssignments,
+      }))
       return
     }
 
