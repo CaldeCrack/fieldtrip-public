@@ -45,12 +45,12 @@
     },
     "extra": {
       "router": {
-        "origin": false
+        "origin": false,
+        "sitemap": false
       },
       "eas": {
-        "projectId": "cfa92f37-bc32-483c-b365-af03b28aaf39"
+        "projectId": "5b69618a-02bf-45f3-a374-61c551cb3e8d"
       }
-    },
-    "owner": "roferodriguez"
+    }
   }
 }
