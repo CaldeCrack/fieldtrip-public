@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite'
+import { Platform } from 'react-native'
 
 import { EquipmentRequestItem, StudentAttendee } from '@types'
 
@@ -14,27 +15,27 @@ export type OfflineFieldtripData = {
 const DATABASE_NAME = 'fieldtrip_offline.db'
 const TABLE_NAME = 'fieldtrip_offline_data'
 
-const db = SQLite.openDatabase(DATABASE_NAME)
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null
 
-type SqlValue = string | number | null
+const getDatabase = async () => {
+  if (Platform.OS === 'web') {
+    throw new Error('SQLite no esta disponible en web')
+  }
 
-const runSql = (statement: string, params: SqlValue[] = []) =>
-  new Promise<SQLite.SQLResultSet>((resolve, reject) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        statement,
-        params,
-        (_, result) => resolve(result),
-        (_, error) => {
-          reject(error)
-          return false
-        },
-      )
-    })
-  })
+  if (!SQLite.openDatabaseAsync) {
+    throw new Error('SQLite no esta disponible en este entorno')
+  }
+
+  if (!dbPromise) {
+    dbPromise = SQLite.openDatabaseAsync(DATABASE_NAME)
+  }
+
+  return dbPromise
+}
 
 export const initOfflineDb = async () => {
-  await runSql(
+  const db = await getDatabase()
+  await db.execAsync(
     `CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
       fieldtrip_id INTEGER PRIMARY KEY NOT NULL,
       data TEXT NOT NULL,
@@ -45,7 +46,8 @@ export const initOfflineDb = async () => {
 
 export const saveFieldtripOfflineData = async (payload: OfflineFieldtripData) => {
   const serialized = JSON.stringify(payload)
-  await runSql(
+  const db = await getDatabase()
+  await db.runAsync(
     `INSERT OR REPLACE INTO ${TABLE_NAME} (fieldtrip_id, data, updated_at) VALUES (?, ?, ?);`,
     [payload.fieldtripId, serialized, payload.downloadedAt],
   )
@@ -54,15 +56,17 @@ export const saveFieldtripOfflineData = async (payload: OfflineFieldtripData) =>
 export const getFieldtripOfflineData = async (
   fieldtripId: number,
 ): Promise<OfflineFieldtripData | null> => {
-  const result = await runSql(`SELECT data FROM ${TABLE_NAME} WHERE fieldtrip_id = ? LIMIT 1;`, [
-    fieldtripId,
-  ])
+  const db = await getDatabase()
+  const rows = await db.getAllAsync<{ data: string }>(
+    `SELECT data FROM ${TABLE_NAME} WHERE fieldtrip_id = ? LIMIT 1;`,
+    [fieldtripId],
+  )
 
-  if (result.rows.length === 0) {
+  if (rows.length === 0) {
     return null
   }
 
-  const row = result.rows.item(0) as { data?: string }
+  const row = rows[0]
   if (!row?.data) {
     return null
   }
