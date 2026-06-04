@@ -1,4 +1,3 @@
-import * as SQLite from 'expo-sqlite'
 import { Platform } from 'react-native'
 
 import { EquipmentRequestItem, StudentAttendee } from '@types'
@@ -15,19 +14,31 @@ export type OfflineFieldtripData = {
 const DATABASE_NAME = 'fieldtrip_offline.db'
 const TABLE_NAME = 'fieldtrip_offline_data'
 
-let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null
+type SQLiteModule = typeof import('expo-sqlite')
 
-const getDatabase = async () => {
+let sqliteModule: SQLiteModule | null = null
+let dbPromise: Promise<SQLiteModule['SQLiteDatabase']> | null = null
+
+const getSQLite = async () => {
   if (Platform.OS === 'web') {
-    throw new Error('SQLite no esta disponible en web')
+    return null
   }
 
-  if (!SQLite.openDatabaseAsync) {
-    throw new Error('SQLite no esta disponible en este entorno')
+  if (!sqliteModule) {
+    sqliteModule = await import('expo-sqlite')
+  }
+
+  return sqliteModule
+}
+
+const getDatabase = async () => {
+  const sqlite = await getSQLite()
+  if (!sqlite?.openDatabaseAsync) {
+    return null
   }
 
   if (!dbPromise) {
-    dbPromise = SQLite.openDatabaseAsync(DATABASE_NAME)
+    dbPromise = sqlite.openDatabaseAsync(DATABASE_NAME)
   }
 
   return dbPromise
@@ -35,6 +46,10 @@ const getDatabase = async () => {
 
 export const initOfflineDb = async () => {
   const db = await getDatabase()
+  if (!db) {
+    return
+  }
+
   await db.execAsync(
     `CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
       fieldtrip_id INTEGER PRIMARY KEY NOT NULL,
@@ -47,6 +62,10 @@ export const initOfflineDb = async () => {
 export const saveFieldtripOfflineData = async (payload: OfflineFieldtripData) => {
   const serialized = JSON.stringify(payload)
   const db = await getDatabase()
+  if (!db) {
+    return
+  }
+
   await db.runAsync(
     `INSERT OR REPLACE INTO ${TABLE_NAME} (fieldtrip_id, data, updated_at) VALUES (?, ?, ?);`,
     [payload.fieldtripId, serialized, payload.downloadedAt],
@@ -57,6 +76,10 @@ export const getFieldtripOfflineData = async (
   fieldtripId: number,
 ): Promise<OfflineFieldtripData | null> => {
   const db = await getDatabase()
+  if (!db) {
+    return null
+  }
+
   const rows = await db.getAllAsync<{ data: string }>(
     `SELECT data FROM ${TABLE_NAME} WHERE fieldtrip_id = ? LIMIT 1;`,
     [fieldtripId],
