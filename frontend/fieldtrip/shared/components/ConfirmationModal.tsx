@@ -17,14 +17,19 @@ const ConfirmationModal = ({
   title,
   description = '',
 }: ConfirmationModalProps) => {
-  const isSmallScreen = Dimensions.get('window').width <= 768
+  const { width, height } = Dimensions.get('window')
+  const isSmallScreen = width <= 768
+  const modalSize = {
+    width: Math.min(500, Math.max(280, width - 32)),
+    maxHeight: Math.round(height * 0.8),
+  }
 
   return (
     <Portal>
       <Dialog
         onDismiss={close}
         visible={visible}
-        style={[styles.modal, isSmallScreen && styles.smallScreenContainer]}
+        style={[styles.modal, modalSize, isSmallScreen && styles.smallScreenContainer]}
       >
         <Dialog.Icon icon="alert-circle" color="#00796b" />
         <Dialog.Title style={styles.title}>{title}</Dialog.Title>
