@@ -125,6 +125,13 @@ const Login = () => {
       >
         {loading ? <ActivityIndicator color="white" size="small" /> : 'Iniciar sesión'}
       </ContainedButton>
+      <TextButton
+        onPress={() => router.push('/offline')}
+        style={styles.underline}
+        labelStyle={styles.label}
+      >
+        Ver descargas sin conexion
+      </TextButton>
       {/**
       <TextButton
         onPress={_toggleModal('resetPassword')}

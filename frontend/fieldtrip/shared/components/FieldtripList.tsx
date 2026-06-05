@@ -14,8 +14,15 @@ import {
   getFieldtripAttendees,
   getFieldtripEquipmentRequests,
   getFieldtripUserEquipment,
+  getUsersHealthChart,
+  viewHealthChart,
 } from '@services'
-import { initOfflineDb, saveFieldtripOfflineData } from '../storage/offlineFieldtripDb'
+import {
+  initOfflineDb,
+  saveFieldtripOfflineData,
+  OfflineHealthData,
+  isFieldtripOfflineSaved,
+} from '../storage/offlineFieldtripDb'
 import { useGlobalSnackbar } from '../context/useGlobalSnackbar'
 
 type FieldtripStatus = {
@@ -47,6 +54,7 @@ const FieldtripList = ({ data, setState }: Props) => {
   const [isInventoryManager, setIsInventoryManager] = useState<boolean>(false)
   const [fieldtripStatuses, setFieldtripStatuses] = useState<Record<number, FieldtripStatus>>({})
   const [downloading, setDownloading] = useState<Record<number, boolean>>({})
+  const [offlineSaved, setOfflineSaved] = useState<Record<number, boolean>>({})
   const isMobile = Platform.OS !== 'web'
 
   useEffect(() => {
@@ -54,6 +62,29 @@ const FieldtripList = ({ data, setState }: Props) => {
       console.warn('No se pudo preparar la base de datos offline:', error)
     })
   }, [])
+
+  useEffect(() => {
+    if (!isMobile || data.length === 0) return
+    ;(async () => {
+      try {
+        const entries = await Promise.all(
+          data.map(async (fieldtrip) => [
+            fieldtrip.id,
+            await isFieldtripOfflineSaved(fieldtrip.id),
+          ] as const),
+        )
+
+        setOfflineSaved(
+          entries.reduce((accumulator, [id, saved]) => {
+            accumulator[id] = saved
+            return accumulator
+          }, {} as Record<number, boolean>),
+        )
+      } catch (error) {
+        console.warn('No se pudo leer el estado offline:', error)
+      }
+    })()
+  }, [data, isMobile])
 
   useEffect(() => {
     ;(async () => {
@@ -121,6 +152,44 @@ const FieldtripList = ({ data, setState }: Props) => {
         getFieldtripEquipmentRequests(fieldtrip.id),
       ])
 
+      const healthByUserEntries = await Promise.all(
+        attendees.map(async (attendee) => {
+          if (!userID) {
+            return [attendee.id, { constant: null, fieldtrip: null }] as const
+          }
+
+          try {
+            const [fieldtripHealth, constantHealth] = await Promise.all([
+              getUsersHealthChart(fieldtrip.id, attendee.id),
+              viewHealthChart({
+                viewer: userID,
+                owner: attendee.id,
+                fieldtrip: fieldtrip.id,
+              }),
+            ])
+
+            return [
+              attendee.id,
+              {
+                constant: constantHealth || null,
+                fieldtrip: fieldtripHealth || null,
+              },
+            ] as const
+          } catch (error) {
+            console.warn('No se pudo cargar la ficha de salud:', error)
+            return [attendee.id, { constant: null, fieldtrip: null }] as const
+          }
+        }),
+      )
+
+      const healthByUser = healthByUserEntries.reduce(
+        (accumulator, [userId, healthData]) => {
+          accumulator[userId] = healthData
+          return accumulator
+        },
+        {} as Record<number, OfflineHealthData>,
+      )
+
       const equipmentByUserEntries = await Promise.all(
         attendees.map(async (attendee) => {
           try {
@@ -145,12 +214,15 @@ const FieldtripList = ({ data, setState }: Props) => {
         fieldtripId: fieldtrip.id,
         fieldtripName: fieldtrip.title,
         downloadedAt: new Date().toISOString(),
+        downloadedByUserId: userID ?? null,
         attendees,
         equipmentRequests,
         equipmentByUser,
+        healthByUser,
       }
 
       await saveFieldtripOfflineData(offlineData)
+      setOfflineSaved((prev) => ({ ...prev, [fieldtrip.id]: true }))
       showSnackbar('Datos de la salida descargados para uso sin conexión.')
     } catch (error: any) {
       console.error('Error downloading fieldtrip data:', error)
@@ -210,11 +282,17 @@ const FieldtripList = ({ data, setState }: Props) => {
                 )}
                 {isTeacher && isMobile && (
                   <IconButton
-                    icon={downloading[item.id] ? 'progress-download' : 'cloud-download'}
+                    icon={
+                      offlineSaved[item.id]
+                        ? 'check-circle'
+                        : downloading[item.id]
+                          ? 'progress-download'
+                          : 'cloud-download'
+                    }
                     size={20}
                     style={styles.downloadIcon}
                     onPress={(event) => handleDownloadOfflineData(item, event)}
-                    disabled={downloading[item.id]}
+                    disabled={downloading[item.id] || offlineSaved[item.id]}
                   />
                 )}
                 {/* Not Signed Up Warning */}

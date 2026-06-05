@@ -6,13 +6,53 @@ export type OfflineFieldtripData = {
   fieldtripId: number
   fieldtripName: string
   downloadedAt: string
+  downloadedByUserId: number | null
   attendees: StudentAttendee[]
   equipmentRequests: EquipmentRequestItem[]
   equipmentByUser: Record<number, { id: number; quantity: number }[]>
+  healthByUser: Record<number, OfflineHealthData>
+}
+
+export type OfflineHealthConstant = {
+  fullName: string
+  bloodType: string
+  medAllergies: string[]
+  substanceAllergies: string[]
+  emergencyContact: {
+    name: string
+    phone: string
+  }
+}
+
+export type OfflineHealthItem = {
+  item: string
+  value: string
+}
+
+export type OfflineHealthFieldtrip = {
+  inTreatmentFor: string
+  takingMeds: string
+  hasPresented: string[]
+  presents: string[]
+  healthSpecific: OfflineHealthItem[]
+}
+
+export type OfflineHealthData = {
+  constant: OfflineHealthConstant | null
+  fieldtrip: OfflineHealthFieldtrip | null
+}
+
+export type OfflineFieldtripSummary = {
+  fieldtripId: number
+  fieldtripName: string
+  downloadedAt: string
+  attendeesCount: number
+  equipmentRequestsCount: number
 }
 
 const DATABASE_NAME = 'fieldtrip_offline.db'
 const TABLE_NAME = 'fieldtrip_offline_data'
+const HEALTH_LOG_QUEUE_TABLE = 'health_log_queue'
 
 type SQLiteModule = typeof import('expo-sqlite')
 
@@ -55,6 +95,14 @@ export const initOfflineDb = async () => {
       fieldtrip_id INTEGER PRIMARY KEY NOT NULL,
       data TEXT NOT NULL,
       updated_at TEXT NOT NULL
+    );`,
+  )
+
+  await db.execAsync(
+    `CREATE TABLE IF NOT EXISTS ${HEALTH_LOG_QUEUE_TABLE} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      payload TEXT NOT NULL,
+      created_at TEXT NOT NULL
     );`,
   )
 }
@@ -100,4 +148,108 @@ export const getFieldtripOfflineData = async (
     console.warn('No se pudo leer la data offline de la salida:', error)
     return null
   }
+}
+
+export const listOfflineFieldtrips = async (): Promise<OfflineFieldtripSummary[]> => {
+  const db = await getDatabase()
+  if (!db) {
+    return []
+  }
+
+  const rows = await db.getAllAsync<{ data: string }>(
+    `SELECT data FROM ${TABLE_NAME} ORDER BY updated_at DESC;`,
+  )
+
+  return rows
+    .map((row) => {
+      try {
+        const parsed = JSON.parse(row.data) as OfflineFieldtripData
+        return {
+          fieldtripId: parsed.fieldtripId,
+          fieldtripName: parsed.fieldtripName,
+          downloadedAt: parsed.downloadedAt,
+          attendeesCount: parsed.attendees?.length || 0,
+          equipmentRequestsCount: parsed.equipmentRequests?.length || 0,
+        }
+      } catch (error) {
+        console.warn('No se pudo leer el resumen offline:', error)
+        return null
+      }
+    })
+    .filter(Boolean) as OfflineFieldtripSummary[]
+}
+
+export type HealthLogQueueItem = {
+  id: number
+  payload: {
+    viewer: number
+    owner: number
+    fieldtrip: number
+  }
+  createdAt: string
+}
+
+export const enqueueHealthLogView = async (payload: {
+  viewer: number
+  owner: number
+  fieldtrip: number
+}) => {
+  const db = await getDatabase()
+  if (!db) {
+    return
+  }
+
+  await db.runAsync(
+    `INSERT INTO ${HEALTH_LOG_QUEUE_TABLE} (payload, created_at) VALUES (?, ?);`,
+    [JSON.stringify(payload), new Date().toISOString()],
+  )
+}
+
+export const listHealthLogQueue = async (): Promise<HealthLogQueueItem[]> => {
+  const db = await getDatabase()
+  if (!db) {
+    return []
+  }
+
+  const rows = await db.getAllAsync<{ id: number; payload: string; created_at: string }>(
+    `SELECT id, payload, created_at FROM ${HEALTH_LOG_QUEUE_TABLE} ORDER BY created_at ASC;`,
+  )
+
+  return rows
+    .map((row) => {
+      try {
+        return {
+          id: row.id,
+          payload: JSON.parse(row.payload) as HealthLogQueueItem['payload'],
+          createdAt: row.created_at,
+        }
+      } catch (error) {
+        console.warn('No se pudo leer la cola de salud:', error)
+        return null
+      }
+    })
+    .filter(Boolean) as HealthLogQueueItem[]
+}
+
+export const deleteHealthLogQueueItem = async (id: number) => {
+  const db = await getDatabase()
+  if (!db) {
+    return
+  }
+
+  await db.runAsync(`DELETE FROM ${HEALTH_LOG_QUEUE_TABLE} WHERE id = ?;`, [id])
+}
+
+export const isFieldtripOfflineSaved = async (fieldtripId: number): Promise<boolean> => {
+  const db = await getDatabase()
+  if (!db) {
+    return false
+  }
+
+  const rows = await db.getAllAsync<{ fieldtrip_id: number }>(
+    `SELECT fieldtrip_id FROM ${TABLE_NAME} WHERE fieldtrip_id = ? LIMIT 1;`,
+    [fieldtripId],
+  )
+
+  return rows.length > 0
 }

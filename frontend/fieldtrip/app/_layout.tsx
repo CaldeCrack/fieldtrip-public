@@ -16,6 +16,12 @@ import {
   HCStateType,
   HealthChartContext,
 } from '../shared/context/FieldtripContext'
+import {
+  deleteHealthLogQueueItem,
+  initOfflineDb,
+  listHealthLogQueue,
+} from '../shared/storage/offlineFieldtripDb'
+import { registerHealthLogView } from '@services'
 
 const theme = {
   ...DefaultTheme,
@@ -58,7 +64,7 @@ const FReducer = (_state: FStateType, action: FStateType) => {
 const StackLayout = () => {
   const router = useRouter()
   const pathname = usePathname()
-  const rootPaths = new Set(['/', '/login', '/signup'])
+  const rootPaths = new Set(['/', '/login', '/signup', '/offline'])
   const [visible, setVisible] = useState<Record<string, boolean>>({})
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const _toggleModal = (name: string) => () => setVisible({ ...visible, [name]: !visible[name] })
@@ -73,6 +79,29 @@ const StackLayout = () => {
       setIsLoggedIn(!!token)
     })()
   }, [pathname])
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      return
+    }
+
+    ;(async () => {
+      try {
+        await initOfflineDb()
+        const queued = await listHealthLogQueue()
+        for (const item of queued) {
+          try {
+            await registerHealthLogView(item.payload)
+            await deleteHealthLogQueueItem(item.id)
+          } catch (error) {
+            console.warn('No se pudo sincronizar un log de salud:', error)
+          }
+        }
+      } catch (error) {
+        console.warn('No se pudo procesar la cola de salud:', error)
+      }
+    })()
+  }, [isLoggedIn])
 
   const handleBack = () => {
     if (router.canGoBack()) {
@@ -109,7 +138,7 @@ const StackLayout = () => {
             <HealthChartContext.Provider value={{ HCState, HCDispatch }}>
               <Stack
                 screenOptions={() => ({
-                  headerShown: isLoggedIn,
+                  headerShown: isLoggedIn || pathname.startsWith('/offline'),
                   headerStyle: {
                     backgroundColor: '#fafafa',
                     borderBottomWidth: 1,
@@ -139,6 +168,10 @@ const StackLayout = () => {
                     )
                   },
                   headerRight: () => {
+                    if (!isLoggedIn) {
+                      return null
+                    }
+
                     return (
                       <TouchableOpacity onPress={() => _toggleModal('modal')()}>
                         <Icon
@@ -154,6 +187,7 @@ const StackLayout = () => {
                 <Stack.Screen name="login" options={{ headerShown: false }} />
                 <Stack.Screen name="signup" options={{ headerShown: false }} />
                 <Stack.Screen name="index" options={{ title: 'Salidas' }} />
+                <Stack.Screen name="offline/index" options={{ title: 'Modo sin conexión' }} />
                 <Stack.Screen name="health-log" options={{ title: 'Log de salud' }} />
                 <Stack.Screen name="profile" options={{ title: 'Perfil' }} />
                 <Stack.Screen name="personal-info" options={{ title: 'Editar datos personales' }} />
