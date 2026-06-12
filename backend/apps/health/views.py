@@ -187,6 +187,34 @@ class FieldtripViewSet(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
+class ConstantHealthDataAPIView(APIView):
+    permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
+
+    @swagger_auto_schema(
+        operation_description="Obtiene los datos de salud constantes de un estudiante sin generar un log.",
+        responses={200: "Datos de salud constantes del estudiante"}
+    )
+    def get(self, request, fieldtrip, user):
+        owner = get_object_or_404(User, pk=user)
+        get_object_or_404(Fieldtrip, pk=fieldtrip)
+
+        substance_allergies = owner.allergies.filter(category=1)
+        med_allergies = owner.allergies.filter(category=2)
+        blood_type = owner.get_blood_type_display()
+        full_name = f"{owner.names} {owner.surnames}"
+
+        data = {
+            "fullName": full_name,
+            "bloodType": blood_type,
+            "substanceAllergies": [allergy.type for allergy in substance_allergies],
+            "medAllergies": [allergy.type for allergy in med_allergies],
+            "emergencyContact": {
+                "name": owner.emergency_contact,
+                "phone": owner.emergency_number,
+            }}
+        return Response(data, status=status.HTTP_200_OK)
+
+
 class FieldtripMetricsAPIView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher | IsAuxiliar)
 

@@ -15,7 +15,7 @@ import {
   getFieldtripEquipmentRequests,
   getFieldtripUserEquipment,
   getUsersHealthChart,
-  viewHealthChart,
+  getConstantHealthData,
 } from '@services'
 import {
   initOfflineDb,
@@ -68,17 +68,20 @@ const FieldtripList = ({ data, setState }: Props) => {
     ;(async () => {
       try {
         const entries = await Promise.all(
-          data.map(async (fieldtrip) => [
-            fieldtrip.id,
-            await isFieldtripOfflineSaved(fieldtrip.id),
-          ] as const),
+          data.map(
+            async (fieldtrip) =>
+              [fieldtrip.id, await isFieldtripOfflineSaved(fieldtrip.id)] as const,
+          ),
         )
 
         setOfflineSaved(
-          entries.reduce((accumulator, [id, saved]) => {
-            accumulator[id] = saved
-            return accumulator
-          }, {} as Record<number, boolean>),
+          entries.reduce(
+            (accumulator, [id, saved]) => {
+              accumulator[id] = saved
+              return accumulator
+            },
+            {} as Record<number, boolean>,
+          ),
         )
       } catch (error) {
         console.warn('No se pudo leer el estado offline:', error)
@@ -161,11 +164,7 @@ const FieldtripList = ({ data, setState }: Props) => {
           try {
             const [fieldtripHealth, constantHealth] = await Promise.all([
               getUsersHealthChart(fieldtrip.id, attendee.id),
-              viewHealthChart({
-                viewer: userID,
-                owner: attendee.id,
-                fieldtrip: fieldtrip.id,
-              }),
+              getConstantHealthData(fieldtrip.id, attendee.id),
             ])
 
             return [

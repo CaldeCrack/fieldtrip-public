@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import FieldtripSignupViewSet, FieldtripHealthChartAPIView, LatestFieldtripHealthAPIView, FieldtripMetricsAPIView, FieldtripSignUpStatusAPIView, HealthGralCreateAPIView
+from .views import FieldtripSignupViewSet, FieldtripHealthChartAPIView, LatestFieldtripHealthAPIView, FieldtripMetricsAPIView, FieldtripSignUpStatusAPIView, HealthGralCreateAPIView, ConstantHealthDataAPIView
 
 app_name = "health"
 
@@ -18,6 +18,11 @@ urlpatterns = [
         "fieldtrip/<int:fieldtrip>/chart/<int:user>/",
         FieldtripHealthChartAPIView.as_view(),
         name="fieldtrip-chart",
+    ),
+    path(
+        "fieldtrip/<int:fieldtrip>/chart-data/<int:user>/",
+        ConstantHealthDataAPIView.as_view(),
+        name="fieldtrip-chart-data",
     ),
     path(
         "fieldtrip/<int:id>/metrics/",

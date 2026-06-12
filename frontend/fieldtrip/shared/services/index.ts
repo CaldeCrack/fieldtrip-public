@@ -1,4 +1,5 @@
 export { default as viewHealthChart } from './viewHealthChart'
+export { default as getConstantHealthData } from './getConstantHealthData'
 export { default as getHealthLog } from './getHealthLog'
 export { default as getFieldtripAttendees } from './getFieldtripAttendees'
 export { default as getFieldtripMetrics } from './getFieldtripMetrics'
