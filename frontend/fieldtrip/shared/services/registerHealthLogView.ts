@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Api } from '../api/ApiConfig'
 
 interface HealthLogViewRequest {
-  viewer: number
+  viewer_id: number
   owner: number
-  fieldtrip: number
+  fieldtrip_id: number
 }
 
 interface HealthLogViewResponse {
@@ -16,17 +16,14 @@ const registerHealthLogView = async (
 ): Promise<HealthLogViewResponse> => {
   try {
     const token = await AsyncStorage.getItem('access_token')
-    const response = await Api.post(
-      'health-log/',
-      JSON.stringify({
-        body,
-      }),
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    if (!token) {
+      throw new Error('No user is logged in to sync health logs')
+    }
+    const response = await Api.post('fieldtrip/chart/', body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    )
+    })
     return response.data
   } catch (error) {
     throw new Error((error as any).response?.data?.detail || (error as any).message)

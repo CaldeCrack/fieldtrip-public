@@ -182,27 +182,27 @@ export const listOfflineFieldtrips = async (): Promise<OfflineFieldtripSummary[]
 export type HealthLogQueueItem = {
   id: number
   payload: {
-    viewer: number
+    viewer_id: number
     owner: number
-    fieldtrip: number
+    fieldtrip_id: number
   }
   createdAt: string
 }
 
 export const enqueueHealthLogView = async (payload: {
-  viewer: number
+  viewer_id: number
   owner: number
-  fieldtrip: number
+  fieldtrip_id: number
 }) => {
   const db = await getDatabase()
   if (!db) {
     return
   }
 
-  await db.runAsync(
-    `INSERT INTO ${HEALTH_LOG_QUEUE_TABLE} (payload, created_at) VALUES (?, ?);`,
-    [JSON.stringify(payload), new Date().toISOString()],
-  )
+  await db.runAsync(`INSERT INTO ${HEALTH_LOG_QUEUE_TABLE} (payload, created_at) VALUES (?, ?);`, [
+    JSON.stringify(payload),
+    new Date().toISOString(),
+  ])
 }
 
 export const listHealthLogQueue = async (): Promise<HealthLogQueueItem[]> => {
@@ -216,7 +216,7 @@ export const listHealthLogQueue = async (): Promise<HealthLogQueueItem[]> => {
   )
 
   return rows
-    .map((row) => {
+    .map((row: { id: any; payload: string; created_at: any }) => {
       try {
         return {
           id: row.id,

@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { Platform, TouchableOpacity } from 'react-native'
+import { Platform, TouchableOpacity, View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -173,13 +173,24 @@ const StackLayout = () => {
                     }
 
                     return (
-                      <TouchableOpacity onPress={() => _toggleModal('modal')()}>
-                        <Icon
-                          name="logout"
-                          size={24}
-                          style={{ marginRight: 16, color: '#00796b' }}
-                        />
-                      </TouchableOpacity>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {Platform.OS !== 'web' && (
+                          <TouchableOpacity onPress={() => router.push('/offline')}>
+                            <Icon
+                              name="wifi-off"
+                              size={24}
+                              style={{ marginRight: 16, color: '#00796b' }}
+                            />
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity onPress={() => _toggleModal('modal')()}>
+                          <Icon
+                            name="logout"
+                            size={24}
+                            style={{ marginRight: 16, color: '#00796b' }}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     )
                   },
                 })}
