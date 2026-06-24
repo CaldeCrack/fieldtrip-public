@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
-import { StyleSheet, View, ScrollView, ActivityIndicator, Pressable } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+  Platform,
+  Dimensions,
+} from 'react-native'
 import { TextInput, MD3Colors, Text, Dialog, Portal } from 'react-native-paper'
 import { EquipmentItem } from '@types'
 import { COLORS } from '@colors'
@@ -103,75 +111,84 @@ const EquipmentSelectionModal = ({
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={handleClose} style={styles.dialog}>
-        <Dialog.Title style={styles.dialogTitle}>Seleccionar Equipamiento</Dialog.Title>
-        <View style={styles.titleDivider} />
-        <Dialog.Content style={styles.content}>
-          <ScrollView style={styles.scrollView}>
-            {equipmentList.length === 0 ? (
-              <Text style={styles.emptyText}>No hay equipamiento disponible</Text>
-            ) : (
-              equipmentList.map((item) => (
-                <View key={item.id} style={styles.equipmentItem}>
-                  <View style={styles.itemInfo}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemAvailable}>
-                      Disponible: {availableById ? (availableById[item.id] ?? 0) : item.quantity}
-                    </Text>
+        <View style={styles.dialogInner}>
+          <Dialog.Title style={styles.dialogTitle}>Seleccionar Equipamiento</Dialog.Title>
+          <View style={styles.titleDivider} />
+          <Dialog.Content style={styles.content}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+              {equipmentList.length === 0 ? (
+                <Text style={styles.emptyText}>No hay equipamiento disponible</Text>
+              ) : (
+                equipmentList.map((item) => (
+                  <View key={item.id} style={styles.equipmentItem}>
+                    <View style={styles.itemInfo}>
+                      <Text style={styles.itemName}>{item.name}</Text>
+                      <Text style={styles.itemAvailable}>
+                        Disponible: {availableById ? (availableById[item.id] ?? 0) : item.quantity}
+                      </Text>
+                    </View>
+                    <TextInput
+                      style={styles.quantityInput}
+                      label="Cantidad"
+                      keyboardType="number-pad"
+                      value={String(selectedEquipmentMap[item.id] || '')}
+                      onChangeText={(text) => handleQuantityChange(item.id, text)}
+                      mode="outlined"
+                      outlineColor={COLORS.gray_100}
+                      activeOutlineColor={MD3Colors.primary50}
+                    />
                   </View>
-                  <TextInput
-                    style={styles.quantityInput}
-                    label="Cantidad"
-                    keyboardType="number-pad"
-                    value={String(selectedEquipmentMap[item.id] || '')}
-                    onChangeText={(text) => handleQuantityChange(item.id, text)}
-                    mode="outlined"
-                    outlineColor={COLORS.gray_100}
-                    activeOutlineColor={MD3Colors.primary50}
-                  />
-                </View>
-              ))
-            )}
-          </ScrollView>
-        </Dialog.Content>
-        <View style={styles.actionsContainer}>
-          <Dialog.Actions style={styles.actions}>
-            <Pressable
-              onPress={handleClose}
-              onHoverIn={() => setIsCancelHovered(true)}
-              onHoverOut={() => setIsCancelHovered(false)}
-              style={({ hovered, pressed }) => [
-                styles.actionButton,
-                (hovered || isCancelHovered || pressed) && styles.actionButtonHover,
-              ]}
-            >
-              <Text style={styles.actionButtonText}>Cerrar</Text>
-            </Pressable>
-            <Pressable
-              onPress={handleConfirm}
-              onHoverIn={() => setIsConfirmHovered(true)}
-              onHoverOut={() => setIsConfirmHovered(false)}
-              style={({ hovered, pressed }) => [
-                styles.actionButton,
-                (hovered || isConfirmHovered || pressed) && styles.actionButtonHover,
-              ]}
-            >
-              <Text style={styles.actionButtonText}>Confirmar</Text>
-            </Pressable>
-          </Dialog.Actions>
+                ))
+              )}
+            </ScrollView>
+          </Dialog.Content>
+          <View style={styles.actionsContainer}>
+            <Dialog.Actions style={styles.actions}>
+              <Pressable
+                onPress={handleClose}
+                onHoverIn={() => setIsCancelHovered(true)}
+                onHoverOut={() => setIsCancelHovered(false)}
+                style={({ hovered, pressed }) => [
+                  styles.actionButton,
+                  (hovered || isCancelHovered || pressed) && styles.actionButtonHover,
+                ]}
+              >
+                <Text style={styles.actionButtonText}>Cerrar</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleConfirm}
+                onHoverIn={() => setIsConfirmHovered(true)}
+                onHoverOut={() => setIsConfirmHovered(false)}
+                style={({ hovered, pressed }) => [
+                  styles.actionButton,
+                  (hovered || isConfirmHovered || pressed) && styles.actionButtonHover,
+                ]}
+              >
+                <Text style={styles.actionButtonText}>Confirmar</Text>
+              </Pressable>
+            </Dialog.Actions>
+          </View>
         </View>
       </Dialog>
     </Portal>
   )
 }
 
+const SCREEN_HEIGHT = Dimensions.get('window').height
+
 const styles = StyleSheet.create({
   dialog: {
-    height: '96%',
-    maxHeight: '96%',
     marginVertical: 12,
     alignSelf: 'center',
-    width: 'auto',
+    width: Platform.OS === 'web' ? 'auto' : '92%',
     maxWidth: 560,
+    // On native, Dialog doesn't support percentage heights;
+    // we size the inner container instead.
+    overflow: 'hidden',
+  },
+  dialogInner: {
+    height: Platform.OS === 'web' ? SCREEN_HEIGHT * 0.92 : SCREEN_HEIGHT * 0.82,
+    flexDirection: 'column',
   },
   dialogTitle: {
     alignSelf: 'center',
@@ -185,13 +202,16 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingBottom: 0,
+    overflow: 'hidden',
   },
   scrollView: {
     flex: 1,
     marginVertical: 8,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   actionsContainer: {
-    marginTop: 'auto',
     borderTopWidth: 1,
     borderTopColor: '#d1d5db',
   },

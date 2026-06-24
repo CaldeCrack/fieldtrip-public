@@ -175,7 +175,11 @@ const StackLayout = () => {
                     return (
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {Platform.OS !== 'web' && (
-                          <TouchableOpacity onPress={() => router.push('/offline')}>
+                          <TouchableOpacity
+                            delayPressIn={0}
+                            delayLongPress={1000}
+                            onPress={() => router.push('/offline')}
+                          >
                             <Icon
                               name="wifi-off"
                               size={24}
