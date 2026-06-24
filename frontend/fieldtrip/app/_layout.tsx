@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { Platform, TouchableOpacity, View } from 'react-native'
+import { Platform, Pressable, TouchableOpacity, View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
+import { Provider as PaperProvider, DefaultTheme, TouchableRipple } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -158,7 +158,7 @@ const StackLayout = () => {
                     }
 
                     return (
-                      <TouchableOpacity onPress={handleBack}>
+                      <TouchableOpacity onPressIn={handleBack}>
                         <Icon
                           name="chevron-left"
                           size={32}
@@ -175,11 +175,7 @@ const StackLayout = () => {
                     return (
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {Platform.OS !== 'web' && (
-                          <TouchableOpacity
-                            delayPressIn={0}
-                            delayLongPress={1000}
-                            onPress={() => router.push('/offline')}
-                          >
+                          <TouchableOpacity onPressIn={() => router.push('/offline')}>
                             <Icon
                               name="wifi-off"
                               size={24}
@@ -187,7 +183,7 @@ const StackLayout = () => {
                             />
                           </TouchableOpacity>
                         )}
-                        <TouchableOpacity onPress={() => _toggleModal('modal')()}>
+                        <TouchableOpacity onPressIn={() => _toggleModal('modal')()}>
                           <Icon
                             name="logout"
                             size={24}
