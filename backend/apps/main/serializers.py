@@ -212,6 +212,7 @@ class FieldtripAttendeeSerializer(serializers.ModelSerializer):
             "startDate": format_date(fieldtrip.start_date),
             "endDate": format_date(fieldtrip.end_date),
             "invitationCode": fieldtrip.invitation_code,
+            "sector": fieldtrip.sector,
         }
         return data
 
@@ -237,6 +238,7 @@ class FieldtripInventorySerializer(serializers.ModelSerializer):
             "startDate": format_date(instance.start_date),
             "endDate": format_date(instance.end_date),
             "invitationCode": data["invitation_code"],
+            "sector": instance.sector,
         }
 
 

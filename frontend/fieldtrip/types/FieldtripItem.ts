@@ -5,6 +5,7 @@ interface FieldtripItem {
   startDate: string
   endDate: string
   invitationCode?: string
+  sector?: string
 }
 
 export default FieldtripItem

@@ -38,6 +38,7 @@ type FieldtripItem = {
   startDate: string
   endDate: string
   invitationCode?: string
+  sector?: string
 }
 
 type Props = {
@@ -335,6 +336,18 @@ const FieldtripList = ({ data, setState }: Props) => {
                   {item.title}
                 </Text>
                 <Text variant="bodyLarge">{item.professor}</Text>
+                {item.sector ? (
+                  <View style={styles.sector}>
+                    <Icon
+                      name="map-marker-outline"
+                      size={18}
+                      style={{ marginRight: 4, color: COLORS.gray_500 }}
+                    />
+                    <Text variant="bodyMedium" style={{ color: COLORS.gray_500 }}>
+                      {item.sector}
+                    </Text>
+                  </View>
+                ) : null}
                 <View style={styles.dates}>
                   <Icon
                     name="calendar"
@@ -410,6 +423,11 @@ const styles = StyleSheet.create({
   professor: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  sector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
   },
   cornerIcon: {
     position: 'absolute',
