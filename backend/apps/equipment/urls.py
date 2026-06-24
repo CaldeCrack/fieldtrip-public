@@ -34,6 +34,11 @@ urlpatterns = [
         name="equipment-types",
     ),
     path(
+        "equipment/types/<int:institution_id>/",
+        EquipmentTypesAPIView.as_view(),
+        name="equipment-types-update",
+    ),
+    path(
         "fieldtrip/<int:id>/equipment-requests/",
         FieldtripEquipmentRequestAPIView.as_view(),
         name="fieldtrip-equipment-requests",
