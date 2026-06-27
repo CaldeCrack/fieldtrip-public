@@ -12,7 +12,7 @@ type EducationalInstitution = {
 
 type Props = {
   data: EducationalInstitution[]
-  onPressItem?: (item: EducationalInstitution) => void
+  onPressItem?: (_item: EducationalInstitution) => void
 }
 
 const EducationalInstitutionList = ({ data, onPressItem }: Props) => {

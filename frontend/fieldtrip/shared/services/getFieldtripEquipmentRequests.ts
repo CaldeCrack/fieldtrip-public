@@ -7,14 +7,19 @@ interface FieldtripEquipmentRequestsResponse {
   requests?: (EquipmentRequestItem & { type_id?: number })[]
 }
 
-const getFieldtripEquipmentRequests = async (id: number | null): Promise<EquipmentRequestItem[]> => {
+const getFieldtripEquipmentRequests = async (
+  id: number | null,
+): Promise<EquipmentRequestItem[]> => {
   try {
     const token = await AsyncStorage.getItem('access_token')
-    const response = await Api.get<FieldtripEquipmentRequestsResponse>(`fieldtrip/${id}/equipment-requests/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await Api.get<FieldtripEquipmentRequestsResponse>(
+      `fieldtrip/${id}/equipment-requests/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    })
+    )
 
     return (response.data.requests || []).map((item) => ({
       ...item,

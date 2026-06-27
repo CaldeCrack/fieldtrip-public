@@ -112,7 +112,10 @@ const HealthChart = () => {
           </View>
           <View style={styles.section}>
             <Text variant="bodyLarge" style={styles.weight500}>
-              Seguro Escolar: {constantChartData.preferredMedicalInstitution ? 'Renuncia al Seguro Escolar' : 'Usa el Seguro Escolar'}
+              Seguro Escolar:{' '}
+              {constantChartData.preferredMedicalInstitution
+                ? 'Renuncia al Seguro Escolar'
+                : 'Usa el Seguro Escolar'}
             </Text>
           </View>
           {constantChartData.preferredMedicalInstitution ? (

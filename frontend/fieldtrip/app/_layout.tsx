@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { Platform, Pressable, TouchableOpacity, View } from 'react-native'
+import { Platform, TouchableOpacity, View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { Provider as PaperProvider, DefaultTheme, TouchableRipple } from 'react-native-paper'
+import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 

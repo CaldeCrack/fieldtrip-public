@@ -6,7 +6,7 @@ import FieldtripItem from 'types/FieldtripItem'
 const getInventoryFieldtrips = async (): Promise<FieldtripItem[]> => {
   try {
     const token = await AsyncStorage.getItem('access_token')
-    const response = await Api.get<FieldtripItem[]>(`fieldtrip/inventory/`, {
+    const response = await Api.get<FieldtripItem[]>('fieldtrip/inventory/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
