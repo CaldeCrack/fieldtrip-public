@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Divider, List, Text } from 'react-native-paper'
+import { Divider, IconButton, List, Text } from 'react-native-paper'
 import { useRouter } from 'expo-router'
 
-import { ContainedButton, Page } from '@components'
+import { ConfirmationModal, ContainedButton, Page } from '@components'
 import {
+  deleteFieldtripOfflineData,
   enqueueHealthLogView,
   getFieldtripOfflineData,
   initOfflineDb,
@@ -21,6 +22,7 @@ const OfflineFieldtrips = () => {
   const [loadError, setLoadError] = useState(false)
   const [healthExpanded, setHealthExpanded] = useState<Record<number, boolean>>({})
   const [queuedHealthLogs, setQueuedHealthLogs] = useState<Record<number, boolean>>({})
+  const [deleteTarget, setDeleteTarget] = useState<OfflineFieldtripSummary | null>(null)
 
   const loadSummaries = async () => {
     setLoading(true)
@@ -52,6 +54,19 @@ const OfflineFieldtrips = () => {
     }
   }
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    try {
+      await initOfflineDb()
+      await deleteFieldtripOfflineData(deleteTarget.fieldtripId)
+      setSummaries((prev) => prev.filter((s) => s.fieldtripId !== deleteTarget.fieldtripId))
+    } catch (error) {
+      console.warn('No se pudo eliminar la descarga:', error)
+    } finally {
+      setDeleteTarget(null)
+    }
+  }
+
   const healthByUser = useMemo(() => selected?.healthByUser || {}, [selected?.healthByUser])
 
   const handleToggleHealth = async (attendeeId: number) => {
@@ -69,9 +84,9 @@ const OfflineFieldtrips = () => {
     try {
       await initOfflineDb()
       await enqueueHealthLogView({
-        viewer: selected.downloadedByUserId,
+        viewer_id: selected.downloadedByUserId,
         owner: attendeeId,
-        fieldtrip: selected.fieldtripId,
+        fieldtrip_id: selected.fieldtripId,
       })
       setQueuedHealthLogs((prev) => ({ ...prev, [attendeeId]: true }))
     } catch (error) {
@@ -254,15 +269,31 @@ const OfflineFieldtrips = () => {
             Descargas disponibles
           </Text>
           {summaries.map((summary) => (
-            <List.Item
-              key={String(summary.fieldtripId)}
-              title={summary.fieldtripName}
-              description={`Descargado: ${summary.downloadedAt}`}
-              onPress={() => void handleSelect(summary.fieldtripId)}
-            />
+            <View key={String(summary.fieldtripId)} style={styles.summaryRow}>
+              <List.Item
+                style={styles.summaryItem}
+                title={summary.fieldtripName}
+                description={`Descargado: ${summary.downloadedAt}`}
+                onPress={() => void handleSelect(summary.fieldtripId)}
+              />
+              <IconButton
+                icon="delete-outline"
+                iconColor="#c0392b"
+                size={24}
+                onPress={() => setDeleteTarget(summary)}
+                accessibilityLabel={`Eliminar descarga de ${summary.fieldtripName}`}
+              />
+            </View>
           ))}
         </View>
       )}
+      <ConfirmationModal
+        visible={!!deleteTarget}
+        title="Eliminar descarga"
+        description={`¿Deseas eliminar "${deleteTarget?.fieldtripName ?? ''}" del almacenamiento del dispositivo? Esta acción no se puede deshacer.`}
+        close={() => setDeleteTarget(null)}
+        open={() => void handleDelete()}
+      />
     </Page>
   )
 }
@@ -298,6 +329,14 @@ const styles = StyleSheet.create({
   backButton: {
     alignSelf: 'flex-start',
     marginBottom: 16,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  summaryItem: {
+    flex: 1,
   },
 })
 

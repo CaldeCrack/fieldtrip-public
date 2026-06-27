@@ -240,6 +240,15 @@ export const deleteHealthLogQueueItem = async (id: number) => {
   await db.runAsync(`DELETE FROM ${HEALTH_LOG_QUEUE_TABLE} WHERE id = ?;`, [id])
 }
 
+export const deleteFieldtripOfflineData = async (fieldtripId: number) => {
+  const db = await getDatabase()
+  if (!db) {
+    return
+  }
+
+  await db.runAsync(`DELETE FROM ${TABLE_NAME} WHERE fieldtrip_id = ?;`, [fieldtripId])
+}
+
 export const isFieldtripOfflineSaved = async (fieldtripId: number): Promise<boolean> => {
   const db = await getDatabase()
   if (!db) {
