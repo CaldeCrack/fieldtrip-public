@@ -212,6 +212,20 @@ const OfflineFieldtrips = () => {
                                   : 'Sin datos'
                               }
                             />
+                            <List.Item
+                              title="Seguro Escolar"
+                              description={
+                                constant.preferredMedicalInstitution
+                                  ? 'Renuncia al Seguro Escolar'
+                                  : 'Usa el Seguro Escolar'
+                              }
+                            />
+                            {constant.preferredMedicalInstitution ? (
+                              <List.Item
+                                title="Institución médica preferida"
+                                description={constant.preferredMedicalInstitution}
+                              />
+                            ) : null}
                           </>
                         ) : (
                           <List.Item title="Datos generales no disponibles." />

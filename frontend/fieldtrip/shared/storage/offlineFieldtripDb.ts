@@ -22,6 +22,7 @@ export type OfflineHealthConstant = {
     name: string
     phone: string
   }
+  preferredMedicalInstitution: string | null
 }
 
 export type OfflineHealthItem = {

@@ -11,6 +11,7 @@ interface ConstantHealthDataResponse {
   medAllergies: string[]
   substanceAllergies: string[]
   emergencyContact: EmergencyContact
+  preferredMedicalInstitution: string | null
 }
 
 const getConstantHealthData = async (

@@ -18,6 +18,7 @@ interface ViewHealthChartResponse {
   medAllergies: string[]
   substanceAllergies: string[]
   emergencyContact: EmergencyContact
+  preferredMedicalInstitution: string | null
 }
 
 const viewHealthChart = async (body: ViewHealthChartRequest): Promise<ViewHealthChartResponse> => {

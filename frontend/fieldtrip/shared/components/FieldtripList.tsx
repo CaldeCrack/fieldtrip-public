@@ -5,6 +5,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Clipboard from 'expo-clipboard'
 import { jwtDecode } from 'jwt-decode'
+// @ts-ignore
+import { useIsFocused } from '@react-navigation/native'
 
 import { COLORS } from '@colors'
 import { useEffect, useState } from 'react'
@@ -49,6 +51,7 @@ type Props = {
 const FieldtripList = ({ data, setState }: Props) => {
   const router = useRouter()
   const { showSnackbar } = useGlobalSnackbar()
+  const isFocused = useIsFocused()
   const [userID, setUserID] = useState<number | undefined>(undefined)
   const [isTeacher, setIsTeacher] = useState<boolean>(false)
   const [isStudent, setIsStudent] = useState<boolean>(false)
@@ -65,7 +68,7 @@ const FieldtripList = ({ data, setState }: Props) => {
   }, [])
 
   useEffect(() => {
-    if (!isMobile || data.length === 0) return
+    if (!isMobile || data.length === 0 || !isFocused) return
     ;(async () => {
       try {
         const entries = await Promise.all(
@@ -88,7 +91,7 @@ const FieldtripList = ({ data, setState }: Props) => {
         console.warn('No se pudo leer el estado offline:', error)
       }
     })()
-  }, [data, isMobile])
+  }, [data, isMobile, isFocused])
 
   useEffect(() => {
     ;(async () => {

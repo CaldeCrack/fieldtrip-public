@@ -37,6 +37,7 @@ const HealthChart = () => {
       name: '',
       phone: '',
     },
+    preferredMedicalInstitution: null as string | null,
   })
   const [fieldtripChartData, setFieldtripChartData] = useState({
     inTreatmentFor: '',
@@ -109,6 +110,18 @@ const HealthChart = () => {
               {constantChartData.emergencyContact.name} ({constantChartData.emergencyContact.phone})
             </Text>
           </View>
+          <View style={styles.section}>
+            <Text variant="bodyLarge" style={styles.weight500}>
+              Seguro Escolar: {constantChartData.preferredMedicalInstitution ? 'Renuncia al Seguro Escolar' : 'Usa el Seguro Escolar'}
+            </Text>
+          </View>
+          {constantChartData.preferredMedicalInstitution ? (
+            <View style={styles.section}>
+              <Text variant="bodyLarge" style={styles.weight500}>
+                Institución médica preferida: {constantChartData.preferredMedicalInstitution}
+              </Text>
+            </View>
+          ) : null}
           <View style={styles.section}>
             <Text variant="bodyLarge" style={styles.weight500}>
               Es alérgico/a a los siguientes medicamentos:

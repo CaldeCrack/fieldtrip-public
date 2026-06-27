@@ -175,6 +175,11 @@ class FieldtripViewSet(viewsets.ModelViewSet):
         blood_type = owner.get_blood_type_display()
         full_name = f"{owner.names} {owner.surnames}"
 
+        preferred_institution = (
+            owner.preferred_medical_institution.name
+            if owner.preferred_medical_institution
+            else None
+        )
         data = {
             "fullName": full_name,
             "bloodType": blood_type,
@@ -183,7 +188,9 @@ class FieldtripViewSet(viewsets.ModelViewSet):
             "emergencyContact": {
                 "name": owner.emergency_contact,
                 "phone": owner.emergency_number,
-            }}
+            },
+            "preferredMedicalInstitution": preferred_institution,
+        }
         return Response(data, status=status.HTTP_201_CREATED)
 
 
@@ -203,6 +210,11 @@ class ConstantHealthDataAPIView(APIView):
         blood_type = owner.get_blood_type_display()
         full_name = f"{owner.names} {owner.surnames}"
 
+        preferred_institution = (
+            owner.preferred_medical_institution.name
+            if owner.preferred_medical_institution
+            else None
+        )
         data = {
             "fullName": full_name,
             "bloodType": blood_type,
@@ -211,7 +223,9 @@ class ConstantHealthDataAPIView(APIView):
             "emergencyContact": {
                 "name": owner.emergency_contact,
                 "phone": owner.emergency_number,
-            }}
+            },
+            "preferredMedicalInstitution": preferred_institution,
+        }
         return Response(data, status=status.HTTP_200_OK)
 
 
