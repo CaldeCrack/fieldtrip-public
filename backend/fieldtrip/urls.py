@@ -68,6 +68,7 @@ router.register(r"fieldtrip-attendee", FieldtripAttendeeViewSet)
 
 
 api_urlpatterns = [
+  path("test/reset/", test_reset, name="test-reset"),
   path("", include("apps.user.urls", namespace="user")),
   path("", include("apps.main.urls", namespace="main")),
   path("", include("apps.health.urls", namespace="health")),

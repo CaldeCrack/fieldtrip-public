@@ -179,16 +179,27 @@ WSGI_APPLICATION = 'fieldtrip.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+IS_TESTING = config('IS_TESTING', default=False, cast=bool) or config('ENV', default='') == 'test'
+
+DB_NAME = config('DB_NAME')
+if IS_TESTING:
+    DB_NAME = config('TEST_DB_NAME', default=f"{DB_NAME}_test")
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
+        'NAME': DB_NAME,
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default='5432'),
     }
 }
+
+if IS_TESTING:
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]
 
 
 # Password validation
