@@ -3,6 +3,8 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { Text, TextInput, MD3Colors } from 'react-native-paper'
 import { PaperSelect } from 'react-native-paper-select'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useRouter } from 'expo-router'
 import { ListItem } from 'react-native-paper-select/lib/typescript/interface/paperSelect.interface'
 
 import { ContainedButton, Page, SimpleInput } from '@components'
@@ -18,6 +20,7 @@ interface DietItem {
 const DIET_DETAILS_LABEL = '(detallar en el siguiente campo)'
 
 const PersonalInfo = () => {
+  const router = useRouter()
   const { showSnackbar } = useGlobalSnackbar()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -33,6 +36,17 @@ const PersonalInfo = () => {
 
   useEffect(() => {
     ;(async () => {
+      const token = await AsyncStorage.getItem('access_token')
+      if (!token) {
+        if (typeof window !== 'undefined') {
+          window.location.assign('/login')
+          return
+        }
+
+        router.replace('/login')
+        return
+      }
+
       setLoading(true)
       Promise.all([getDiets(), getPersonalInfo()])
         .then(([dietRes, personalInfoRes]) => {
@@ -68,7 +82,7 @@ const PersonalInfo = () => {
           setLoading(false)
         })
     })()
-  }, [showSnackbar])
+  }, [router, showSnackbar])
 
   const handleSave = async () => {
     if (!emergencyContact.trim() || !emergencyNumber.trim() || !diet.value.trim()) {

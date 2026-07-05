@@ -27,17 +27,25 @@ const Profile = () => {
   useEffect(() => {
     ;(async () => {
       const token = await AsyncStorage.getItem('access_token')
-      if (token) {
-        const jwt = jwtDecode<Payload>(token)
-        setIsStudent(jwt.custom_data.is_student)
-        const names = await AsyncStorage.getItem('names')
-        const surnames = await AsyncStorage.getItem('surnames')
-        const email = await AsyncStorage.getItem('email')
-        setFullName(`${names} ${surnames}`)
-        setEmail(email!)
+      if (!token) {
+        if (typeof window !== 'undefined') {
+          window.location.assign('/login')
+          return
+        }
+
+        router.replace('/login' as Href)
+        return
       }
+
+      const jwt = jwtDecode<Payload>(token)
+      setIsStudent(jwt.custom_data.is_student)
+      const names = await AsyncStorage.getItem('names')
+      const surnames = await AsyncStorage.getItem('surnames')
+      const email = await AsyncStorage.getItem('email')
+      setFullName(`${names} ${surnames}`)
+      setEmail(email!)
     })()
-  }, [])
+  }, [router])
 
   return (
     <Page style={styles.page} showTabs={true}>

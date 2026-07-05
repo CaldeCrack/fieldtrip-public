@@ -31,6 +31,16 @@ async function setupAndGoToProfile(request: any, page: any) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 test.describe('Profile page', () => {
+  test('redirects unauthenticated users to login from /profile', async ({ page }) => {
+    await page.goto('/profile', { waitUntil: 'networkidle' });
+    await expect(page).toHaveURL('/login', { timeout: 8_000 });
+  });
+
+  test('redirects unauthenticated users to login from /personal-info', async ({ page }) => {
+    await page.goto('/personal-info', { waitUntil: 'networkidle' });
+    await expect(page).toHaveURL('/login', { timeout: 8_000 });
+  });
+
   test('displays the user full name', async ({ request, page }) => {
     await setupAndGoToProfile(request, page);
     await expect(

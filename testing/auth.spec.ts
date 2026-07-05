@@ -74,6 +74,18 @@ test.describe('Login page', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+test.describe('Signup page', () => {
+  test('renders the signup form fields for a new user', async ({ page }) => {
+    await page.goto('/signup');
+
+    await expect(page.getByText('Fieldtrip')).toBeVisible();
+    await expect(page.getByLabel('Email *')).toBeVisible();
+    await expect(page.getByLabel('Contraseña *')).toBeVisible();
+    await expect(page.getByLabel('Nombres *')).toBeVisible();
+    await expect(page.getByText('Datos personales')).toBeVisible();
+  });
+});
+
 test.describe('Authenticated user redirect', () => {
   test('already-logged-in user visiting /login is redirected to home', async ({
     request,
