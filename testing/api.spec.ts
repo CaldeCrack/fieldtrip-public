@@ -171,3 +171,72 @@ test.describe('GET /api/user/substance-allergy/', () => {
     expect(data.length).toBeGreaterThan(0);
   });
 });
+
+// ─── User profile endpoints ────────────────────────────────────────────────
+test.describe('GET /api/personal-info/', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetDb(request);
+  });
+
+  test('returns the authenticated user personal-info payload', async ({ request }) => {
+    await createUser(request, { email: 'profile-api@test.com' });
+    const tokens = await loginApi(request, 'profile-api@test.com', 'Password123!');
+
+    const res = await request.get(`${BASE_URL}/api/personal-info/`, {
+      headers: { Authorization: `Bearer ${tokens.access}` },
+    });
+
+    expect(res.status()).toBe(200);
+    const data = await res.json();
+    expect(data).toHaveProperty('emergency_contact');
+    expect(data).toHaveProperty('emergency_number');
+    expect(data).toHaveProperty('diet_type');
+  });
+});
+
+test.describe('PATCH /api/personal-info/', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetDb(request);
+  });
+
+  test('updates the authenticated user personal info', async ({ request }) => {
+    await createUser(request, { email: 'profile-update@test.com' });
+    const tokens = await loginApi(request, 'profile-update@test.com', 'Password123!');
+
+    const res = await request.patch(`${BASE_URL}/api/personal-info/`, {
+      headers: { Authorization: `Bearer ${tokens.access}` },
+      data: {
+        emergency_contact: 'Nuevo contacto',
+        emergency_number: 987654321,
+        diet_type: 6,
+        diet_info: 'Sin detalles',
+      },
+    });
+
+    expect(res.status()).toBe(200);
+    const data = await res.json();
+    expect(data.emergency_contact).toBe('Nuevo contacto');
+    expect(data.emergency_number).toBe(987654321);
+    expect(data.diet_type).toBe(6);
+  });
+});
+
+test.describe('GET /api/user/med-allergy/', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetDb(request);
+  });
+
+  test('returns the seeded medication allergy list', async ({ request }) => {
+    await createUser(request, { email: 'med-allergy-check@test.com' });
+    const tokens = await loginApi(request, 'med-allergy-check@test.com', 'Password123!');
+
+    const res = await request.get(`${BASE_URL}/api/user/med-allergy/`, {
+      headers: { Authorization: `Bearer ${tokens.access}` },
+    });
+
+    expect(res.status()).toBe(200);
+    const data = await res.json();
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThan(0);
+  });
+});
