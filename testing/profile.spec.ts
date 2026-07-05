@@ -30,6 +30,20 @@ async function setupAndGoToProfile(request: any, page: any) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+test.describe('Not found fallback', () => {
+  test('shows the not-found message for an unknown route', async ({ page }) => {
+    await page.goto('/this-route-does-not-exist', { waitUntil: 'networkidle' });
+    await expect(page.getByText('La página que estás buscando no existe.')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByRole('button', { name: 'Volver al inicio' })).toBeVisible();
+  });
+
+  test('redirects /_sitemap to the not-found fallback', async ({ page }) => {
+    await page.goto('/_sitemap', { waitUntil: 'networkidle' });
+    await expect(page).toHaveURL('/+not-found', { timeout: 8_000 });
+    await expect(page.getByText('La página que estás buscando no existe.')).toBeVisible({ timeout: 8_000 });
+  });
+});
+
 test.describe('Profile page', () => {
   test('redirects unauthenticated users to login from /profile', async ({ page }) => {
     await page.goto('/profile', { waitUntil: 'networkidle' });
