@@ -240,3 +240,61 @@ test.describe('GET /api/user/med-allergy/', () => {
     expect(data.length).toBeGreaterThan(0);
   });
 });
+
+// ─── Fieldtrip signup ──────────────────────────────────────────────────────
+test.describe('POST /api/fieldtrip/signup/', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetDb(request);
+  });
+
+  test('rejects a fieldtrip signup without required identifiers', async ({ request }) => {
+    const student = await createUser(request, { email: 'fieldtrip-signup-invalid@test.com' });
+
+    const res = await request.post(`${BASE_URL}/api/fieldtrip/signup/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        checklist_status: [],
+        health_general: [],
+        health_specific: [],
+      },
+    });
+
+    expect(res.status()).toBe(400);
+    const data = await res.json();
+    expect(data).toHaveProperty('error');
+  });
+
+  test('returns 404 when the user id does not exist', async ({ request }) => {
+    const student = await createUser(request, { email: 'fieldtrip-signup-user-missing@test.com' });
+
+    const res = await request.post(`${BASE_URL}/api/fieldtrip/signup/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        user: 999999,
+        fieldtrip: 1,
+        checklist_status: [],
+        health_general: [],
+        health_specific: [],
+      },
+    });
+
+    expect(res.status()).toBe(404);
+  });
+
+  test('returns 404 when the fieldtrip id does not exist', async ({ request }) => {
+    const student = await createUser(request, { email: 'fieldtrip-signup-fieldtrip-missing@test.com' });
+
+    const res = await request.post(`${BASE_URL}/api/fieldtrip/signup/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        user: 1,
+        fieldtrip: 999999,
+        checklist_status: [],
+        health_general: [],
+        health_specific: [],
+      },
+    });
+
+    expect(res.status()).toBe(404);
+  });
+});
