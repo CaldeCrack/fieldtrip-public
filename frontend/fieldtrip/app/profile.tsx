@@ -15,6 +15,15 @@ const Profile = () => {
   const [email, setEmail] = useState('')
   const [isStudent, setIsStudent] = useState(false)
 
+  const handleEditPersonalInfo = () => {
+    if (typeof window !== 'undefined') {
+      window.location.assign('/personal-info')
+      return
+    }
+
+    router.push('/personal-info' as Href)
+  }
+
   useEffect(() => {
     ;(async () => {
       const token = await AsyncStorage.getItem('access_token')
@@ -35,6 +44,8 @@ const Profile = () => {
       <View style={styles.container}>
         <View style={{ alignItems: 'center' }}>
           <Avatar.Text
+            testID="profile-avatar"
+            accessibilityLabel={`Avatar ${fullName.length > 0 ? fullName[0].toLocaleUpperCase() : 'X'}`}
             labelStyle={{ fontWeight: 600 }}
             label={fullName.length > 0 ? fullName[0].toLocaleUpperCase() : 'X'}
             size={60}
@@ -57,7 +68,7 @@ const Profile = () => {
       <ContainedButton
         style={styles.btn}
         labelStyle={{ fontSize: 20, lineHeight: 24 }}
-        onPress={() => router.push('/personal-info' as Href)}
+        onPress={handleEditPersonalInfo}
       >
         Editar informacion personal
       </ContainedButton>

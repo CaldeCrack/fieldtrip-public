@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from drf_yasg import openapi
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from django.core.management import call_command
 
 class FrontendAppView(TemplateView):
     template_name = "index.html"
@@ -70,39 +71,8 @@ def test_reset(request):
         raise Http404("Not Found")
 
     try:
-        # Truncate every table except django_migrations (preserves schema) and
-        # reset all sequences. We disable FK checks temporarily so the order of
-        # truncation doesn't matter. This is more reliable than call_command('flush')
-        # which triggers post_migrate signals that can race on content-type creation.
-        from django.db import connection
-        from django.contrib.contenttypes.management import create_contenttypes
-        from django.contrib.auth.management import create_permissions
-        from django.apps import apps as django_apps
+        call_command('flush', interactive=False, verbosity=0)
 
-        with connection.cursor() as cursor:
-            cursor.execute("SET session_replication_role = 'replica'")
-            cursor.execute("""
-                SELECT tablename FROM pg_tables
-                WHERE schemaname = 'public'
-                  AND tablename <> 'django_migrations'
-            """)
-            tables = [row[0] for row in cursor.fetchall()]
-            if tables:
-                cursor.execute(
-                    'TRUNCATE TABLE {} RESTART IDENTITY'.format(
-                        ', '.join(f'"{t}"' for t in tables)
-                    )
-                )
-            cursor.execute("SET session_replication_role = 'origin'")
-
-        # Rebuild Django meta-tables (content types + permissions) so the ORM
-        # and admin work correctly after the wipe.
-        for app_config in django_apps.get_app_configs():
-            create_contenttypes(app_config, verbosity=0)
-        for app_config in django_apps.get_app_configs():
-            create_permissions(app_config, verbosity=0)
-
-        # Seed diet types (matches frontend PaperSelect options)
         for diet_name in [
             'Lacto-vegetariana', 'Ovo-vegetariana', 'Lacto-ovo-vegetariana',
             'Pescetariana', 'Vegana', 'Omnívora',
@@ -111,7 +81,6 @@ def test_reset(request):
         ]:
             Diet.objects.get_or_create(type=diet_name)
 
-        # Seed allergies – category 1=Sustancias, 2=Medicamentos
         for allergy_name, category in [
             ('Ninguna alergia a sustancias', 1), ('Polen', 1), ('Polvo', 1), ('Látex', 1),
             ('Ninguna alergia a medicamentos', 2), ('Penicilina', 2), ('Ibuprofeno', 2),

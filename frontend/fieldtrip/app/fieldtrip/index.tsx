@@ -801,7 +801,7 @@ const Fieldtrip = () => {
         ) : (
           <>
             <View style={styles.requestActionRow}>
-              <ContainedButton onPress={openRequestModal}>Solicitar equipamiento</ContainedButton>
+              <ContainedButton onPress={openRequestModal}>Editar equipamiento</ContainedButton>
             </View>
             <EquipmentList
               equipmentRequests={equipmentRequests}

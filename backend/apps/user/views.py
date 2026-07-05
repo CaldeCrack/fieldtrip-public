@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
@@ -40,11 +42,37 @@ class UserRegistrationAPIView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        med_allergies_data = request.data["med_allergies"]
-        substance_allergies_data = request.data["substance_allergies"]
-        allergies = []
-        for item in med_allergies_data + substance_allergies_data:
-            allergies.append(Allergy.objects.get(pk=item["_id"]))
+
+        def parse_allergies(raw_value):
+            if not raw_value:
+                return []
+            if isinstance(raw_value, str):
+                try:
+                    raw_value = json.loads(raw_value)
+                except json.JSONDecodeError:
+                    return []
+            if isinstance(raw_value, dict):
+                raw_value = [raw_value]
+            if not isinstance(raw_value, list):
+                return []
+
+            allergies = []
+            for item in raw_value:
+                if isinstance(item, dict):
+                    item_id = item.get("_id") or item.get("id")
+                else:
+                    item_id = item
+                if item_id is None:
+                    continue
+                try:
+                    allergies.append(Allergy.objects.get(pk=item_id))
+                except Allergy.DoesNotExist:
+                    continue
+            return allergies
+
+        med_allergies_data = parse_allergies(request.data.get("med_allergies", []))
+        substance_allergies_data = parse_allergies(request.data.get("substance_allergies", []))
+        allergies = med_allergies_data + substance_allergies_data
         user.allergies.set(allergies)
         user.save()
         serializer = serializers.BasicUserSerializer(user)
@@ -177,9 +205,10 @@ class UserLogoutAPIView(GenericAPIView):
         try:
             refresh_token = request.data["refresh"]
             token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except (KeyError, TokenError):
+            if hasattr(token, "blacklist"):
+                token.blacklist()
+            return Response(status=status.HTTP_200_OK)
+        except (KeyError, TokenError, AttributeError, TypeError, ValueError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

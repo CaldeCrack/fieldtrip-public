@@ -81,6 +81,19 @@ const StackLayout = () => {
   }, [pathname])
 
   useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') {
+      return
+    }
+
+    const url = new URL(window.location.href)
+    if (url.searchParams.has('__EXPO_ROUTER_key')) {
+      url.searchParams.delete('__EXPO_ROUTER_key')
+      const cleanPath = `${url.pathname}${url.search}${url.hash}`
+      window.history.replaceState({}, '', cleanPath)
+    }
+  }, [pathname])
+
+  useEffect(() => {
     if (!isLoggedIn) {
       return
     }

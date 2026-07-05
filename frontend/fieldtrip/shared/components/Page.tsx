@@ -44,7 +44,7 @@ const Page = ({ children, style, showTabs = false }: Props) => {
         <View style={[styles.container, style]}>{children}</View>
       </ScrollView>
       {showTabs && (
-        <View style={styles.tabsBar}>
+        <View style={styles.tabsBar} accessible accessibilityRole="navigation" accessibilityLabel="Navegación principal">
           <View style={styles.tab}>
             <TextInput.Icon
               icon={() => <Icon name={'home'} size={32} onPress={() => router.replace('/')} />}

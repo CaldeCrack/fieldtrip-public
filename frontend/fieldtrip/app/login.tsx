@@ -46,6 +46,10 @@ const Login = () => {
             await AsyncStorage.setItem('names', res.names)
             await AsyncStorage.setItem('surnames', res.surnames)
             await AsyncStorage.setItem('email', email)
+            if (Platform.OS === 'web' && typeof window !== 'undefined') {
+              window.location.assign('/')
+              return
+            }
             router.push('/')
           } else {
             setLoginFailed(true)

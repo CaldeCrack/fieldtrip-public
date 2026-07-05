@@ -69,9 +69,8 @@ test.describe('Profile page', () => {
 
   test('avatar shows the first letter of the name', async ({ request, page }) => {
     await setupAndGoToProfile(request, page);
-    // Avatar.Text renders a text node with the label character
-    await expect(page.getByText(USER.names[0].toUpperCase())).toBeVisible({
-      timeout: 8_000,
-    });
+    const avatar = page.getByTestId('profile-avatar');
+    await expect(avatar).toBeVisible({ timeout: 8_000 });
+    await expect(avatar).toContainText(USER.names[0].toUpperCase());
   });
 });
