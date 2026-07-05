@@ -11,9 +11,15 @@ interface Disease {
   count: number
 }
 
+interface Diet {
+  name: string
+  count: number
+}
+
 interface FieldtripMetrics {
   diseases?: Disease[]
   allergies?: Allergy[]
+  diets?: Diet[]
 }
 
 const getFieldtripMetrics = async (id: number | null): Promise<FieldtripMetrics> => {

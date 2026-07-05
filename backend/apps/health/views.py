@@ -15,7 +15,7 @@ from .models import *
 from .serializers import *
 from .helpers import *
 from apps.main.models import MUTUALLY_EXCLUSIVE_CHECKLIST_ITEMS
-from apps.user.models import MedicalInstitution
+from apps.user.models import MedicalInstitution, Diet
 from apps.utils.custom_permissions import IsTeacher, IsStudent, IsAuxiliar
 from apps.equipment.models import EquipmentRequest
 
@@ -260,6 +260,17 @@ class FieldtripMetricsAPIView(APIView):
                         ),
                         description="Lista de alergias y su conteo",
                     ),
+                    "diets": openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        items=openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                "name": openapi.Schema(type=openapi.TYPE_STRING, description="Nombre de la dieta"),
+                                "count": openapi.Schema(type=openapi.TYPE_INTEGER, description="Cantidad de estudiantes con la dieta"),
+                            },
+                        ),
+                        description="Lista de dietas y su conteo",
+                    ),
                 },
             )
         },
@@ -292,8 +303,20 @@ class FieldtripMetricsAPIView(APIView):
                 allergy_type = allergy.type
                 allergy_counts[allergy_type] = allergy_counts.get(allergy_type, 0) + 1
 
+        # Dietas
+        diets = Diet.objects.all()
+        diet_counts = {diet.type: 0 for diet in diets}
+        for attendee in attendees:
+            if attendee.user.diet_type:
+                diet_name = attendee.user.diet_type.type
+                if diet_name in diet_counts:
+                    diet_counts[diet_name] += 1
+                else:
+                    diet_counts[diet_name] = 1
+
         diseases_list = [{"name": name, "count": count} for name, count in disease_counts.items()]
         allergies_list = [{"name": name, "count": count} for name, count in allergy_counts.items()]
+        diets_list = [{"name": name, "count": count} for name, count in diet_counts.items()]
 
         if len(diseases_list) < 2:
             diseases_list = []
@@ -301,6 +324,7 @@ class FieldtripMetricsAPIView(APIView):
         data = {
             "diseases": diseases_list,
             "allergies": allergies_list,
+            "diets": diets_list,
         }
         return Response(data, status=status.HTTP_200_OK)
 

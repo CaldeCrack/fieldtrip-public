@@ -38,12 +38,21 @@ interface Disease {
   count: number
 }
 
+interface Diet {
+  name: string
+  count: number
+}
+
 interface chartData {
   diseases: {
     labels: string[]
     datasets: [{ data: number[] }]
   }
   allergies: {
+    labels: string[]
+    datasets: [{ data: number[] }]
+  }
+  diets: {
     labels: string[]
     datasets: [{ data: number[] }]
   }
@@ -116,6 +125,14 @@ const Fieldtrip = () => {
         },
       ],
     },
+    diets: {
+      labels: [],
+      datasets: [
+        {
+          data: [],
+        },
+      ],
+    },
   })
   const chartConfig = {
     backgroundGradientFrom: '#fafafa',
@@ -147,6 +164,7 @@ const Fieldtrip = () => {
   const buildExportRows = (): ExportRow[] => {
     const diseaseCounts = chartData.diseases.datasets[0]?.data || []
     const allergyCounts = chartData.allergies.datasets[0]?.data || []
+    const dietCounts = chartData.diets.datasets[0]?.data || []
 
     const diseaseRows = chartData.diseases.labels.map((name, index) => ({
       category: 'Enfermedades',
@@ -158,8 +176,13 @@ const Fieldtrip = () => {
       name,
       count: allergyCounts[index] || 0,
     }))
+    const dietRows = chartData.diets.labels.map((name, index) => ({
+      category: 'Dietas',
+      name,
+      count: dietCounts[index] || 0,
+    }))
 
-    return [...diseaseRows, ...allergyRows]
+    return [...diseaseRows, ...allergyRows, ...dietRows]
   }
 
   const filterMetricData = (labels: string[], counts: number[]) => {
@@ -392,9 +415,12 @@ const Fieldtrip = () => {
                 const diseaseCounts = res.diseases?.map((d: Disease) => d.count) || []
                 const allergies = res.allergies?.map((a: Allergy) => a.name) || []
                 const allergyCounts = res.allergies?.map((a: Allergy) => a.count) || []
+                const diets = res.diets?.map((d: Diet) => d.name) || []
+                const dietCounts = res.diets?.map((d: Diet) => d.count) || []
 
                 const filteredDiseases = filterMetricData(diseases, diseaseCounts)
                 const filteredAllergies = filterMetricData(allergies, allergyCounts)
+                const filteredDiets = filterMetricData(diets, dietCounts)
 
                 setChartData({
                   diseases: {
@@ -404,6 +430,10 @@ const Fieldtrip = () => {
                   allergies: {
                     labels: filteredAllergies.labels,
                     datasets: [{ data: filteredAllergies.counts }],
+                  },
+                  diets: {
+                    labels: filteredDiets.labels,
+                    datasets: [{ data: filteredDiets.counts }],
                   },
                 })
               }
@@ -673,11 +703,12 @@ const Fieldtrip = () => {
                   fromZero={true}
                   data={chartData.diseases}
                   showValuesOnTopOfBars={true}
-                  height={250}
+                  height={380}
                   width={chartRenderWidth}
                   chartConfig={chartConfig}
+                  style={styles.chart}
                   withHorizontalLabels={false}
-                  verticalLabelRotation={0}
+                  verticalLabelRotation={30}
                   xLabelsOffset={0}
                   yAxisLabel=""
                   yAxisSuffix=""
@@ -705,11 +736,12 @@ const Fieldtrip = () => {
                   fromZero={true}
                   data={chartData.allergies || { labels: [], datasets: [{ data: [] }] }}
                   showValuesOnTopOfBars={true}
-                  height={250}
+                  height={380}
                   width={chartRenderWidth}
                   chartConfig={chartConfig}
+                  style={styles.chart}
                   withHorizontalLabels={false}
-                  verticalLabelRotation={0}
+                  verticalLabelRotation={30}
                   xLabelsOffset={0}
                   yAxisLabel=""
                   yAxisSuffix=""
@@ -717,6 +749,39 @@ const Fieldtrip = () => {
               </View>
             ) : (
               <BulletList data={chartData.allergies?.labels || []} />
+            )
+          ) : (
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>
+                No se han registrado suficientes estudiantes para mostrar esta información.
+              </Text>
+            </View>
+          )}
+
+          {/* Dietas */}
+          <Text variant="titleMedium" style={{ fontWeight: 600, marginTop: 16 }}>
+            Dietas
+          </Text>
+          {chartData.diets && chartData.diets.labels.length > 0 ? (
+            Platform.OS === 'web' ? (
+              <View style={styles.chartWrapper}>
+                <BarChart
+                  fromZero={true}
+                  data={chartData.diets}
+                  showValuesOnTopOfBars={true}
+                  height={380}
+                  width={chartRenderWidth}
+                  chartConfig={chartConfig}
+                  style={styles.chart}
+                  withHorizontalLabels={false}
+                  verticalLabelRotation={30}
+                  xLabelsOffset={0}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                />
+              </View>
+            ) : (
+              <BulletList data={chartData.diets.labels} />
             )
           ) : (
             <View style={styles.emptyStateContainer}>
@@ -815,6 +880,10 @@ const styles = StyleSheet.create({
   chartWrapper: {
     width: '100%',
     alignItems: 'center',
+  },
+  chart: {
+    paddingBottom: 100,
+    paddingRight: 60,
   },
   exportBtn: {
     marginBottom: 0,
