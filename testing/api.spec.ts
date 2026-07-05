@@ -241,6 +241,114 @@ test.describe('GET /api/user/med-allergy/', () => {
   });
 });
 
+// ─── Fieldtrip attendee registration ───────────────────────────────────────
+test.describe('POST /api/fieldtrip-attendee/', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetDb(request);
+  });
+
+  test('registers a student for a fieldtrip with a valid invitation code', async ({ request }) => {
+    const teacher = await createUser(request, {
+      email: 'attendee-teacher@test.com',
+      role: 'teacher',
+    });
+    const student = await createUser(request, {
+      email: 'attendee-student@test.com',
+      role: 'student',
+    });
+
+    const fieldtripRes = await request.post(`${BASE_URL}/api/fieldtrip/`, {
+      headers: { Authorization: `Bearer ${teacher.access}` },
+      data: {
+        name: 'Salida para asistentes',
+        start_date: '2026-08-01',
+        end_date: '2026-08-03',
+        teacher_id: 1,
+        course_id: 1,
+        sector: 'Norte',
+        equipment: [],
+        active: true,
+      },
+    });
+
+    expect(fieldtripRes.status()).toBe(201);
+    const fieldtrip = await fieldtripRes.json();
+
+    const res = await request.post(`${BASE_URL}/api/fieldtrip-attendee/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        user: 2,
+        invitation_code: fieldtrip.invitation_code,
+      },
+    });
+
+    expect(res.status()).toBe(201);
+    const data = await res.json();
+    expect(data).toHaveProperty('id');
+    expect(data).toHaveProperty('title');
+  });
+
+  test('rejects duplicate registration for the same fieldtrip', async ({ request }) => {
+    const teacher = await createUser(request, {
+      email: 'attendee-dup-teacher@test.com',
+      role: 'teacher',
+    });
+    const student = await createUser(request, {
+      email: 'attendee-dup-student@test.com',
+      role: 'student',
+    });
+
+    const fieldtripRes = await request.post(`${BASE_URL}/api/fieldtrip/`, {
+      headers: { Authorization: `Bearer ${teacher.access}` },
+      data: {
+        name: 'Salida duplicada',
+        start_date: '2026-08-02',
+        end_date: '2026-08-04',
+        teacher_id: 1,
+        course_id: 1,
+        sector: 'Sur',
+        equipment: [],
+        active: true,
+      },
+    });
+    const fieldtrip = await fieldtripRes.json();
+
+    await request.post(`${BASE_URL}/api/fieldtrip-attendee/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        user: 2,
+        invitation_code: fieldtrip.invitation_code,
+      },
+    });
+
+    const res = await request.post(`${BASE_URL}/api/fieldtrip-attendee/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        user: 2,
+        invitation_code: fieldtrip.invitation_code,
+      },
+    });
+
+    expect(res.status()).toBe(409);
+  });
+
+  test('rejects registration without an invitation code', async ({ request }) => {
+    const student = await createUser(request, {
+      email: 'attendee-no-code@test.com',
+      role: 'student',
+    });
+
+    const res = await request.post(`${BASE_URL}/api/fieldtrip-attendee/`, {
+      headers: { Authorization: `Bearer ${student.access}` },
+      data: {
+        user: 2,
+      },
+    });
+
+    expect(res.status()).toBe(400);
+  });
+});
+
 // ─── Fieldtrip signup ──────────────────────────────────────────────────────
 test.describe('POST /api/fieldtrip/signup/', () => {
   test.beforeEach(async ({ request }) => {
