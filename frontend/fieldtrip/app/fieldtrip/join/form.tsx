@@ -63,6 +63,7 @@ const JoinFieldtrip = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [signingUp, setSigningUp] = useState<boolean>(false)
   const [signedUp, setSignedUp] = useState(false)
+  const [isAuxiliar, setIsAuxiliar] = useState<boolean>(false)
 
   const _getVisible = (name: string) => !!visible[name]
 
@@ -340,6 +341,7 @@ const JoinFieldtrip = () => {
         if (signupStatus.medical_institution) {
           setMedicalInstitution(signupStatus.medical_institution)
         }
+        setIsAuxiliar(signupStatus.is_auxiliar || false)
 
         const pastList: SelectOption[] =
           pastDiseasesRes?.map((item: ChecklistItem) => ({
@@ -445,6 +447,22 @@ const JoinFieldtrip = () => {
               >
                 Salud
               </ContainedButton>
+              {isAuxiliar && (
+                <ContainedButton
+                  style={[
+                    styles.btnMarginRight,
+                    styles.btnMarginBottom,
+                    {
+                      backgroundColor: COLORS.gray_100,
+                    },
+                  ]}
+                  onPress={() => {
+                    router.push('/fieldtrip')
+                  }}
+                >
+                  Auxiliar
+                </ContainedButton>
+              )}
             </View>
           </ScrollView>
           <View style={styles.body}>

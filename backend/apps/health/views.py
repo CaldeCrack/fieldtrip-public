@@ -646,6 +646,7 @@ class FieldtripSignUpStatusAPIView(APIView):
             return Response(
                 {
                     "signup_complete": False,
+                    "is_auxiliar": False,
                     "selected_checklist_item_id": selected_checklist_item_id,
                     "medical_institution": medical_institution,
                 },
@@ -656,6 +657,7 @@ class FieldtripSignUpStatusAPIView(APIView):
             return Response(
                 {
                     "signup_complete": False,
+                    "is_auxiliar": attendee.is_auxiliar,
                     "selected_checklist_item_id": selected_checklist_item_id,
                     "medical_institution": medical_institution,
                 },
@@ -665,6 +667,7 @@ class FieldtripSignUpStatusAPIView(APIView):
         return Response(
             {
                 "signup_complete": True,
+                "is_auxiliar": attendee.is_auxiliar,
                 "selected_checklist_item_id": selected_checklist_item_id,
                 "medical_institution": medical_institution,
             },

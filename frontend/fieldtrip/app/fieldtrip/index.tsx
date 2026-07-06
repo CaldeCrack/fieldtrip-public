@@ -21,6 +21,7 @@ import {
   getFieldtripEquipmentOptions,
   createFieldtripEquipmentRequests,
   updateFieldtripEquipmentRequest,
+  getFieldtripSignUpStatus,
 } from '@services'
 import { FieldtriptContext, HealthChartContext } from '../../shared/context/FieldtripContext'
 import { COLORS } from '@colors'
@@ -82,6 +83,7 @@ const Fieldtrip = () => {
   const [showEquipment, setShowEquipment] = useState(false)
   const [showRequests, setShowRequests] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
+  const [isAuxiliar, setIsAuxiliar] = useState(false)
   const [students, setStudents] = useState<StudentAttendee[]>([])
   const [equipmentRequests, setEquipmentRequests] = useState<EquipmentRequestItem[]>([])
   const [offlineEquipmentByUser, setOfflineEquipmentByUser] = useState<
@@ -338,9 +340,11 @@ const Fieldtrip = () => {
         router.replace('/login')
         return
       }
+      let isStudentUser = false
       let isInventoryManagerUser = false
       try {
         const jwt = jwtDecode<Payload>(token)
+        isStudentUser = jwt.custom_data.is_student
         isInventoryManagerUser = jwt.custom_data.role === 'inventory_manager'
       } catch (error) {
         console.warn('No se pudo leer el token para la salida a campo:', error)
@@ -377,6 +381,16 @@ const Fieldtrip = () => {
       setShowRequests(isInventoryManagerUser)
       setUsingOfflineData(false)
       setOfflineEquipmentByUser({})
+      setIsAuxiliar(false)
+
+      if (isStudentUser) {
+        try {
+          const signupStatus = await getFieldtripSignUpStatus(FState.fieldtripID)
+          setIsAuxiliar(signupStatus.is_auxiliar)
+        } catch (error) {
+          console.warn('No se pudo obtener el estado de auxiliar:', error)
+        }
+      }
 
       let offlineData = null as Awaited<ReturnType<typeof getFieldtripOfflineData>>
       let usedOffline = false
@@ -654,6 +668,22 @@ const Fieldtrip = () => {
               >
                 Métricas
               </ContainedButton>
+              {isAuxiliar && (
+                <ContainedButton
+                  style={[
+                    styles.btnMarginRight,
+                    styles.btnMarginBottom,
+                    {
+                      backgroundColor: COLORS.gray_100,
+                    },
+                  ]}
+                  onPress={() => {
+                    router.push('/fieldtrip/join/form')
+                  }}
+                >
+                  Salud
+                </ContainedButton>
+              )}
             </View>
           </ScrollView>
           {loading ? (
