@@ -19,7 +19,7 @@ export const GlobalSnackbarProvider = ({ children }: Props) => {
   const [visible, setVisible] = useState(false)
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
-  const [duration, setDuration] = useState(3000)
+  const [duration, setDuration] = useState(6000)
 
   const isWideScreen = width >= 900
   const snackbarWidth = isWideScreen ? width * 0.5 : Math.min(width - 24, 600)
@@ -28,7 +28,7 @@ export const GlobalSnackbarProvider = ({ children }: Props) => {
   const showSnackbar = (nextMessage: string, options?: SnackbarOptions) => {
     setMessage(nextMessage)
     setIsError(!!options?.isError)
-    setDuration(options?.duration ?? 3000)
+    setDuration(options?.duration ?? 6000)
     setVisible(true)
   }
 
