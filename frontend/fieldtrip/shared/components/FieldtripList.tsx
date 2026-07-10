@@ -59,6 +59,9 @@ const FieldtripList = ({ data, setState }: Props) => {
   const [fieldtripStatuses, setFieldtripStatuses] = useState<Record<number, FieldtripStatus>>({})
   const [downloading, setDownloading] = useState<Record<number, boolean>>({})
   const [offlineSaved, setOfflineSaved] = useState<Record<number, boolean>>({})
+  const [fieldtripPendingRequests, setFieldtripPendingRequests] = useState<Record<number, boolean>>(
+    {},
+  )
   const isMobile = Platform.OS !== 'web'
 
   useEffect(() => {
@@ -136,6 +139,26 @@ const FieldtripList = ({ data, setState }: Props) => {
       }
     })()
   }, [data, userID, isStudent])
+
+  useEffect(() => {
+    if (!isInventoryManager || data.length === 0) return
+    ;(async () => {
+      try {
+        const pendingMap: Record<number, boolean> = {}
+        for (const fieldtrip of data) {
+          try {
+            const requests = await getFieldtripEquipmentRequests(fieldtrip.id)
+            pendingMap[fieldtrip.id] = requests.some((r) => r.status === 'pending')
+          } catch {
+            pendingMap[fieldtrip.id] = false
+          }
+        }
+        setFieldtripPendingRequests(pendingMap)
+      } catch (err) {
+        console.error('Error fetching equipment request statuses:', err)
+      }
+    })()
+  }, [data, isInventoryManager])
 
   const copyToClipboard = async (invitationCode?: string) => {
     if (!invitationCode) return
@@ -239,6 +262,14 @@ const FieldtripList = ({ data, setState }: Props) => {
     <View style={styles.view}>
       {[...data]
         .sort((a, b) => {
+          // Inventory manager: pending-request fieldtrips first
+          if (isInventoryManager) {
+            const aPending = !!fieldtripPendingRequests[a.id]
+            const bPending = !!fieldtripPendingRequests[b.id]
+            if (aPending && !bPending) return -1
+            if (!aPending && bPending) return 1
+          }
+          // Student: auxiliar fieldtrips first
           const aAux = !!fieldtripStatuses[a.id]?.isAuxiliar
           const bAux = !!fieldtripStatuses[b.id]?.isAuxiliar
           if (aAux && !bAux) return -1
@@ -333,6 +364,30 @@ const FieldtripList = ({ data, setState }: Props) => {
                     style={styles.cornerIcon}
                     onPress={() => showSnackbar('Estás inscrito/a en esta salida a campo.')}
                     iconColor={COLORS.success_500 || 'green'}
+                  />
+                )}
+                {/* Inventory Manager – Pending Requests Indicator */}
+                {isInventoryManager && (
+                  <IconButton
+                    icon={
+                      fieldtripPendingRequests[item.id]
+                        ? 'alert-circle-outline'
+                        : 'check-circle-outline'
+                    }
+                    size={20}
+                    style={styles.cornerIcon}
+                    onPress={() =>
+                      showSnackbar(
+                        fieldtripPendingRequests[item.id]
+                          ? 'Esta salida tiene solicitudes de equipamiento pendientes de revisión.'
+                          : 'No hay solicitudes de equipamiento pendientes en esta salida.',
+                      )
+                    }
+                    iconColor={
+                      fieldtripPendingRequests[item.id]
+                        ? COLORS.error_500 || 'orange'
+                        : COLORS.success_500 || 'green'
+                    }
                   />
                 )}
                 <Text variant="titleLarge" style={{ fontWeight: 500 }}>
