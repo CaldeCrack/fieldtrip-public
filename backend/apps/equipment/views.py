@@ -9,7 +9,7 @@ from django.db.models import Sum
 
 from .models import EducationalInstitutionEquipment, Equipment, EquipmentRequest, UserEquipment
 from apps.utils.custom_permissions import IsTeacher, IsAuxiliar, IsInventoryManager
-from apps.main.models import Course, Fieldtrip, EducationalInstitution
+from apps.main.models import Course, Fieldtrip, EducationalInstitution, FieldtripAttendee
 
 
 class FieldtripEquipmentAPIView(APIView):
@@ -700,7 +700,7 @@ class FieldtripUserEquipmentAPIView(APIView):
 		return Response({"equipment": payload}, status=status.HTTP_200_OK)
 
 	@swagger_auto_schema(
-		operation_description="Asignar equipamiento de la salida a campo a un líder de grupo.",
+		operation_description="Asignar equipamiento de la salida a campo a un líder de grupo o auxiliar.",
 		request_body=openapi.Schema(
 			type=openapi.TYPE_OBJECT,
 			properties={
@@ -743,6 +743,16 @@ class FieldtripUserEquipmentAPIView(APIView):
 		if not isinstance(equipment, list) or len(equipment) == 0:
 			return Response(
 				{"detail": "Debe proporcionar una lista de equipamiento."},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
+
+		attendee = FieldtripAttendee.objects.filter(
+			fieldtrip_id=id,
+			user_id=user_id,
+		).first()
+		if not attendee or not (attendee.is_group_leader or attendee.is_auxiliar):
+			return Response(
+				{"detail": "El usuario debe ser líder de grupo o auxiliar."},
 				status=status.HTTP_400_BAD_REQUEST,
 			)
 

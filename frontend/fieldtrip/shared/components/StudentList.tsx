@@ -45,6 +45,7 @@ const StudentList = ({ data, setState }: Props) => {
   const [equipmentModalFor, setEquipmentModalFor] = useState<number | null>(null)
   const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([])
   const [equipmentLoading, setEquipmentLoading] = useState(false)
+  const [isAuxiliar, setIsAuxiliar] = useState(false)
   const [equipmentSelections, setEquipmentSelections] = useState<
     Record<number, { id: number; quantity: number }[]>
   >({})
@@ -85,6 +86,7 @@ const StudentList = ({ data, setState }: Props) => {
 
       try {
         const status = await getSignupStatus(jwt.user_id, currentFieldtripID)
+        setIsAuxiliar(!!status.is_auxiliar)
         if (!status.is_auxiliar) {
           router.replace('/')
         }
@@ -176,20 +178,22 @@ const StudentList = ({ data, setState }: Props) => {
                     )}
                   />
                 )}
-                {isTeacher && item.isGroupLeader && (
+                {isTeacher && (item.isGroupLeader || item.isAuxiliar) && (
                   <List.Item
                     onPress={async () => {
                       const fieldtripID = item.fieldtripID || null
                       setEquipmentModalFor(item.id)
                       try {
                         setEquipmentLoading(true)
-                        const leaders = data.filter((leader) => leader.isGroupLeader)
+                        const equipmentManagers = data.filter(
+                          (student) => student.isGroupLeader || student.isAuxiliar,
+                        )
                         const [requestsRes, leaderAssignments] = await Promise.all([
                           getFieldtripEquipmentRequests(fieldtripID),
                           Promise.all(
-                            leaders.map(async (leader) => ({
-                              leaderId: leader.id,
-                              equipment: await getFieldtripUserEquipment(fieldtripID, leader.id),
+                            equipmentManagers.map(async (manager) => ({
+                              leaderId: manager.id,
+                              equipment: await getFieldtripUserEquipment(fieldtripID, manager.id),
                             })),
                           ),
                         ])
