@@ -55,13 +55,13 @@ const EquipmentList = ({
   const approvedRequests = equipmentRequests.filter(
     (request) => request.status === 'approved' && request.quantity > 0,
   )
-  const leaders = useMemo(
-    () => groupLeaders.filter((leader) => leader.isGroupLeader),
+  const participants = useMemo(
+    () => groupLeaders.filter((participant) => participant.isGroupLeader || participant.isAuxiliar),
     [groupLeaders],
   )
   const [expanded, setExpanded] = useState<Record<number, boolean>>({})
   const [assignments, setAssignments] = useState<
-    Record<number, { id: number; name: string; quantity: number }[]>
+    Record<number, { id: number; name: string; role: string; quantity: number }[]>
   >({})
   const [assignmentLoading, setAssignmentLoading] = useState<Record<number, boolean>>({})
   const [assignmentError, setAssignmentError] = useState<Record<number, boolean>>({})
@@ -77,29 +77,30 @@ const EquipmentList = ({
       return
     }
 
-    if (!fieldtripId || leaders.length === 0 || assignments[equipmentId]) {
+    if (!fieldtripId || participants.length === 0 || assignments[equipmentId]) {
       return
     }
 
     if (hasOfflineAssignments) {
-      const leaderAssignments = leaders
-        .map((leader) => {
-          const equipment = offlineEquipmentByUser?.[leader.id] || []
+      const participantAssignments = participants
+        .map((participant) => {
+          const equipment = offlineEquipmentByUser?.[participant.id] || []
           const match = equipment.find((item) => item.id === equipmentId)
           if (!match) {
             return null
           }
           return {
-            id: leader.id,
-            name: leader.name,
+            id: participant.id,
+            name: participant.name,
+            role: participant.isAuxiliar ? 'Auxiliar' : 'Líder de grupo',
             quantity: match.quantity,
           }
         })
-        .filter(Boolean) as { id: number; name: string; quantity: number }[]
+        .filter(Boolean) as { id: number; name: string; role: string; quantity: number }[]
 
       setAssignments((prev) => ({
         ...prev,
-        [equipmentId]: leaderAssignments,
+        [equipmentId]: participantAssignments,
       }))
       return
     }
@@ -107,16 +108,17 @@ const EquipmentList = ({
     setAssignmentLoading((prev) => ({ ...prev, [equipmentId]: true }))
     setAssignmentError((prev) => ({ ...prev, [equipmentId]: false }))
     try {
-      const leaderAssignments = await Promise.all(
-        leaders.map(async (leader) => {
-          const equipment = await getFieldtripUserEquipment(fieldtripId, leader.id)
+      const participantAssignments = await Promise.all(
+        participants.map(async (participant) => {
+          const equipment = await getFieldtripUserEquipment(fieldtripId, participant.id)
           const match = equipment.find((item) => item.id === equipmentId)
           if (!match) {
             return null
           }
           return {
-            id: leader.id,
-            name: leader.name,
+            id: participant.id,
+            name: participant.name,
+            role: participant.isAuxiliar ? 'Auxiliar' : 'Líder de grupo',
             quantity: match.quantity,
           }
         }),
@@ -124,14 +126,15 @@ const EquipmentList = ({
 
       setAssignments((prev) => ({
         ...prev,
-        [equipmentId]: leaderAssignments.filter(Boolean) as {
+        [equipmentId]: participantAssignments.filter(Boolean) as {
           id: number
           name: string
+          role: string
           quantity: number
         }[],
       }))
     } catch (error) {
-      console.error('Error loading leader assignments:', error)
+      console.error('Error loading participant assignments:', error)
       setAssignmentError((prev) => ({ ...prev, [equipmentId]: true }))
     } finally {
       setAssignmentLoading((prev) => ({ ...prev, [equipmentId]: false }))
@@ -196,11 +199,12 @@ const EquipmentList = ({
                 ) : (assignments[request.id] || []).length === 0 ? (
                   <List.Item title="Sin asignaciones para líderes de grupo." />
                 ) : (
-                  (assignments[request.id] || []).map((leader) => (
+                  (assignments[request.id] || []).map((participant) => (
                     <List.Item
-                      key={String(leader.id)}
-                      title={leader.name}
-                      right={() => <Text style={styles.quantity}>x{leader.quantity}</Text>}
+                      key={String(participant.id)}
+                      title={participant.name}
+                      description={participant.role}
+                      right={() => <Text style={styles.quantity}>x{participant.quantity}</Text>}
                     />
                   ))
                 )}
